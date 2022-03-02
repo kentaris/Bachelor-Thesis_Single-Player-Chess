@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '../')
+sys.path.insert(1, '../First attempt')
 #import valid_moves as VMG
 import FEN
 import population_generator as PG

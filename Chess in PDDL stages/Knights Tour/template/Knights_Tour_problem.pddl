@@ -1,3 +1,4 @@
+;credit: As defined in the book 'An Introduction to the Planning Domain Deﬁnition Language' (Patrik Haslum)
 (define (domain knights-tour-problem-8x8)
     (:domain knights-tour)
     ; Define a set of "numbers" 1..8:
