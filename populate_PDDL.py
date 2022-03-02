@@ -3,9 +3,9 @@ import FEN
 
 def replace(txt_file,old_content,new_content):
     """takes f.readlines() (1D array of strings) as input and replaces the given 'old_content' string with the 'new_content' string"""
-    index_chess_board=txt_file.index(old_content)
-    txt_file.pop(index_chess_board)
-    txt_file.insert(index_chess_board, new_content)
+    index=txt_file.index(old_content)
+    txt_file.pop(index)
+    txt_file.insert(index, new_content)
     return txt_file
 
 def write_pddl(txt_file,Type):

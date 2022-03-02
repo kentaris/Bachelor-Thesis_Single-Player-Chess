@@ -70,7 +70,6 @@ def FEN_names_to_pddl_names(figure,square): #TODO: this function is wrong someho
             return vars(figures)[figure][1]
 
 class figures:
-    """how I want to name my pieces"""
     #black pieces:
     p='pawn_b'
     n='knight_b'
@@ -87,7 +86,6 @@ class figures:
     K='KING_w'
 
 class figures_symbols:
-    """Unicode characters for the chess pieces"""
     #white pieces:
     P='\u265F'
     N='\u265E'
