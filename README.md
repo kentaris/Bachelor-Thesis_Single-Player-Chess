@@ -1,8 +1,8 @@
 <div align="right">
-    Artificial Intelligence Research Group<a href="https://ai.dmi.unibas.ch/">&#x27A5;</a><br>
-    Department of Mathematics and Computer Science<a href="https://dmi.unibas.ch/en/">&#x27A5;</a><br>
+    Artificial Intelligence Research Group<a href="https://ai.dmi.unibas.ch/"> &#x27A5;</a><br>
+    Department of Mathematics and Computer Science<a href="https://dmi.unibas.ch/en/"> &#x27A5;</a><br>
     Philosophisch-Naturwissenschaftliche Fakultät (Faculty of Science)<a href="https://philnat.unibas.ch/de/studium/bachelor/">	&#x27A5;</a><br>
-    University of Basel<a href="https://www.unibas.ch/">	&#x27A5;</a><br>
+    University of Basel<a href="https://www.unibas.ch/"> &#x27A5;</a><br>
 </div>
 
 # Bachelor Thesis
