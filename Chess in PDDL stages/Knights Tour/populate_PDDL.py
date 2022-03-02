@@ -1,4 +1,5 @@
 import sys
+import os
 sys.path.insert(1, '../First attempt')
 #import valid_moves as VMG
 import FEN
@@ -13,18 +14,26 @@ def replace(txt_file,old_content,new_content):
 
 def write_pddl(txt_file,Type):
     """writes the given 1D array of strings to a .pddl file in the output folder"""
-    with open( 'output/Knights_Tour_{}.pddl'.format(Type), mode='w') as f:
+    files=os.listdir('template/')
+    for f in files:
+        if Type.lower() in f.lower():
+            name=f
+    with open('output/{}'.format(name), mode='w') as f:
         for line in txt_file:
             f.write("".join(line))
     f.close()
 
 def load_file(Type):
     """loads the .pddl file in the template folder and changes it's content accordingly using the replace() function"""
-    with open('template/Knights_Tour_{}.pddl'.format(Type), mode='r') as f:
+    files=os.listdir('template/')
+    for f in files:
+        if Type.lower() in f.lower():
+            name=f
+    with open('template/{}'.format(name), mode='r') as f:
         txt_file = f.readlines()
     f.close()
     #Problem File content:
-    if Type=='problem':
+    if Type.lower()=='problem':
         #init:
         #txt_file=replace(txt_file,';[:objects_board_sqares]\n',PG.board())
         #goal:
