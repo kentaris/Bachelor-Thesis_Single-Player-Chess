@@ -17,7 +17,7 @@
                            (diff_by_two ?from_col ?to_col) ; col +/- 2
                            (diff_by_one ?from_row ?to_row) ; row +/- 1
                            (not (visited ?knight ?to_col ?to_row))
-                           (not (at ?knight ?from_col ?from_row))
+                           (not (at ?knight ?to_col ?to_row))
                       )
         :effect (and (not (at ?knight ?from_col ?from_row))
                      (at ?knight ?to_col ?to_row)
@@ -29,7 +29,7 @@
                            (diff_by_two ?from_row ?to_row) ; row +/- 2
                            (diff_by_one ?from_col ?to_col) ; col +/- 1
                            (not (visited  ?knight ?to_col ?to_row))
-                           (not (at ?knight ?from_col ?from_row)))
+                           (not (at ?knight ?to_col ?to_row)))
         :effect (and (not (at ?knight ?from_col ?from_row))
                      (at ?knight ?to_col ?to_row)
                      (visited  ?knight ?to_col ?to_row))
