@@ -3,9 +3,11 @@ def knight_visited_goal():
     R=''
     for rank in range(board_size):
         for file in range(board_size):
+            R+='\t\t\t\t(visited n{} n{})\n'.format(rank+1,file+1) #Two knights goal
             #R+='\t\t\t\t(visited n{} n{})\n'.format(rank+1,file+1) #Two knights goal
-            R+='\t\t\t\t(visited knight_b1 n{} n{})\n'.format(rank+1,file+1) #visited knight_b1 n1 n8
-            R+='\t\t\t\t(visited knight_b2 n{} n{})\n'.format(rank+1,file+1)
+
+            #R+='\t\t\t\t(visited knight_b1 n{} n{})\n'.format(rank+1,file+1) #visited knight_b1 n1 n8
+            #R+='\t\t\t\t(visited knight_b2 n{} n{})\n'.format(rank+1,file+1)
     return R
 
 def knight_diffByOneTwo():
