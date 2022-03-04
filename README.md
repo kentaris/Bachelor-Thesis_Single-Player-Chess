@@ -5,26 +5,24 @@ Department of Mathematics and Computer Science [![Department of Mathematics and 
 Philosophisch-Naturwissenschaftliche Fakultät (Faculty of Science) [![Faculty of Science (Website)](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][philnat]<br>
 University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][unibas]<br><br><br>
 
-<img width="180" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/logo-4.png" alt="Terminal CHess UI">
+<img width="180" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/logo-4-1.png" alt="Logo">
 
-# Bachelor Thesis
-**Single Player Chess**
-
-## Abstract
-<img width="300" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/Screenshot-from-2022-03-04-14-27-05.png" alt="Terminal CHess UI">
-The goal is to model a single-player Chess as a planning domain. We want to look into the problem of how to reach a given Chess position from an initial given position. As a first approach, one can encode this problem using PDDL. We also want to study how classical planners perform in this new domain and to implement a state-space search algorithm for this problem. 
-<br clear="right"/>
-
+# Bachelor Thesis: Single Player Chess
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#Roadmap">About The Project</a></li>
-    <li><a href="#authors">License</a></li>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
+
+## Abstract
+<img width="300" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/Screenshot-from-2022-03-04-15-52-21.png" alt="Terminal CHess UI">
+The goal is to model a single-player Chess as a planning domain. We want to look into the problem of how to reach a given Chess position from an initial given position. As a first approach, one can encode this problem using PDDL. We also want to study how classical planners perform in this new domain and to implement a state-space search algorithm for this problem. 
+<br clear="right"/>
 
 <!-- ROADMAP -->
 ## Roadmap
