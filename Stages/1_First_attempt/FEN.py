@@ -18,14 +18,15 @@ def printable_board(board,color=False,symbols=False):
                     symbol=vars(figures_symbols)[symbol]
 
                 if letter.islower(): #black pieces
-                    r+='\033[1m\u001b[32m'+symbol+'\033[0m '
+                    r+=colors.highlight+colors.black_pieces+symbol #[38;2;92;162;   92, 162, 251
                 elif letter.isupper(): #white pieces
-                    r+='\033[1m'+symbol+'\033[0m '
+                    r+=colors.highlight+colors.white_pieces+symbol
                 else: #empty space
-                    if (i+j)%2==0:
-                        r+='\033[38;5;237m'+symbol+'\033[0m '
-                    else:
-                        r+='\033[38;5;22m'+symbol+'\033[0m '
+                    if (i+j)%2==0: #black
+                        r+=colors.highlight+colors.white_spaces+symbol#rgb(32, 57, 88)
+                    else: #white
+                        r+=colors.highlight+colors.black_spaces+symbol
+                r+=' '+colors.reset*3
         else:
             for j in range(8):
                 symbol=board[i][j]
@@ -41,6 +42,18 @@ def printable_board(board,color=False,symbols=False):
                     r+=symbol+' '
         R+=r+'\n'
     return R
+
+class colors:
+    black_pieces = '\033[3;1m\033[38;5;45m'
+    black_spaces = '\033[38;5;24m'
+    white_pieces = ''
+    white_spaces = '\033[38;5;237m'
+
+    dim = '\033[38;5;236m'
+    underline = '\033[24m'
+    highlight = '\33[254;40m'
+
+    reset = '\033[0m'
 
 def true_board_squares(board,filler=Filler):
     """takes a FEN_to_Chess_board() board as input and gives an array containing the positions of the pieces as tuples (Ex: ('A1', 'ROOK_w') )"""
@@ -125,9 +138,9 @@ def printable_list_of_allFigures(figures,indent='',prefix=''):
 
 def print_neighbor(board1,board2,indent='\t'):
     """prints two boards next to one another"""
-    board1='\033[38;5;22m\033[4mInit Position:\033[0m   \n'+board1
+    board1=colors.dim+'  Initial Position:   \n'+colors.reset+board1+colors.reset
     board1=board1.split('\n')
-    board2='\033[38;5;22m\033[4mGoal Position:\033[0m   \n'+board2
+    board2=colors.dim+'  Goal Position:   \n'+colors.reset+board2+colors.reset
     board2=board2.split('\n')
     for line in range(len(board1)):
         print(board1[line],indent,board2[line])
@@ -162,8 +175,8 @@ def add_coordinate_System(board):
     board=board.split('\n')
     extended_board=''
     for row in range(8):
-        extended_board+='\033[38;5;236m\033[3m'+str(8-(row))+'\033[0m '+board[row]+'\n'
-    extended_board=extended_board[:-2]+'\n\033[38;5;236m\033[3m  a b c d e f g h\033[0m'
+        extended_board+=colors.dim+str(8-(row))+colors.reset+' '+board[row]+'\n'
+    extended_board=extended_board[:-1]+'\n  '+colors.dim+'a b c d e f g h'+colors.reset
     return extended_board
 
 def board_to_FEN(board):
@@ -193,4 +206,17 @@ def board_to_FEN(board):
             file+=1
     return FEN[:-1]
 
-#print(add_coordinate_System(printable_board(FEN_to_Chess_board('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True)))
+start=add_coordinate_System(printable_board(FEN_to_Chess_board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'),True,True))
+goal=add_coordinate_System(printable_board(FEN_to_Chess_board('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True))
+
+
+print_neighbor(start,goal)
+#print("\x1b[38;2;92;162;251mTRUECOLOR\x1b[0m\n")
+#print('\x1b[3;1;92;162;251m'+'\t\t\t\u2659 \u2658 \u2657 \u2656 \u2655 \u2654\n')
+
+
+#
+# for i in range(255):
+#
+#     for j in range(255):
+#        print('\x1b[{};{};92;162;251m'.format(i,j)+'\t\t\t\u2659 \u2658 \u2657 \u2656 \u2655 \u2654',i,j)
