@@ -23,7 +23,7 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
 <!-- Abstract -->
 ## Abstract
 <img width="300" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/Screenshot-from-2022-03-04-15-52-21.png" alt="Terminal CHess UI">
-The goal is to model a single-player Chess as a planning domain. We want to look into the problem of how to reach a given Chess position from an initial given position. As a first approach, one can encode this problem using PDDL. We also want to study how classical planners perform in this new domain and to implement a state-space search algorithm for this problem. 
+The goal of this thesis is to model single-player Chess as a planning domain using the planning domain definition language (PDDL). We want to look into the problem of how to reach check mate position from an initial position. Both the initial and the goal position are given. As a first approach, we will encode this problem using PDDL. After this is done, we will also study how classical planners perform in this new domain implement a state-space search algorithm for this problem. 
 <br clear="right"/>
 
 <!-- Journal -->
@@ -32,11 +32,12 @@ I am keeping a [Journal](Journal.md) of what I am doing so it is easier for me t
 
 <!-- ROADMAP -->
 ## Roadmap
-
-- [x] Getting familiar [![familiar](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][1_First_attempt]
-- [x] Implement Knight's Tour [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][2_Knights Tour]
-- [x] Implement Two Knight's Walk [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
-- [ ] Implement Colored Two Knight's Walk [![Colored Two Knights Tour](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_Colored Two Knights Tour]
+The roadblocks below build on on another so to see the relevant files for this project it is sufficient to check the folder linked in the last mentioned roadblock.
+#### Roadblocks:
+1. [x] Getting familiar [![familiar](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][1_First_attempt]
+2. [x] Implement Knight's Tour [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][2_Knights Tour]
+3. [x] Implement Two Knight's Walk [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
+4. [ ] Implement Colored Two Knight's Walk [![Colored Two Knights Tour](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_Colored Two Knights Tour]
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 
