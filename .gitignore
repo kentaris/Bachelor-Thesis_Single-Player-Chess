@@ -1,9 +1,0 @@
-PDDL\ Learning
-
-#python
-__pycache__/
-*.pyc
- 
-#visual studio
-.vscode
-.vs

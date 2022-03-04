@@ -1,5 +1,7 @@
 import valid_moves
 
+Filler='⬚' #⬚ ▢
+
 def printable_board(board,color=False,symbols=False):
     """
     takes a FEN_to_Chess_board() board matrix and returns a string representing the given board that can be printed.
@@ -40,7 +42,7 @@ def printable_board(board,color=False,symbols=False):
         R+=r+'\n'
     return R
 
-def true_board_squares(board,filler='⬚'):
+def true_board_squares(board,filler=Filler):
     """takes a FEN_to_Chess_board() board as input and gives an array containing the positions of the pieces as tuples (Ex: ('A1', 'ROOK_w') )"""
     square_names=valid_moves.matrix_form_board(valid_moves.board())
     List=[]
@@ -130,7 +132,7 @@ def print_neighbor(board1,board2,indent='\t'):
     for line in range(len(board1)):
         print(board1[line],indent,board2[line])
 
-def FEN_to_Chess_board(FEN,filler='⬚'):
+def FEN_to_Chess_board(FEN,filler=Filler):
     """converts a FEN code to a 2d array representing the chess board"""
     #lowercase letters=black pieces
     FEN=FEN.split()[0]
@@ -190,3 +192,5 @@ def board_to_FEN(board):
                 file=0
             file+=1
     return FEN[:-1]
+
+#print(add_coordinate_System(printable_board(FEN_to_Chess_board('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True)))
