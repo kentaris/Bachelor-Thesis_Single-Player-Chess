@@ -46,10 +46,10 @@ def printable_board(board,color=False,symbols=False):
 class colors:
     black_pieces = '\033[3;1m\033[38;5;45m'
     black_spaces = '\033[38;5;24m'
-    white_pieces = ''
+    white_pieces = '\033[38;5;231m'
     white_spaces = '\033[38;5;237m'
 
-    dim = '\033[38;5;236m'
+    dim = '\033[3m\033[38;5;236m'
     underline = '\033[24m'
     highlight = '\33[254;40m'
 
@@ -206,17 +206,10 @@ def board_to_FEN(board):
             file+=1
     return FEN[:-1]
 
-start=add_coordinate_System(printable_board(FEN_to_Chess_board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'),True,True))
-goal=add_coordinate_System(printable_board(FEN_to_Chess_board('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True))
+#start=add_coordinate_System(printable_board(FEN_to_Chess_board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'),True,True))
+#goal=add_coordinate_System(printable_board(FEN_to_Chess_board('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True))
 
 
-print_neighbor(start,goal)
+#print_neighbor(start,goal)
 #print("\x1b[38;2;92;162;251mTRUECOLOR\x1b[0m\n")
 #print('\x1b[3;1;92;162;251m'+'\t\t\t\u2659 \u2658 \u2657 \u2656 \u2655 \u2654\n')
-
-
-#
-# for i in range(255):
-#
-#     for j in range(255):
-#        print('\x1b[{};{};92;162;251m'.format(i,j)+'\t\t\t\u2659 \u2658 \u2657 \u2656 \u2655 \u2654',i,j)

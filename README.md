@@ -19,10 +19,15 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
   </ol>
 </details>
 
+<!-- Abstract -->
 ## Abstract
 <img width="300" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/Screenshot-from-2022-03-04-15-52-21.png" alt="Terminal CHess UI">
 The goal is to model a single-player Chess as a planning domain. We want to look into the problem of how to reach a given Chess position from an initial given position. As a first approach, one can encode this problem using PDDL. We also want to study how classical planners perform in this new domain and to implement a state-space search algorithm for this problem. 
 <br clear="right"/>
+
+<!-- Journal -->
+## Journal
+I am keeping a [Journal](Journal.md) of what I am doing so it is easier for me to time manage and also so it easier to write the final thesis. Feel free to have a look at it.
 
 <!-- ROADMAP -->
 ## Roadmap
