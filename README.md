@@ -13,6 +13,7 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
   <summary>Table of Contents</summary>
   <ol>
     <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#journal">Journal</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
