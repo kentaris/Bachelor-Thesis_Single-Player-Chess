@@ -35,9 +35,9 @@ I am keeping a [Journal](Journal.md) of what I am doing so it is easier for me t
 The roadblocks below build on on another so to see the relevant files for this project it is sufficient to check the folder linked in the last mentioned roadblock.
 #### Roadblocks:
 1. [x] Getting familiar [![familiar](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][1_First_attempt]
-2. [x] Implement Knight's Tour [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][2_Knights Tour]
-3. [x] Implement Two Knight's Walk [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
-4. [ ] Implement Colored Two Knight's Walk [![Colored Two Knights Tour](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_Colored Two Knights Tour]
+2. [x] Implement **Knight's Tour** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][2_Knights Tour]
+3. [x] Implement **Two Knight's Walk** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
+4. [ ] **Implement white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet. [![Colored Two Knights Tour](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 
@@ -46,7 +46,7 @@ See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-
 
 * Author: Ken Rotaris<br>
 * Supervisor: [Augusto B. Corrêa](https://ai.dmi.unibas.ch/people/correa/)
-* Professor: [Prof. Dr. Malte Helmert](https://ai.dmi.unibas.ch/people/helmert)]
+* Professor: [Prof. Dr. Malte Helmert](https://ai.dmi.unibas.ch/people/helmert)
 
 <!-- Acknowledgments -->
 ## Acknowledgments
@@ -62,4 +62,4 @@ See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-
 [1_First_attempt]: https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/tree/main/Bachelorarbeit/Stages/1_First_attempt
 [2_Knights Tour]: https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/tree/main/Bachelorarbeit/Stages/2_Knights_Tour
 [3_Two Knights Tour]: https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/tree/main/Bachelorarbeit/Stages/3_Two_Knights_Tour
-[4_Colored Two Knights Tour]: https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/tree/main/Bachelorarbeit/Stages/4_Colored_Two_Knights_Tour
+[4_White_Pieces_limitated]: https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/tree/main/Bachelorarbeit/Stages/4_White_Pieces_limitated

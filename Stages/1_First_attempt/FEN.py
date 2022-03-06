@@ -206,10 +206,10 @@ def board_to_FEN(board):
             file+=1
     return FEN[:-1]
 
-#start=add_coordinate_System(printable_board(FEN_to_Chess_board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'),True,True))
-#goal=add_coordinate_System(printable_board(FEN_to_Chess_board('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True))
+start=add_coordinate_System(printable_board(FEN_to_Chess_board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'),True,True))
+goal=add_coordinate_System(printable_board(FEN_to_Chess_board('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True))
 
 
-#print_neighbor(start,goal)
+print_neighbor(start,goal)
 #print("\x1b[38;2;92;162;251mTRUECOLOR\x1b[0m\n")
 #print('\x1b[3;1;92;162;251m'+'\t\t\t\u2659 \u2658 \u2657 \u2656 \u2655 \u2654\n')
