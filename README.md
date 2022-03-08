@@ -1,4 +1,4 @@
-<img width="120" align="left" src="https://webmo.ch/wp-content/uploads/2022/03/csm_fakulogo_372ebdb784-2.png" alt="Philosophisch-Naturwissenschaftliche Fakultät (Faculty of Science) (Logo)">
+<img width="130" align="left" src="https://webmo.ch/wp-content/uploads/2022/03/csm_fakulogo_372ebdb784-2.png" alt="Philosophisch-Naturwissenschaftliche Fakultät (Faculty of Science) (Logo)">
 
 Artificial Intelligence Research Group [![Artificial Intelligence Research Group (Website)](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][AI Group]<br>
 Department of Mathematics and Computer Science [![Department of Mathematics and Computer Science (Website)](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][dmi]<br>
@@ -40,6 +40,12 @@ The roadblocks below build on on another so to see the relevant files for this p
 4. [ ] **Implement white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet. [![Colored Two Knights Tour](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
+Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.
+
+<!-- Requirements -->
+## Dependencies
+
+* Numpy (via: `sudo apt-get install python3-numpy`)
 
 <!-- Authors -->
 ## Authors
