@@ -33,11 +33,13 @@ I am keeping a [Journal](Journal.md) of what I am doing so it is easier for me t
 <!-- ROADMAP -->
 ## Roadmap
 The roadblocks below build on on another so to see the relevant files for this project it is sufficient to check the folder linked in the last mentioned roadblock.
-#### Roadblocks:
+
+<!-- ROADBLOCKS -->
+#### Roadblocks: 
 1. [x] Getting familiar [![familiar](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][1_First_attempt]
 2. [x] Implement **Knight's Tour** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][2_Knights Tour]
 3. [x] Implement **Two Knight's Walk** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
-4. [ ] **Implement white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet. [![Colored Two Knights Tour](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
+4. [ ] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.
