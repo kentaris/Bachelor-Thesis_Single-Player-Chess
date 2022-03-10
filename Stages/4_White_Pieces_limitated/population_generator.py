@@ -1,8 +1,9 @@
 import FEN
-import valid_moves
-board_size=5
 
-def FEN_pos_to_PDDL(fen):
+board_size=8 #to change the board size
+
+def add_FEN_pos_to_PDDL(fen):
+    '''returns the PDDL line format of the occupied board positions of a given FEN string'''
     length=fen.count('/')+1
     R=''
     board=FEN.FEN_to_Chess_board(fen)
@@ -13,7 +14,7 @@ def FEN_pos_to_PDDL(fen):
                 while vars(figures)[board[rank][file]][idx] in R: #possible source of errors: if idx gets bigger than # elements. but should only happen if I rename something and forget about this.
                     idx+=1
                 figure=vars(figures)[board[rank][file]][idx]
-                R+='\t\t(at '+figure+' f'+str(rank+1)+' r'+str(file+1)+')\n'
+                R+='\t\t(at '+figure+' n'+str(rank+1)+' n'+str(file+1)+')\n'
     return R
 
 class figures:
@@ -36,17 +37,53 @@ class figures:
         ;knight_b1 knight_b2 - knight_b
         pawn_w1 pawn_w2 pawn_w3 pawn_w4 pawn_w5 - pawn_w'''
 
-def white_pawn_diffByOneTwo(): #ToDO
+def add_double_pawn_moves():
     R=''
-    diffByOne_array=create_diffBy_list(1,'one_pawn_w',True)
-    for t in diffByOne_array:
-        for k in ['f','r']:
-            for l in ['f','r']:
-                prelude='diff_by_{}'.format(name)#_'+k+l
-                diffBy+='\t\t({} {}{} {}{})\n'.format(prelude,k,t[0],l,t[1])
-    diffByTwo_array=create_diffBy_list(2,'two_pawn_w',True)
+    R+='\n\t\t;Pawn double moves for white:\n'
+    R+=pawn_double('white')
+    R+='\n\t\t;Pawn double moves for black:\n'
+    R+=pawn_double('black')
+    return R
+
+def add_one_forward():
+    R=''
+    R+='\n\t\t;Pawn single moves for white:\n'
+    R+=one_forward('white')
+    R+='\n\t\t;Pawn single moves for black:\n'
+    R+=one_forward('black')
+    return R
+
+def one_forward(type):
+    '''returns the PDDL line format of type={'white', 'black'} for pawn single moves'''
+    R=''
+    for file in range(board_size):
+        for rank in range(board_size):
+            if type=='white':
+                if rank-file==1 and (file+1)>1:
+                    prelude='plusOne_{}'.format(type)
+                    R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',file+1,'n',rank+1)
+            else:
+                if rank-file==-1 and (file+1)<8:
+                    prelude='plusOne_{}'.format(type)
+                    R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',file+1,'n',rank+1)
+    return R
+
+def pawn_double(type):
+    '''returns the PDDL line format of type={'white', 'black'} for pawn double moves'''
+    R=''
+    diffBy_array=[]
+    to_rank=4
+    from_rank=2
+    if type=='black': to_rank=board_size-3; from_rank=board_size-1
+    for file in range(board_size):
+        diffBy_array.append((file+1,file+1,from_rank,to_rank))
+    for t in diffBy_array:
+        prelude='pawn_double_{}'.format(type)
+        R+='\t\t({} {}{} {}{} {}{} {}{})\n'.format(prelude,'n',t[0],'n',t[1],'n',t[2],'n',t[3])
+    return R
 
 def create_diffBy_list(diff,name,get=False):
+    '''returns the pddl line format of the given diff (=Difference) of two numbers. it returns all combinations of f and r. 'name' refers to the diff_by_[name] and 'get' is not used anywhere yet.'''
     diffBy_array=[]
     for rank in range(board_size): #rank
         for file in range(board_size): #file
@@ -56,21 +93,30 @@ def create_diffBy_list(diff,name,get=False):
         return diffBy_array
     diffBy=''
     for t in diffBy_array:
-        for k in ['f','r']:
-            for l in ['f','r']:
-                prelude='diff_by_{}'.format(name)#_'+k+l
-                diffBy+='\t\t({} {}{} {}{})\n'.format(prelude,k,t[0],l,t[1])
+        prelude='diff_by_{}'.format(name)#_'+k+l
+        diffBy+='\t\t({} {}{} {}{})\n'.format(prelude,'n',t[0],'n',t[1])
     return diffBy
 
-def diffByZeroOneTwo():
+def num2word(n):
+    '''converts a numeric number to a letter word'''
+    #credit: https://stackoverflow.com/a/19506803
+    num2words= {1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', 11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', 15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen', 20: 'Twenty', 30: 'Thirty', 40: 'Forty', 50: 'Fifty', 60: 'Sixty', 70: 'Seventy', 80: 'Eighty', 90: 'Ninety', 0: 'Zero'}
+    try: return num2words[n]
+    except KeyError:
+        try: return num2words[n-n%10]+num2words[n%10].lower()
+        except KeyError: return 'Number out of range'
+
+def add_diffByN(N):
+    '''returns PDDL lines "(Difference by n1 n1) from 0 up to the nuber given to this function'''
     R=''
-    dbz=create_diffBy_list(0,'zero')
-    dbo=create_diffBy_list(1,'one')
-    dbt=create_diffBy_list(2,'two')
-    R+='\t\t;Difference by zero:\n'+dbz+'\n\t\t;Difference by one:\n'+dbo+'\n\t\t;Difference by two:\n'+dbt
+    for i in range(N):
+        word=num2word(i)
+        line = create_diffBy_list(i,word)
+        R+='\n\t\t;Difference by {}:\n'.format(word)+line
     return R
 
 def board():
+    '''returns the chess board as A1 up to An in a square format'''
     R=''
     for rank in range(board_size):
         r=''

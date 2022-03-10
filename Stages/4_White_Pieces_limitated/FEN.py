@@ -149,6 +149,7 @@ def print_neighbor(board1,board2,indent='\t'):
         print(board1[line],indent,board2[line])
 
 def trim(board,size):
+    '''crops the size of a given board'''
     Board=[]
     for i in range(size):
         Board.append(board[i][:size])

@@ -1,8 +1,4 @@
-import sys
 import os
-#sys.path.insert(1, '../First attempt')
-#import valid_moves as VMG
-import FEN
 import population_generator as PG
 
 def replace(txt_file,old_content,new_content):
@@ -35,15 +31,16 @@ def load_file(Type):
     #Problem File content:
     if Type.lower()=='problem':
         #init:
-        txt_file=replace(txt_file,';[start_state]\n',PG.FEN_pos_to_PDDL('5/5/5/PPPPP/1N1N1'))
-        #txt_file=replace(txt_file,';[:objects_board_sqares]\n',PG.board())
-        #txt_file=replace(txt_file,';[:objects_figures]\n',FEN.printable_list_of_allFigures(FEN.all_figures(),'        '))
+        txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL('5/5/5/PPPPP/1N1N1'))
+        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
+        txt_file=replace(txt_file,';[:init_pawn_double_move]\n',PG.add_double_pawn_moves())
+        txt_file=replace(txt_file,';[:init_plusOne_forwards]\n',PG.add_one_forward())
+
         #goal:
-        txt_file=replace(txt_file,';[:goal_position]\n',PG.FEN_pos_to_PDDL('2P2/5/1PNP1/P2NP/5'))
-        txt_file=replace(txt_file,';[:init_diffByZeroOneTwo]\n',PG.diffByZeroOneTwo())
+        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL('2P2/5/1PNP1/P2NP/5'))
     #Domain File content:
     else:
-        pass
+        pass #for now we have nothing to change in the domain file so we just skip resulting in a copy paste in the next line
     write_pddl(txt_file,Type)
 
 def main():
@@ -52,5 +49,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-else:
-    exit()
