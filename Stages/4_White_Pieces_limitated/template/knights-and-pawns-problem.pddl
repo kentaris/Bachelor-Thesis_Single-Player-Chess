@@ -12,10 +12,18 @@
 ;[:init_start_state]
 ;[:init_diffByN]
 ;[:init_pawn_double_move]
-;[:init_plusOne_forwards]
+;[:init_plusOne]
     )
     (:goal (and
+        ;Adjust numbers by hand!
 ;[:goal_position]
+        (at pawn_w3 n3 n5)
+		(at pawn_w2 n2 n3)
+		(at knight_w1 n3 n3)
+		(at pawn_w4 n4 n3)
+		(at pawn_w1 n1 n2)
+		(at knight_w2 n4 n2)
+		(at pawn_w5 n5 n2)
            )
     )
 )

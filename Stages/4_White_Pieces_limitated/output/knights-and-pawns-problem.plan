@@ -1,0 +1,14 @@
+;;!domain: knights-and-pawns
+;;!problem: knights-and-pawns-problem
+
+0.00100: (knight_move_2rank_1file knight_w1 knight_w2 n2 n3 n1 n3)
+0.00200: (pawn_move_single_white pawn_w4 n4 n4 n2 n3)
+0.00300: (pawn_move_single_white pawn_w2 n2 n2 n2 n3)
+0.00400: (pawn_move_double_white pawn_w3 n3 n3 n2 n4)
+0.00500: (pawn_move_single_white pawn_w3 n3 n3 n4 n5)
+0.00600: (knight_move_2rank_1file knight_w2 knight_w1 n4 n5 n1 n3)
+0.00700: (knight_move_2file_1rank knight_w2 knight_w1 n5 n3 n3 n4)
+0.00800: (knight_move_2rank_1file knight_w2 knight_w1 n3 n4 n4 n2)
+
+; Makespan: 0.008
+; Metric: 0.008

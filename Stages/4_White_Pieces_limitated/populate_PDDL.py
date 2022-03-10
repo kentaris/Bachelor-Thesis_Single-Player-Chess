@@ -34,10 +34,10 @@ def load_file(Type):
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL('5/5/5/PPPPP/1N1N1'))
         txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
         txt_file=replace(txt_file,';[:init_pawn_double_move]\n',PG.add_double_pawn_moves())
-        txt_file=replace(txt_file,';[:init_plusOne_forwards]\n',PG.add_one_forward())
+        txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
 
         #goal:
-        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL('2P2/5/1PNP1/P2NP/5'))
+        #txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL('2P2/5/1PNP1/P2NP/5')) #TODO: this does work only limitedly: I canot assign right numbers to pieces so let's do this by hand right now
     #Domain File content:
     else:
         pass #for now we have nothing to change in the domain file so we just skip resulting in a copy paste in the next line

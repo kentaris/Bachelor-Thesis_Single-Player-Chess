@@ -14,8 +14,10 @@
         (diff_by_Zero ?file ?rank - location)
         (diff_by_One ?file ?rank - location)
         (diff_by_Two ?file ?rank - location)
-        (plusOne ?file ?rank - location)
+        (plusOne_white ?file ?rank - location)
+        (plusOne_black ?file ?rank - location)
         (pawn_double_white ?from_file ?to_file ?from_rank ?to_rank - location)
+        (pawn_double_black ?from_file ?to_file ?from_rank ?to_rank - location)
     )
 
     (:action pawn_move_double_white
@@ -32,7 +34,7 @@
         :parameters (?pawn - pawn_w ?from_file ?to_file ?from_rank ?to_rank - location)
         :precondition (and (at ?pawn ?from_file ?from_rank)
                            (diff_by_Zero ?from_file ?to_file) ; file +/- 0
-                           (plusOne ?from_rank ?to_rank) ; rank +1
+                           (plusOne_white ?from_rank ?to_rank) ; rank +1
                       )
         :effect (and (not (at ?pawn ?from_file ?from_rank))
                      (at ?pawn ?to_file ?to_rank)

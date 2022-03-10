@@ -1,6 +1,6 @@
 import FEN
 
-board_size=8 #to change the board size
+board_size=5 #to change the board size
 
 def add_FEN_pos_to_PDDL(fen):
     '''returns the PDDL line format of the occupied board positions of a given FEN string'''
@@ -10,13 +10,12 @@ def add_FEN_pos_to_PDDL(fen):
     for rank in range(length):
         for file in range(length):
             if board[rank][file] in vars(FEN.figures):
-                idx=0
+                idx=0 #ToDo: I don't know which pawn moved to which position but I number them from left to right atm...
                 while vars(figures)[board[rank][file]][idx] in R: #possible source of errors: if idx gets bigger than # elements. but should only happen if I rename something and forget about this.
                     idx+=1
                 figure=vars(figures)[board[rank][file]][idx]
-                R+='\t\t(at '+figure+' n'+str(rank+1)+' n'+str(file+1)+')\n'
+                R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-(rank))+')\n'
     return R
-
 class figures:
     #black pieces:
     p=['pawn_b1','pawn_b2','pawn_b3','pawn_b4','pawn_b5','pawn_b6','pawn_b7','pawn_b8']
@@ -32,10 +31,6 @@ class figures:
     R=['rook_w1','rook_w2']
     Q=['queen_w']
     K=['king_w']
-
-'''knight_w1 knight_w2 - knight_w
-        ;knight_b1 knight_b2 - knight_b
-        pawn_w1 pawn_w2 pawn_w3 pawn_w4 pawn_w5 - pawn_w'''
 
 def add_double_pawn_moves():
     R=''
@@ -56,16 +51,16 @@ def add_one_forward():
 def one_forward(type):
     '''returns the PDDL line format of type={'white', 'black'} for pawn single moves'''
     R=''
-    for file in range(board_size):
-        for rank in range(board_size):
-            if type=='white':
-                if rank-file==1 and (file+1)>1:
+    for from_rank in range(board_size):
+        for to_rank in range(board_size):
+            if type=='white': #white
+                if to_rank-from_rank==1:# and (from_rank+1)>1:
                     prelude='plusOne_{}'.format(type)
-                    R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',file+1,'n',rank+1)
-            else:
-                if rank-file==-1 and (file+1)<8:
+                    R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',from_rank+1,'n',to_rank+1)
+            else: #black
+                if to_rank-from_rank==-1:# and (from_rank+1)<board_size:
                     prelude='plusOne_{}'.format(type)
-                    R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',file+1,'n',rank+1)
+                    R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',from_rank+1,'n',to_rank+1)
     return R
 
 def pawn_double(type):
@@ -111,7 +106,7 @@ def add_diffByN(N):
     R=''
     for i in range(N):
         word=num2word(i)
-        line = create_diffBy_list(i,word)
+        line=create_diffBy_list(i,word)
         R+='\n\t\t;Difference by {}:\n'.format(word)+line
     return R
 
@@ -124,3 +119,5 @@ def board():
             r+=chr(rank+1+64)+str(file+1)+' '
         R+='\t\t'+r+'\n'
     return R
+
+#print(add_FEN_pos_to_PDDL('5/5/5/PPPPP/1N1N1')) #ToDo: may still be wrong but should be right
