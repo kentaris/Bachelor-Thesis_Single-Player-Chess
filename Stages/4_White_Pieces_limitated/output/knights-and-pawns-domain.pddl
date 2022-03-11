@@ -5,7 +5,7 @@
         location - object
         white - figure
         ;black - figure
-        pawn_w knight_w - white
+        pawn_w knight_w king_w - white
         ;knight_b - black
 
     )
@@ -24,9 +24,22 @@
         :parameters (?pawn - pawn_w ?from_file ?to_file ?from_rank ?to_rank - location)
         :precondition (and (at ?pawn ?from_file ?from_rank)
                            (pawn_double_white ?from_file ?to_file ?from_rank ?to_rank)
+                           (not (at ?pawn ?to_file ?to_rank))
                       )
         :effect (and (not (at ?pawn ?from_file ?from_rank))
                      (at ?pawn ?to_file ?to_rank)
+                )
+    )
+
+    (:action king_move
+        :parameters (?king - king_w ?from_file ?to_file ?from_rank ?to_rank - location)
+        :precondition (and (at ?king ?from_file ?from_rank)
+                           (diff_by_One ?from_file ?to_file) ; file +/-1
+                           (diff_by_One ?from_rank ?to_rank) ; rank +/-1
+                           (not (at ?king ?to_file ?to_rank))
+                       )
+        :effect (and (not (at ?king ?from_file ?from_rank))
+                     (at ?king ?to_file ?to_rank)
                 )
     )
 

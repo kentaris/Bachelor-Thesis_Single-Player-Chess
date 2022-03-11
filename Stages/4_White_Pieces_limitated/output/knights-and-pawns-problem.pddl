@@ -1,10 +1,11 @@
 (define (problem knights-and-pawns-problem)
     (:domain knights-and-pawns)
     (:objects
-        n1 n2 n3 n4 n5 -  location
+        n1 n2 n3 n4 n5 - location
         knight_w1 knight_w2 - knight_w
         ;knight_b1 knight_b2 - knight_b
         pawn_w1 pawn_w2 pawn_w3 pawn_w4 pawn_w5 - pawn_w
+        king_w1 - king_w
         ;pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn black
     )
     (:init
@@ -15,6 +16,7 @@
 		(at pawn_w4 n4 n2)
 		(at pawn_w5 n5 n2)
 		(at knight_w1 n2 n1)
+		(at king_w1 n3 n1)
 		(at knight_w2 n4 n1)
 
 		;Difference by Zero:
@@ -78,6 +80,7 @@
 		(at pawn_w1 n1 n2)
 		(at knight_w2 n4 n2)
 		(at pawn_w5 n5 n2)
+		(at king_w1 n5 n1)
            )
     )
 )

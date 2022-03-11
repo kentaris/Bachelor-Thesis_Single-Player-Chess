@@ -188,7 +188,7 @@ def add_coordinate_System(board):
     length=len(board)
     files='a b c d e f g h'
     for row in range(length-1):
-        extended_board+=colors.dim+str(length-(row))+colors.reset+' '+board[row]+'\n'
+        extended_board+=colors.dim+str(length-1-(row))+colors.reset+' '+board[row]+'\n'
     extended_board=extended_board[:-1]+'\n  '+colors.dim+str(files[:length+length-2])+colors.reset
     return extended_board
 
@@ -222,6 +222,7 @@ def board_to_FEN(board):
 
 #print(FEN_to_Chess_board('2P2/5/1PNP1/P2NP/5'))
 #start=add_coordinate_System(printable_board(FEN_to_Chess_board('5/5/5/PPPPP/1N1N1'),True,True))
+#print(start)
 #goal=add_coordinate_System(printable_board(FEN_to_Chess_board('2P2/5/1PNP1/P2NP/5'),True,True))#'r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/3P1N2/PPP2PPP/RNBQK2R'),True,True))
 
 #print_neighbor(start,goal)

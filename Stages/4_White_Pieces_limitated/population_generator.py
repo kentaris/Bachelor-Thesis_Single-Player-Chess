@@ -16,6 +16,7 @@ def add_FEN_pos_to_PDDL(fen):
                 figure=vars(figures)[board[rank][file]][idx]
                 R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-(rank))+')\n'
     return R
+    
 class figures:
     #black pieces:
     p=['pawn_b1','pawn_b2','pawn_b3','pawn_b4','pawn_b5','pawn_b6','pawn_b7','pawn_b8']
