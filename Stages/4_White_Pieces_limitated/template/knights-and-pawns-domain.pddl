@@ -5,7 +5,7 @@
         location - object
         white - figure
         ;black - figure
-        pawn_w knight_w king_w - white
+        pawn_w knight_w king_w rook_w - white
         ;knight_b - black
 
     )
@@ -14,12 +14,39 @@
         (diff_by_Zero ?file ?rank - location)
         (diff_by_One ?file ?rank - location)
         (diff_by_Two ?file ?rank - location)
+        (diff_by_N ?file ?rank - location)
         (plusOne_white ?file ?rank - location)
         (plusOne_black ?file ?rank - location)
         (pawn_double_white ?from_file ?to_file ?from_rank ?to_rank - location)
         (pawn_double_black ?from_file ?to_file ?from_rank ?to_rank - location)
     )
 
+    (:action rook_move_vetical
+        :parameters (?rook - rook_w ?from_file ?to_file ?from_rank ?to_rank - location)
+        :precondition (and (at ?rook ?from_file ?from_rank)
+                           (diff_by_Zero ?from_file ?to_file) ; file +/-0
+                           (diff_by_N ?from_rank ?to_rank) ; rank +/-n
+                           
+                           (not (at ?rook ?to_file ?to_rank))
+                       )
+        :effect (and (not (at ?rook ?from_file ?from_rank))
+                     (at ?rook ?to_file ?to_rank)
+                )
+    )
+
+    (:action rook_move_horizontal
+        :parameters (?rook - rook_w ?from_file ?to_file ?from_rank ?to_rank - location)
+        :precondition (and (at ?rook ?from_file ?from_rank)
+                           (diff_by_Zero ?from_rank ?to_rank) ; file +/-0
+                           (diff_by_N ?from_file ?to_file) ; rank +/-n
+                           
+                           (not (at ?rook ?to_file ?to_rank))
+                       )
+        :effect (and (not (at ?rook ?from_file ?from_rank))
+                     (at ?rook ?to_file ?to_rank)
+                )
+    )
+    
     (:action pawn_move_double_white
         :parameters (?pawn - pawn_w ?from_file ?to_file ?from_rank ?to_rank - location)
         :precondition (and (at ?pawn ?from_file ?from_rank)

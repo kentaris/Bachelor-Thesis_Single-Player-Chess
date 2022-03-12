@@ -32,10 +32,11 @@ def load_file(Type):
     #Problem File content:
     if Type.lower()=='problem':
         #init:
-        start_FEN='5/5/5/PPPPP/1NKN1'
-        goal_FEN='2P2/5/1PNP1/P2NP/4K'
+        start_FEN='5/5/5/PPPPP/RNKN1'
+        goal_FEN='2P2/5/1PNP1/P2NP/3RK'
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
+        txt_file=replace(txt_file,';[:init_diffByN_hor_ver]\n',PG.add_diffByN_hor_ver())
         txt_file=replace(txt_file,';[:init_pawn_double_move]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
 

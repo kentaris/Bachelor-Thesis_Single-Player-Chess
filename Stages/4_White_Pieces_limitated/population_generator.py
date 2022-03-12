@@ -23,15 +23,15 @@ class figures:
     n=['knight_b1','knight_b2']
     b=['w_bishop_b','b_bishop_b']
     r=['rook_b1','rook_b2']
-    q=['queen_b']
-    k=['king_b']
+    q=['queen_b1']
+    k=['king_b1']
     #white pieces:
     P=['pawn_w1','pawn_w2','pawn_w3','pawn_w4','pawn_w5','pawn_w6','pawn_w7','pawn_w8']
     N=['knight_w1','knight_w2']
     B=['w_bishop_w','b_bishop_w']
     R=['rook_w1','rook_w2']
-    Q=['queen_w']
-    K=['king_w']
+    Q=['queen_w1']
+    K=['king_w1']
 
 def add_double_pawn_moves():
     R=''
@@ -105,10 +105,20 @@ def num2word(n):
 def add_diffByN(N):
     '''returns PDDL lines "(Difference by n1 n1) from 0 up to the nuber given to this function'''
     R=''
-    for i in range(N):
-        word=num2word(i)
-        line=create_diffBy_list(i,word)
+    for n in range(N):
+        word=num2word(n)
+        line=create_diffBy_list(n,word)
         R+='\n\t\t;Difference by {}:\n'.format(word)+line
+    return R
+
+def add_diffByN_hor_ver():
+    R=''
+    for i in range(board_size):
+        R+='\n\t\t;Diff by {}:\n'.format(num2word(i+1))
+        for file in range(board_size):
+            for rank in range(board_size):
+                if abs((file+1)-(rank+1))==i:
+                    R+='\t\t(diff_by_N n{} n{})\n'.format((file+1),(rank+1))
     return R
 
 def board():
