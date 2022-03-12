@@ -21,14 +21,14 @@ class figures:
     #black pieces:
     p=['pawn_b1','pawn_b2','pawn_b3','pawn_b4','pawn_b5','pawn_b6','pawn_b7','pawn_b8']
     n=['knight_b1','knight_b2']
-    b=['w_bishop_b','b_bishop_b']
+    b=['w_bishop_b1','b_bishop_b1']
     r=['rook_b1','rook_b2']
     q=['queen_b1']
     k=['king_b1']
     #white pieces:
     P=['pawn_w1','pawn_w2','pawn_w3','pawn_w4','pawn_w5','pawn_w6','pawn_w7','pawn_w8']
     N=['knight_w1','knight_w2']
-    B=['w_bishop_w','b_bishop_w']
+    B=['w_bishop_w1','b_bishop_w1']
     R=['rook_w1','rook_w2']
     Q=['queen_w1']
     K=['king_w1']
@@ -47,6 +47,13 @@ def add_one_forward():
     R+=one_forward('white')
     R+='\n\t\t;Pawn single moves for black:\n'
     R+=one_forward('black')
+    return R
+
+def add_bishop_moves():
+    R=''
+    for i in range(board_size):
+        R+='{}   (and (diff_by_{} ?from_file ?to_file) ;file +/-{}\n'.format('\t'*7,num2word(i+1),i+1)
+        R+='{}        (diff_by_{} ?from_rank ?to_rank) ;rank +/-{}\n{}   )\n'.format('\t'*7,num2word(i+1),i+1,'\t'*7)
     return R
 
 def one_forward(type):
@@ -113,12 +120,12 @@ def add_diffByN(N):
 
 def add_diffByN_hor_ver():
     R=''
-    for i in range(board_size):
-        R+='\n\t\t;Diff by {}:\n'.format(num2word(i+1))
-        for file in range(board_size):
-            for rank in range(board_size):
-                if abs((file+1)-(rank+1))==i:
-                    R+='\t\t(diff_by_N n{} n{})\n'.format((file+1),(rank+1))
+    for diff in range(board_size):
+        R+='\n\t\t;Diff by {}:\n'.format(num2word(diff))
+        for n1 in range(board_size):
+            for n2 in range(board_size):
+                if abs((n1+1)-(n2+1))==diff:
+                    R+='\t\t(diff_by_N n{} n{})\n'.format((n1+1),(n2+1))
     return R
 
 def board():
@@ -132,3 +139,4 @@ def board():
     return R
 
 #print(add_FEN_pos_to_PDDL('5/5/5/PPPPP/1N1N1')) #ToDo: may still be wrong but should be right
+#print(add_diffByN_hor_ver())

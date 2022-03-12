@@ -7,6 +7,7 @@
         pawn_w1 pawn_w2 pawn_w3 pawn_w4 pawn_w5 - pawn_w
         king_w1 - king_w
         rook_w1 rook_w2 - rook_w
+        w_bishop_w1 b_bishop_w1 - bishop_w
         ;pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn black
     )
     (:init
@@ -20,6 +21,7 @@
 		(at knight_w1 n2 n1)
 		(at king_w1 n3 n1)
 		(at knight_w2 n4 n1)
+		(at w_bishop_w1 n5 n1)
 
 		;Difference by Zero:
 		(diff_by_Zero n1 n1)
@@ -46,14 +48,30 @@
 		(diff_by_Two n4 n2)
 		(diff_by_Two n5 n3)
 
-		;Diff by One:
+		;Difference by Three:
+		(diff_by_Three n1 n4)
+		(diff_by_Three n2 n5)
+		(diff_by_Three n4 n1)
+		(diff_by_Three n5 n2)
+
+		;Difference by Four:
+		(diff_by_Four n1 n5)
+		(diff_by_Four n5 n1)
+
+		;Difference by Five:
+
+		;Difference by Six:
+
+		;Difference by Seven:
+
+		;Diff by Zero:
 		(diff_by_N n1 n1)
 		(diff_by_N n2 n2)
 		(diff_by_N n3 n3)
 		(diff_by_N n4 n4)
 		(diff_by_N n5 n5)
 
-		;Diff by Two:
+		;Diff by One:
 		(diff_by_N n1 n2)
 		(diff_by_N n2 n1)
 		(diff_by_N n2 n3)
@@ -63,7 +81,7 @@
 		(diff_by_N n4 n5)
 		(diff_by_N n5 n4)
 
-		;Diff by Three:
+		;Diff by Two:
 		(diff_by_N n1 n3)
 		(diff_by_N n2 n4)
 		(diff_by_N n3 n1)
@@ -71,13 +89,13 @@
 		(diff_by_N n4 n2)
 		(diff_by_N n5 n3)
 
-		;Diff by Four:
+		;Diff by Three:
 		(diff_by_N n1 n4)
 		(diff_by_N n2 n5)
 		(diff_by_N n4 n1)
 		(diff_by_N n5 n2)
 
-		;Diff by Five:
+		;Diff by Four:
 		(diff_by_N n1 n5)
 		(diff_by_N n5 n1)
 
@@ -117,8 +135,9 @@
 		(at pawn_w1 n1 n2)
 		(at knight_w2 n4 n2)
 		(at pawn_w5 n5 n2)
-		(at rook_w1 n1 n1)
+		(at rook_w1 n1 n4)
 		(at king_w1 n5 n1)
+		(at w_bishop_w1 n1 n5)
            )
     )
 )

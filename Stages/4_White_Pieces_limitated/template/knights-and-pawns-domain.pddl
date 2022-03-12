@@ -1,11 +1,11 @@
 (define (domain knights-and-pawns)
-    (:requirements :typing :negative-preconditions :equality)
+    (:requirements :typing :negative-preconditions :equality :disjunctive-preconditions)
     (:types
         figure - object
         location - object
         white - figure
         ;black - figure
-        pawn_w knight_w king_w rook_w - white
+        pawn_w knight_w king_w rook_w bishop_w - white
         ;knight_b - black
 
     )
@@ -14,11 +14,30 @@
         (diff_by_Zero ?file ?rank - location)
         (diff_by_One ?file ?rank - location)
         (diff_by_Two ?file ?rank - location)
+        (diff_by_Three ?file ?rank - location)
+        (diff_by_Four ?file ?rank - location)
+        (diff_by_Five ?file ?rank - location)
+        (diff_by_Six ?file ?rank - location)
+        (diff_by_Seven ?file ?rank - location)
+        (diff_by_Eight ?file ?rank - location)
         (diff_by_N ?file ?rank - location)
         (plusOne_white ?file ?rank - location)
         (plusOne_black ?file ?rank - location)
         (pawn_double_white ?from_file ?to_file ?from_rank ?to_rank - location)
         (pawn_double_black ?from_file ?to_file ?from_rank ?to_rank - location)
+    )
+
+    (:action bishop_move
+        :parameters (?bishop - bishop_w ?from_file ?to_file ?from_rank ?to_rank - location)
+        :precondition (and (at ?bishop ?from_file ?from_rank)
+                           (or
+;[:action_bishop_move]
+                           )
+                           (not (at ?bishop ?to_file ?to_rank))
+                       )
+        :effect (and (not (at ?bishop ?from_file ?from_rank))
+                     (at ?bishop ?to_file ?to_rank)
+                )
     )
 
     (:action rook_move_vetical

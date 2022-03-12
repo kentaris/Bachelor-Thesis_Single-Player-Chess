@@ -32,10 +32,10 @@ def load_file(Type):
     #Problem File content:
     if Type.lower()=='problem':
         #init:
-        start_FEN='5/5/5/PPPPP/RNKN1'
-        goal_FEN='2P2/5/1PNP1/P2NP/3RK'
+        start_FEN='5/5/5/PPPPP/RNKNB'
+        goal_FEN='B1P2/5/1PNP1/P2NP/3RK'
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
-        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
+        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(8))
         txt_file=replace(txt_file,';[:init_diffByN_hor_ver]\n',PG.add_diffByN_hor_ver())
         txt_file=replace(txt_file,';[:init_pawn_double_move]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
@@ -48,7 +48,8 @@ def load_file(Type):
         g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN),True,True))
         FEN.print_neighbor(s,g)
     else:
-        pass #for now we have nothing to change in the domain file so we just skip resulting in a copy paste in the next line
+        #pass #for now we have nothing to change in the domain file so we just skip resulting in a copy paste in the next line
+        txt_file=replace(txt_file,';[:action_bishop_move]\n',PG.add_bishop_moves())
     write_pddl(txt_file,Type)
 
 def main():

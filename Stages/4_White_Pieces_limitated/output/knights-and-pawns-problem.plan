@@ -3,15 +3,16 @@
 
 0.00100: (knight_move_2rank_1file knight_w1 knight_w2 n2 n3 n1 n3)
 0.00200: (rook_move_vetical rook_w1 n1 n1 n1 n4)
-0.00300: (pawn_move_single_white pawn_w4 n4 n4 n2 n3)
-0.00400: (pawn_move_single_white pawn_w2 n2 n2 n2 n3)
-0.00500: (king_move king_w1 n3 n4 n1 n2)
-0.00600: (king_move king_w1 n4 n5 n2 n1)
-0.00700: (pawn_move_double_white pawn_w3 n3 n3 n2 n4)
-0.00800: (pawn_move_single_white pawn_w3 n3 n3 n4 n5)
-0.00900: (knight_move_2rank_1file knight_w2 knight_w1 n4 n5 n1 n3)
-0.01000: (knight_move_2file_1rank knight_w2 knight_w1 n5 n3 n3 n4)
-0.01100: (knight_move_2rank_1file knight_w2 knight_w1 n3 n4 n4 n2)
+0.00300: (bishop_move w_bishop_w1 n5 n1 n1 n5)
+0.00400: (pawn_move_single_white pawn_w4 n4 n4 n2 n3)
+0.00500: (pawn_move_single_white pawn_w2 n2 n2 n2 n3)
+0.00600: (king_move king_w1 n3 n4 n1 n2)
+0.00700: (king_move king_w1 n4 n5 n2 n1)
+0.00800: (pawn_move_double_white pawn_w3 n3 n3 n2 n4)
+0.00900: (pawn_move_single_white pawn_w3 n3 n3 n4 n5)
+0.01000: (knight_move_2rank_1file knight_w2 knight_w1 n4 n5 n1 n3)
+0.01100: (knight_move_2file_1rank knight_w2 knight_w1 n5 n3 n3 n4)
+0.01200: (knight_move_2rank_1file knight_w2 knight_w1 n3 n4 n4 n2)
 
-; Makespan: 0.011
-; Metric: 0.011
+; Makespan: 0.012
+; Metric: 0.012
