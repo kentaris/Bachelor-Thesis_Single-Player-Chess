@@ -49,11 +49,12 @@ def add_one_forward():
     R+=one_forward('black')
     return R
 
-def add_bishop_moves():
+def add_bishop_moves(n):
     R=''
+    prelude=n*'\t'
     for i in range(board_size):
-        R+='{}   (and (diff_by_{} ?from_file ?to_file) ;file +/-{}\n'.format('\t'*7,num2word(i+1),i+1)
-        R+='{}        (diff_by_{} ?from_rank ?to_rank) ;rank +/-{}\n{}   )\n'.format('\t'*7,num2word(i+1),i+1,'\t'*7)
+        R+='{}   (and (diff_by_{} ?from_file ?to_file) ;file +/-{}\n'.format(prelude,num2word(i+1),i+1)
+        R+='{}        (diff_by_{} ?from_rank ?to_rank) ;rank +/-{}\n{}   )\n'.format(prelude,num2word(i+1),i+1,prelude)
     return R
 
 def one_forward(type):

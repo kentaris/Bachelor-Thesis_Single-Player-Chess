@@ -8,6 +8,7 @@
         king_w1 - king_w
         rook_w1 rook_w2 - rook_w
         w_bishop_w1 b_bishop_w1 - bishop_w
+        queen_w1 - queen_w
         ;pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn black
     )
     (:init
@@ -18,9 +19,9 @@
 		(at pawn_w4 n4 n2)
 		(at pawn_w5 n5 n2)
 		(at rook_w1 n1 n1)
-		(at knight_w1 n2 n1)
+		(at queen_w1 n2 n1)
 		(at king_w1 n3 n1)
-		(at knight_w2 n4 n1)
+		(at knight_w1 n4 n1)
 		(at w_bishop_w1 n5 n1)
 
 		;Difference by Zero:
@@ -133,11 +134,11 @@
 		(at knight_w1 n3 n3)
 		(at pawn_w4 n4 n3)
 		(at pawn_w1 n1 n2)
-		(at knight_w2 n4 n2)
 		(at pawn_w5 n5 n2)
-		(at rook_w1 n1 n4)
+		(at rook_w1 n4 n1)
 		(at king_w1 n5 n1)
 		(at w_bishop_w1 n1 n5)
+		(at queen_w1 n5 n4)
            )
     )
 )

@@ -5,7 +5,7 @@
         location - object
         white - figure
         ;black - figure
-        pawn_w knight_w king_w rook_w bishop_w - white
+        pawn_w knight_w king_w rook_w bishop_w queen_w - white
         ;knight_b - black
 
     )
@@ -25,6 +25,38 @@
         (plusOne_black ?file ?rank - location)
         (pawn_double_white ?from_file ?to_file ?from_rank ?to_rank - location)
         (pawn_double_black ?from_file ?to_file ?from_rank ?to_rank - location)
+    )
+
+    (:action queen_move
+        :parameters (?queen - queen_w ?from_file ?to_file ?from_rank ?to_rank - location)
+        :precondition (and (at ?queen ?from_file ?from_rank)
+                           (or
+                               (or
+								   (and (diff_by_One ?from_file ?to_file) ;file +/-1
+								        (diff_by_One ?from_rank ?to_rank) ;rank +/-1
+								   )
+								   (and (diff_by_Two ?from_file ?to_file) ;file +/-2
+								        (diff_by_Two ?from_rank ?to_rank) ;rank +/-2
+								   )
+								   (and (diff_by_Three ?from_file ?to_file) ;file +/-3
+								        (diff_by_Three ?from_rank ?to_rank) ;rank +/-3
+								   )
+								   (and (diff_by_Four ?from_file ?to_file) ;file +/-4
+								        (diff_by_Four ?from_rank ?to_rank) ;rank +/-4
+								   )
+								   (and (diff_by_Five ?from_file ?to_file) ;file +/-5
+								        (diff_by_Five ?from_rank ?to_rank) ;rank +/-5
+								   )
+                               )
+                               (and (diff_by_Zero ?from_file ?to_file) ; file +/-0
+                                    (diff_by_N ?from_rank ?to_rank) ; rank +/-n
+                               )
+                           )
+                           (not (at ?queen ?to_file ?to_rank))
+                       )
+        :effect (and (not (at ?queen ?from_file ?from_rank))
+                     (at ?queen ?to_file ?to_rank)
+                )
     )
 
     (:action bishop_move
