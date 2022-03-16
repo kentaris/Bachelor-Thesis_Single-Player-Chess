@@ -1,6 +1,7 @@
 import os
 import population_generator as PG
 import FEN
+from subprocess import call
 
 def replace(txt_file,old_content,new_content):
     """takes f.readlines() (1D array of strings) as input and replaces the given 'old_content' string with the 'new_content' string"""
@@ -12,13 +13,46 @@ def replace(txt_file,old_content,new_content):
 def write_pddl(txt_file,Type):
     """writes the given 1D array of strings to a .pddl file in the output folder"""
     files=os.listdir('template/')
-    for f in files:
-        if Type.lower() in f.lower():
-            name=f
+    for file in files:
+        if Type.lower() in file.lower():
+            name=file
     with open('output/{}'.format(name), mode='w') as f:
         for line in txt_file:
             f.write("".join(line))
     f.close()
+    with open('../../../downward/{}'.format(name), mode='w') as f:
+        for line in txt_file:
+            f.write("".join(line))
+    f.close()
+
+def execute_planner():
+    '''executes the pddl planner which Augusto sent me'''
+    #os.system('ls')
+    call('./fast-downward.py chess-domain.pddl chess-problem.pddl --search "eager_greedy([ff])"',cwd="../../../downward/",shell=True)
+    call('mv sas_plan /home/ken/Documents/Bachelor-Thesis_Single-Player-Chess/Stages/6_all_rules_implemented/output',cwd="../../../downward/",shell=True)
+    #os.system('./fast-downward.py chess-domain.pddl chess-problem.pddl --search "eager_greedy([ff])"')
+
+def convert_plan():
+    '''converts plan so I can nicely view it in vs code. completely unneccessary but I wanted it.'''
+    files=os.listdir('output/')
+    for f in files:
+        if f=='sas_plan':
+            name=f
+    with open('output/{}'.format(name), mode='r') as f:
+        txt_file = f.readlines()
+        txt_file.insert(0,';;!problem: chess-problem\n')
+        txt_file.insert(0,';;!domain: chess-domain\n')
+    f.close()
+    for line in range(len(txt_file)):
+        if line >1 and line<len(txt_file)-1:
+            n=len(str(line-1))
+            txt_file[line]='0.{}'.format('0'*(2-n))+str(line-1)+'00: '+txt_file[line]
+    with open('output/{}'.format(name), mode='w') as f:
+        for line in txt_file:
+            f.write("".join(line))
+        os.rename('output/{}'.format(name),'output/{}.plan'.format(name))
+    f.close()
+    
 
 def load_file(Type):
     """loads the .pddl file in the template folder and changes it's content accordingly using the replace() function"""
@@ -53,6 +87,8 @@ def load_file(Type):
         txt_file=replace(txt_file,';[:action_bishop_move]\n',PG.add_bishop_moves(7))
         txt_file=replace(txt_file,';[:action_queen_move]\n',PG.add_bishop_moves(8)) #add diagonal moves of bishop (plus horizontal and vertical moves of Rook)
     write_pddl(txt_file,Type)
+    execute_planner()
+    convert_plan()
 
 def main():
     load_file('problem')

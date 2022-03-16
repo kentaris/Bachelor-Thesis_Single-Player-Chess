@@ -1,5 +1,5 @@
-(define (problem knights-and-pawns-problem)
-    (:domain knights-and-pawns)
+(define (problem chess-problem)
+    (:domain chess)
     (:objects
         n1 n2 n3 n4 n5 - location
     	;white pieces:
