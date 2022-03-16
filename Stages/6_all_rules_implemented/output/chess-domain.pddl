@@ -31,16 +31,30 @@
         (diff_by_N ?file ?rank - location)
         (plusOne_white ?file ?rank - location)
         (plusOne_black ?file ?rank - location)
-        (pawn_double_white ?from_file ?to_file ?from_rank ?to_rank - location)
-        (pawn_double_black ?from_file ?to_file ?from_rank ?to_rank - location)
+        (pawn_start_pos_white ?from_file ?from_rank - location)
+        (pawn_start_pos_black ?from_file ?from_rank - location)
         ;derived:
-        (horiz_reachable ?from_file ?to_file ?from_rank ?to_rank - location)
-        (not_occupied ?file ?rank - location)
+        (vert_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
+        (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location)
+        (occupied ?file ?rank - location)
     )
 
-    (:derived (not_occupied ?file ?rank - location)
-        (not(exists(?figure - figure) ;no piece at given position
-            (at ?figure ?file ?rank)))
+    (:derived (occupied ?file ?rank - location) ;check if some figure is at location
+        (exists(?figure - figure)
+            (at ?figure ?file ?rank))
+    )
+
+    (:derived (vert_reachable ?from_file ?from_rank ?to_file ?to_rank - location) ;check if some figure is between from and to location
+        (or (not(occupied ?to_file ?to_rank))
+            (exists(?rank - location)
+                 (and (not(=?from_rank ?rank))
+                      (not(occupied ?to_file ?rank))
+                      (diff_by_One ?from_file ?to_file)
+                      (diff_by_Zero ?from_rank ?to_rank)
+                      (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)                      
+                 )
+            )
+        )
     )
 
     (:action pawn_move_white
@@ -49,15 +63,18 @@
                            (at ?pawn ?from_file ?from_rank)
                            (or    
                                (and ;single move:
+                                   (not(occupied ?to_file ?to_rank))
                                    (diff_by_Zero ?from_file ?to_file) ; file +/- 0
                                    (plusOne_white ?from_rank ?to_rank) ; rank +1
-                                   
                                )
                                (and ;double move:
-                                   (pawn_double_white ?from_file ?to_file ?from_rank ?to_rank)
+                                   (pawn_start_pos_white ?from_file ?from_rank)
+                                   (not(occupied ?to_file ?to_rank))
+                                   (diff_by_Zero ?from_file ?to_file)
+                                   (diff_by_Two ?from_rank ?to_rank)
+                                   (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
                                )
                            )
-                           (not_occupied ?to_file ?to_rank)
                       )
         :effect (and (not (at ?pawn ?from_file ?from_rank))
                      (at ?pawn ?to_file ?to_rank)
@@ -70,14 +87,18 @@
                            (at ?pawn ?from_file ?from_rank)
                            (or    
                                (and ;single move:
+                                   (not(occupied ?to_file ?to_rank))
                                    (diff_by_Zero ?from_file ?to_file) ; file +/- 0
                                    (plusOne_black ?from_rank ?to_rank) ; rank +1
                                )
                                (and ;double move:
-                                   (pawn_double_black ?from_file ?to_file ?from_rank ?to_rank)
+                                   (pawn_start_pos_black ?from_file ?from_rank)
+                                   (not(occupied ?to_file ?to_rank))
+                                   (diff_by_Zero ?from_file ?to_file)
+                                   (diff_by_Two ?from_rank ?to_rank)
+                                   (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
                                )
                            )
-                           (not_occupied ?to_file ?to_rank)
                       )
         :effect (and (not (at ?pawn ?from_file ?from_rank))
                      (at ?pawn ?to_file ?to_rank)
@@ -97,7 +118,7 @@
                                    (diff_by_One ?from_file ?to_file) ; file +/- 1
                                )
                            )
-                           (not_occupied ?to_file ?to_rank)
+                           (not(occupied ?to_file ?to_rank))
                       )
         :effect (and (not (at ?knight ?from_file ?from_rank))
                      (at ?knight ?to_file ?to_rank)
@@ -125,7 +146,7 @@
 							        (diff_by_Five ?from_rank ?to_rank) ;rank +/-5
 							   )
                            )
-                           (not_occupied ?to_file ?to_rank)
+                           (not(occupied ?to_file ?to_rank))
                        )
         :effect (and (not (at ?bishop ?from_file ?from_rank))
                      (at ?bishop ?to_file ?to_rank)
@@ -145,7 +166,7 @@
                                    (diff_by_N ?from_file ?to_file) ; file +/-n
                                )
                            )
-                           (not_occupied ?to_file ?to_rank)
+                           (not(occupied ?to_file ?to_rank))
                        )
         :effect (and (not (at ?rook ?from_file ?from_rank))
                      (at ?rook ?to_file ?to_rank)
@@ -184,7 +205,7 @@
                                    (diff_by_N ?from_file ?to_file) ; file +/-n
                                )
                            )
-                           (not_occupied ?to_file ?to_rank)
+                           (not(occupied ?to_file ?to_rank))
                        )
         :effect (and (not (at ?queen ?from_file ?from_rank))
                      (at ?queen ?to_file ?to_rank)
@@ -196,7 +217,7 @@
         :precondition (and (at ?king ?from_file ?from_rank)
                            (diff_by_One ?from_file ?to_file) ; file +/-1
                            (diff_by_One ?from_rank ?to_rank) ; rank +/-1
-                           (not_occupied ?to_file ?to_rank)
+                           (not(occupied ?to_file ?to_rank))
                        )
         :effect (and (not (at ?king ?from_file ?from_rank))
                      (at ?king ?to_file ?to_rank)

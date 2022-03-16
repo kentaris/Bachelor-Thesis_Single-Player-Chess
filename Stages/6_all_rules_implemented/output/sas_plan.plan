@@ -1,14 +1,9 @@
-;;!domain: chess-domain
+;;!domain: chess
 ;;!problem: chess-problem
-0.0100: (bishop_move w_bishop_w1 n5 n1 n1 n5)
-0.0200: (knight_move knight_w1 n4 n1 n3 n3)
-0.0300: (rook_move rook_w1 n1 n1 n4 n1)
-0.0400: (pawn_move_white pawn_w3 n3 n2 n3 n4)
-0.0500: (pawn_move_white pawn_w3 n3 n4 n3 n5)
-0.0600: (pawn_move_black pawn_b1 n5 n4 n5 n3)
-0.0700: (queen_move queen_w1 n2 n1 n5 n4)
-0.0800: (pawn_move_white pawn_w4 n4 n2 n4 n3)
-0.0900: (king_move king_w1 n3 n1 n4 n2)
-0.1000: (king_move king_w1 n4 n2 n5 n1)
-0.1100: (pawn_move_white pawn_w2 n2 n2 n2 n3)
-; cost = 11 (unit cost)
+1: (pawn_move_white pawn_w2 n4 n3 n4 n4)
+2: (pawn_move_white pawn_w2 n4 n4 n4 n5)
+3: (pawn_move_white pawn_w4 n4 n2 n4 n4)
+4: (pawn_move_black pawn_b5 n5 n3 n5 n2)
+5: (pawn_move_black pawn_b3 n5 n4 n5 n3)
+6: (pawn_move_black pawn_b1 n1 n4 n1 n3)
+; cost = 6 (unit cost)

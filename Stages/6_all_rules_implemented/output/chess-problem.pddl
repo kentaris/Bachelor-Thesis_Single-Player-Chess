@@ -19,17 +19,15 @@
     )
     (:init
         ;Initial position of the Knight piece (upper left corner) => (n1 n8) = A8  // (at pawn_w1 n1 n2) = A2
-		(at pawn_b1 n5 n4)
-		(at pawn_w1 n1 n2)
-		(at pawn_w2 n2 n2)
-		(at pawn_w3 n3 n2)
+		(at pawn_b1 n1 n4)
+		(at pawn_b2 n3 n4)
+		(at pawn_b3 n5 n4)
+		(at pawn_b4 n2 n3)
+		(at pawn_w1 n3 n3)
+		(at pawn_w2 n4 n3)
+		(at pawn_b5 n5 n3)
+		(at pawn_w3 n2 n2)
 		(at pawn_w4 n4 n2)
-		(at pawn_w5 n5 n2)
-		(at rook_w1 n1 n1)
-		(at queen_w1 n2 n1)
-		(at king_w1 n3 n1)
-		(at knight_w1 n4 n1)
-		(at w_bishop_w1 n5 n1)
 
 		;Difference by Zero:
 		(diff_by_Zero n1 n1)
@@ -108,18 +106,18 @@
 		(diff_by_N n5 n1)
 
 		;Pawn double moves for white:
-		(pawn_double_white n1 n1 n2 n4)
-		(pawn_double_white n2 n2 n2 n4)
-		(pawn_double_white n3 n3 n2 n4)
-		(pawn_double_white n4 n4 n2 n4)
-		(pawn_double_white n5 n5 n2 n4)
+		(pawn_start_pos_white n1 n2)
+		(pawn_start_pos_white n2 n2)
+		(pawn_start_pos_white n3 n2)
+		(pawn_start_pos_white n4 n2)
+		(pawn_start_pos_white n5 n2)
 
 		;Pawn double moves for black:
-		(pawn_double_black n1 n1 n4 n2)
-		(pawn_double_black n2 n2 n4 n2)
-		(pawn_double_black n3 n3 n4 n2)
-		(pawn_double_black n4 n4 n4 n2)
-		(pawn_double_black n5 n5 n4 n2)
+		(pawn_start_pos_black n1 n4)
+		(pawn_start_pos_black n2 n4)
+		(pawn_start_pos_black n3 n4)
+		(pawn_start_pos_black n4 n4)
+		(pawn_start_pos_black n5 n4)
 
 		;Pawn single moves for white:
 		(plusOne_white n1 n2)
@@ -136,18 +134,29 @@
     (:goal (and
         ;Adjust numbers by hand!
 ;[:goal_position]
-        (at pawn_w3 n3 n5)
-		(at pawn_w2 n2 n3)
-		(at knight_w1 n3 n3)
-		(at pawn_w4 n4 n3)
-		(at pawn_w1 n1 n2)
-		(at pawn_w5 n5 n2)
-		(at rook_w1 n4 n1)
-		(at king_w1 n5 n1)
-		(at w_bishop_w1 n1 n5)
-		(at queen_w1 n5 n4)
-		
-		(at pawn_b1 n5 n3)
+        ;(at pawn_w3 n3 n5)
+		;(at pawn_w2 n2 n3)
+		;(at knight_w1 n3 n3)
+		;(at pawn_w4 n4 n3)
+		;(at pawn_w1 n1 n2)
+		;(at pawn_w5 n5 n2)
+		;(at rook_w1 n4 n1)
+		;(at king_w1 n5 n1)
+		;(at w_bishop_w1 n1 n5)
+		;(at queen_w1 n5 n4)
+		;
+		;(at pawn_b1 n5 n3)
+
+        (at pawn_b1 n1 n3)
+		(at pawn_b2 n3 n4)
+		(at pawn_b3 n5 n3)
+		(at pawn_b4 n2 n3)
+		(at pawn_w1 n3 n3)
+		(at pawn_w2 n4 n5)
+		(at pawn_b5 n5 n2)
+		(at pawn_w3 n2 n2)
+		(at pawn_w4 n4 n4)
+
            )
     )
 )

@@ -80,10 +80,10 @@ def pawn_double(type):
     from_rank=2
     if type=='black': to_rank=board_size-3; from_rank=board_size-1
     for file in range(board_size):
-        diffBy_array.append((file+1,file+1,from_rank,to_rank))
+        diffBy_array.append((file+1,from_rank,file+1,to_rank))
     for t in diffBy_array:
-        prelude='pawn_double_{}'.format(type)
-        R+='\t\t({} {}{} {}{} {}{} {}{})\n'.format(prelude,'n',t[0],'n',t[1],'n',t[2],'n',t[3])
+        prelude='pawn_start_pos_{}'.format(type)
+        R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',t[0],'n',t[1])#,'n',t[2],'n',t[3])
     return R
 
 def create_diffBy_list(diff,name,get=False):
