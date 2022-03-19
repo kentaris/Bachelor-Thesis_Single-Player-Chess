@@ -2,21 +2,52 @@ import FEN
 
 board_size=5 #to change the board size
 
-def add_FEN_pos_to_PDDL(fen):
+def add_FEN_pos_to_PDDL(fen,type):
     '''returns the PDDL line format of the occupied board positions of a given FEN string'''
     length=fen.count('/')+1
+    done=[]
     R=''
     board=FEN.FEN_to_Chess_board(fen)
-    for rank in range(length):
-        for file in range(length):
-            if board[rank][file] in vars(FEN.figures):
-                idx=0 #ToDo: I don't know which pawn moved to which position but I number them from left to right atm...
-                while vars(figures)[board[rank][file]][idx] in R: #possible source of errors: if idx gets bigger than # elements. but should only happen if I rename something and forget about this.
-                    idx+=1
-                figure=vars(figures)[board[rank][file]][idx]
-                R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-(rank))+')\n'
+    if type=='goal':
+        for rank in range(length):
+            for file in range(length):
+                if board[rank][file] in vars(figures_plain):
+                    figure=vars(figures_plain)[board[rank][file]]
+                    color='white'
+                    if figure[-1:]=='b':
+                        color='black'
+                    print(color)
+                    R+='\t\t(occupied_by n'+str((file+1))+' n'+str(board_size-(rank))+' '+figure[:-2]+' '+color+')\n'
+    else:
+        for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board
+            for i in range(fen.count(fig)): #every figure can occur multiple times
+                idx=0
+                file=0
+                for col in zip(*board): #iterate over columns instead of rows of the board
+                    for rank in range(length):
+                        if board[rank][file]==fig and vars(figures)[fig][idx] not in done:
+                            figure=vars(figures)[fig][idx]
+                            done.append(figure)
+                            R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-(rank))+')\n'
+                            idx+=1
+                    file+=1
     return R
-    
+
+class figures_plain:
+    #black pieces:
+    p='pawn_b'
+    n='knight_b'
+    b='w_bishop_b'
+    r='rook_b'
+    q='queen_b'
+    k='king_b'
+    #white pieces:
+    P='pawn_w'
+    N='knight_w'
+    B='w_bishop_w'
+    R='rook_w'
+    Q='queen_w'
+    K='king_w'
 class figures:
     #black pieces:
     p=['pawn_b1','pawn_b2','pawn_b3','pawn_b4','pawn_b5','pawn_b6','pawn_b7','pawn_b8']
@@ -35,9 +66,9 @@ class figures:
 
 def add_double_pawn_moves():
     R=''
-    R+='\n\t\t;Pawn double moves for white:\n'
+    R+='\n\t\t;Pawn double moves start for white:\n'
     R+=pawn_double('white')
-    R+='\n\t\t;Pawn double moves for black:\n'
+    R+='\n\t\t;Pawn double moves start for black:\n'
     R+=pawn_double('black')
     return R
 
@@ -119,12 +150,12 @@ def add_diffByN(N):
         R+='\n\t\t;Difference by {}:\n'.format(word)+line
     return R
 
-def add_diffByN_hor_ver():
+def add_diffByN_hor_ver(N):
     R=''
-    for diff in range(board_size):
+    for diff in range(N):
         R+='\n\t\t;Diff by {}:\n'.format(num2word(diff))
-        for n1 in range(board_size):
-            for n2 in range(board_size):
+        for n1 in range(N):
+            for n2 in range(N):
                 if abs((n1+1)-(n2+1))==diff:
                     R+='\t\t(diff_by_N n{} n{})\n'.format((n1+1),(n2+1))
     return R

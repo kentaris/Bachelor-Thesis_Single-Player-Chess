@@ -1,9 +1,4 @@
 ;;!domain: chess
 ;;!problem: chess-problem
-1: (pawn_move_white pawn_w2 n4 n3 n4 n4)
-2: (pawn_move_white pawn_w2 n4 n4 n4 n5)
-3: (pawn_move_white pawn_w4 n4 n2 n4 n4)
-4: (pawn_move_black pawn_b5 n5 n3 n5 n2)
-5: (pawn_move_black pawn_b3 n5 n4 n5 n3)
-6: (pawn_move_black pawn_b1 n1 n4 n1 n3)
-; cost = 6 (unit cost)
+1: (capture_by_white_pawn pawn_w1 b_bishop_b1 n4 n3 n5 n4)
+; cost = 1 (unit cost)

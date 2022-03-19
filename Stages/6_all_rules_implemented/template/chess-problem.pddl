@@ -18,39 +18,13 @@
         queen_b1 - queen_b
     )
     (:init
-        ;Initial position of the Knight piece (upper left corner) => (n1 n8) = A8  // (at pawn_w1 n1 n2) = A2
 ;[:init_start_state]
 ;[:init_diffByN]
-;[:init_diffByN_hor_ver]
 ;[:init_pawn_start_pos]
 ;[:init_plusOne]
     )
     (:goal (and
-        ;Adjust numbers by hand!
 ;[:goal_position]
-        ;(at pawn_w3 n3 n5)
-		;(at pawn_w2 n2 n3)
-		;(at knight_w1 n3 n3)
-		;(at pawn_w4 n4 n3)
-		;(at pawn_w1 n1 n2)
-		;(at pawn_w5 n5 n2)
-		;(at rook_w1 n4 n1)
-		;(at king_w1 n5 n1)
-		;(at w_bishop_w1 n1 n5)
-		;(at queen_w1 n5 n4)
-		;
-		;(at pawn_b1 n5 n3)
-
-        (at pawn_b1 n1 n3)
-		(at pawn_b2 n3 n4)
-		(at pawn_b3 n5 n3)
-		(at pawn_b4 n2 n3)
-		(at pawn_w1 n3 n3)
-		(at pawn_w2 n4 n5)
-		(at pawn_b5 n5 n2)
-		(at pawn_w3 n2 n2)
-		(at pawn_w4 n4 n4)
-
            )
     )
 )

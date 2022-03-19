@@ -24,9 +24,9 @@ def printable_board(board,color=False,symbols=False):
                 elif letter.isupper(): #white pieces
                     r+=colors.highlight+colors.white_pieces+symbol
                 else: #empty space
-                    if (i+j)%2==0: #black
+                    if (i+j)%2==1: #white
                         r+=colors.highlight+colors.white_spaces+symbol#rgb(32, 57, 88)
-                    else: #white
+                    else: #black
                         r+=colors.highlight+colors.black_spaces+symbol
                 r+=' '+colors.reset*3
         else:
@@ -141,9 +141,9 @@ def printable_list_of_allFigures(figures,indent='',prefix=''):
 
 def print_neighbor(board1,board2,indent='\t'):
     """prints two boards next to one another"""
-    board1=colors.dim+'  Initial Position:   \n'+colors.reset+board1+colors.reset
+    board1=colors.dim+'  Init:   \n'+colors.reset+board1+colors.reset
     board1=board1.split('\n')
-    board2=colors.dim+'  Goal Position:   \n'+colors.reset+board2+colors.reset
+    board2=colors.dim+'  Goal:   \n'+colors.reset+board2+colors.reset
     board2=board2.split('\n')
     for line in range(len(board1)):
         print(board1[line],indent,board2[line])

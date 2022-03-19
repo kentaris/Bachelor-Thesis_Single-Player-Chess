@@ -18,8 +18,19 @@
         queen_b1 - queen_b
     )
     (:init
-		(at pawn_b1 n5 n4)
-		(at pawn_w1 n4 n3)
+		(at pawn_b1 n3 n4)
+		(at knight_b1 n5 n1)
+		(at w_bishop_b1 n4 n4)
+		(at rook_b1 n1 n1)
+		(at rook_b2 n2 n4)
+		(at king_b1 n1 n4)
+		(at pawn_w1 n1 n2)
+		(at knight_w1 n2 n2)
+		(at w_bishop_w1 n4 n1)
+		(at rook_w1 n3 n2)
+		(at rook_w2 n4 n3)
+		(at queen_w1 n2 n1)
+		(at king_w1 n3 n5)
 
 		;Difference by Zero:
 		(diff_by_Zero n1 n1)
@@ -46,14 +57,65 @@
 		(diff_by_Two n4 n2)
 		(diff_by_Two n5 n3)
 
-		;Pawn double moves start for white:
+		;Difference by Three:
+		(diff_by_Three n1 n4)
+		(diff_by_Three n2 n5)
+		(diff_by_Three n4 n1)
+		(diff_by_Three n5 n2)
+
+		;Difference by Four:
+		(diff_by_Four n1 n5)
+		(diff_by_Four n5 n1)
+
+		;Difference by Five:
+
+		;Difference by Six:
+
+		;Difference by Seven:
+
+		;Diff by Zero:
+		(diff_by_N n1 n1)
+		(diff_by_N n2 n2)
+		(diff_by_N n3 n3)
+		(diff_by_N n4 n4)
+		(diff_by_N n5 n5)
+
+		;Diff by One:
+		(diff_by_N n1 n2)
+		(diff_by_N n2 n1)
+		(diff_by_N n2 n3)
+		(diff_by_N n3 n2)
+		(diff_by_N n3 n4)
+		(diff_by_N n4 n3)
+		(diff_by_N n4 n5)
+		(diff_by_N n5 n4)
+
+		;Diff by Two:
+		(diff_by_N n1 n3)
+		(diff_by_N n2 n4)
+		(diff_by_N n3 n1)
+		(diff_by_N n3 n5)
+		(diff_by_N n4 n2)
+		(diff_by_N n5 n3)
+
+		;Diff by Three:
+		(diff_by_N n1 n4)
+		(diff_by_N n2 n5)
+		(diff_by_N n4 n1)
+		(diff_by_N n5 n2)
+
+		;Diff by Four:
+		(diff_by_N n1 n5)
+		(diff_by_N n5 n1)
+
+		;Pawn double moves for white:
 		(pawn_start_pos_white n1 n2)
 		(pawn_start_pos_white n2 n2)
 		(pawn_start_pos_white n3 n2)
 		(pawn_start_pos_white n4 n2)
 		(pawn_start_pos_white n5 n2)
 
-		;Pawn double moves start for black:
+		;Pawn double moves for black:
 		(pawn_start_pos_black n1 n4)
 		(pawn_start_pos_black n2 n4)
 		(pawn_start_pos_black n3 n4)
@@ -73,7 +135,19 @@
 		(plusOne_black n5 n4)
     )
     (:goal (and
-		(at pawn_w1 n5 n4)
+		(at pawn_b1 n3 n1)
+		(at knight_b1 n3 n2)
+		(at w_bishop_b1 n3 n5)
+		(at rook_b1 n2 n4)
+		(at rook_b2 n5 n5)
+		(at king_b1 n1 n4)
+		(at pawn_w1 n1 n5)
+		(at knight_w1 n5 n3)
+		(at w_bishop_w1 n5 n2)
+		(at rook_w1 n2 n3)
+		(at rook_w2 n4 n3)
+		(at queen_w1 n4 n5)
+		(at king_w1 n2 n5)
            )
     )
 )
