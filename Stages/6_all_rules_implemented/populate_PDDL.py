@@ -112,7 +112,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         #print('start:\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         #print('goal:\n',PG.add_FEN_pos_to_PDDL(goal_FEN))
         txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
-        #txt_file=replace(txt_file,';[:init_diffByN_hor_ver]\n',PG.add_diffByN_hor_ver(3))
+        #txt_file=replace(txt_file,';[:init_diffByN_hor_ver]\n',PG.add_diffByN_hor_ver(9))
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
 
@@ -161,8 +161,8 @@ def time_it():
     print('\033[0m',end='')
 
 def main():
-    start_FEN='5/4p/3P1/5/5'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN='5/4P/5/5/5'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='B4/5/5/5/5'#'5/5/5/5/RK2R'#'5/4p/3P1/5/5'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
+    goal_FEN='5/5/5/5/4B'#'5/5/5/5/R1RK1'#'5/4P/5/5/5'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')

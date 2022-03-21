@@ -19,9 +19,17 @@
     )
     (:init
 ;[:init_start_state]
-;[:init_diffByN]
 ;[:init_pawn_start_pos]
 ;[:init_plusOne]
+;[:init_diffByN]
+;[:init_diffByN_hor_ver]
+        
+        (not_moved king_w1)
+        (not_moved king_b1)
+        (not_moved rook_w1)
+        (not_moved rook_w2)
+        (not_moved rook_b1)
+        (not_moved rook_b2)
     )
     (:goal (and
 ;[:goal_position]

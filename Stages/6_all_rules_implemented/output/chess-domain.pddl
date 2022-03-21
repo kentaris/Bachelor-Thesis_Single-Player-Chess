@@ -20,24 +20,20 @@
     (:predicates
         ;normal predicates:
         (at ?figure - figure ?file ?rank - location)
+        (not_moved ?figure - figure)
+        ;(diff_by_N ?file ?rank - location)
         (diff_by_Zero ?file ?rank - location)
         (diff_by_One ?file ?rank - location)
         (diff_by_Two ?file ?rank - location)
-        ;(diff_by_Three ?file ?rank - location)
-        ;(diff_by_Four ?file ?rank - location)
-        ;(diff_by_Five ?file ?rank - location)
-        ;(diff_by_Six ?file ?rank - location)
-        ;(diff_by_Seven ?file ?rank - location)
-        ;(diff_by_Eight ?file ?rank - location)
-        ;(diff_by_N ?file ?rank - location)
-        (plusOne_white ?file ?rank - location)
-        (plusOne_black ?file ?rank - location)
+        (plusOne ?file ?rank - location)
+        (minusOne ?file ?rank - location)
         (pawn_start_pos_white ?from_file ?from_rank - location)
         (pawn_start_pos_black ?from_file ?from_rank - location)
         ;derived predicates:
         (occupied ?file ?rank - location)
         (occupied_by ?file ?rank - location ?color - color)
         (occupied_by_same_color ?file ?rank - location ?color - color)
+        (occupied_by_figure ?figure - figure ?file ?rank - location)
         (empty ?file ?rank - location)
         (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location)
         (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location)
@@ -48,6 +44,7 @@
         (vert_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
         (horiz_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
         (diag_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
+        (castling_possible  ?king - king ?rank ?from_file_rook ?to_file_rook - location)
     )
 ;DERIVED PREDICATES:
  ;;;;;;;;;;;;;;;;;;;;
@@ -63,6 +60,9 @@
                 (=?color ?col)
             )
         )
+    )
+    (:derived (occupied_by_figure ?figure - figure ?file ?rank - location) ;check if some figure is at location with same color
+        (at ?figure ?file ?rank)
     )
     (:derived (occupied_by_same_color ?file ?rank - location ?color - color) ;check if some figure is at location with same color
         (and
@@ -84,12 +84,12 @@
  ;adjacent:
     (:derived (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location)
         (and(= ?from_file ?to_file) ;file +/-0
-            (diff_by_One ?from_rank ?to_rank)
+            (diff_by_One ?from_rank ?to_rank) ;rank +/-1
         )
     )
     (:derived (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location)
         (and(= ?from_rank ?to_rank) ;rank +/-0
-            (diff_by_One ?from_file ?to_file)
+            (diff_by_One ?from_file ?to_file) ;file +/-1
         )
     )
     (:derived (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location)
@@ -100,42 +100,48 @@
 
  ;rachable:
     (:derived (vert_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
-        (or (and(not(occupied ?to_file ?to_rank))
-                (vert_adj ?from_file ?from_rank ?to_file ?to_rank)
+        (or (
+                vert_adj ?from_file ?from_rank ?to_file ?to_rank
             )
             (exists(?next_rank - location)
-                 (and (not(=?from_rank ?to_rank)) ;don't stay on same rank
-                      (= ?from_file ?to_file) ;file +/-0
-                      (not(occupied ?to_file ?next_rank))
-                      (diff_by_One ?from_rank ?next_rank) ;one step at a time
-                      (vert_reachable ?from_file ?from_rank ?to_file ?next_rank)
+                 (and (not(occupied ?to_file ?next_rank))
+                      (not(=?from_rank ?next_rank)) ;don't stay on same rank
+                      (diff_by_One ?from_rank ?next_rank) ;one step
+                      (= ?from_file ?to_file) ;same file
+                      (vert_reachable ?from_file ?next_rank ?to_file ?to_rank)
                  )
             )
         )
     )
     (:derived (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
-        (or (and(not(occupied ?to_file ?to_rank))
-                (= ?from_rank ?to_rank) ;rank +/-0
+        (or (
+                horiz_adj ?from_file ?from_rank ?to_file ?to_rank
             )
             (exists(?next_file - location)
                  (and (not(=?from_file ?to_file)) ;don't stay on same file
                       (= ?from_rank ?to_rank) ;file +/-0
                       (not(occupied ?next_file ?to_rank))
                       (diff_by_One ?from_file ?next_file) ;one step at a time
-                      (vert_reachable ?from_file ?from_rank ?next_file ?to_rank)
+                      (horiz_reachable ?next_file ?from_rank ?to_file ?to_rank)
                  )
             )
         )
     )
     (:derived (diag_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
-        (or (not(occupied ?to_file ?to_rank))
-            (exists(?next_file - location)
-                    (and (not(=?from_file ?to_file)) ;don't stay on same file
+        ;TODO: Bishops don't stay on same diagonal somehow...
+        (or (
+                diag_adj ?from_file ?from_rank ?to_file ?to_rank
+            )
+            (exists(?next_file ?next_rank - location)
+                   (and (not(=?from_file ?to_file)) ;don't stay on same file
                         (not(= ?from_rank ?to_rank)) ;don't stay on same rank
-                        (not(occupied ?next_file ?to_rank))
+                        (not(occupied ?next_file ?next_rank))
                         (diff_by_One ?from_file ?next_file) ;one step at a time
-                        (diag_reachable ?from_file ?from_rank ?next_file ?to_rank)
-                    )
+                        (diff_by_One ?from_rank ?next_rank) ;one step at a time
+                        ;ToDo: must be on same diagonal
+                        (diag_reachable ?next_file ?next_rank ?to_file ?to_rank)
+                        (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                   )
             )
         )
     )
@@ -171,29 +177,26 @@
 			 (not(empty ?to_file ?to_rank)) ;square also isn't empty (meaning black piece is on it)
         )
     )
+ ;castling possible
+    (:derived (castling_possible ?king - king ?rank ?from_file_rook ?to_file_rook - location)
+        (or (occupied_by_figure ?king ?to_file_rook ?rank) ;move untill king is at position
+            (and (diff_by_One ?from_file_rook ?to_file_rook) ;one step at a time
+			     (occupied_by_figure ?king ?to_file_rook ?rank) ;necessary?
+			     (castling_possible ?king ?rank ?from_file_rook ?to_file_rook)
+            )
+        )
+    )
+
 ;ACTIONS
  ;;;;;;;;
-    ;(:action en_passant_move_white
-    ;    :parameters (?pawn - pawn_w ?from_file ?from_rank ?to_file ?to_rank - location ?figure - figure ?color - color)
-    ;    :precondition (and 
-    ;                       (at ?pawn ?from_file ?from_rank)
-    ;                       (and ;en passant:
-    ;                           (diag-capturable ?from_file ?from_rank ?to_file ?to_rank ?color)
-    ;                       )
-    ;                  )
-    ;    :effect (and (not (at ?pawn ?from_file ?from_rank))
-    ;                 (not(at ?figure ?to_file ?to_rank));remove other figure at landing position (capture)
-    ;                 (at ?pawn ?to_file ?to_rank) ;move pawn to landing position
-    ;            )
-    ;)
-    (:action capture_by_white_pawn
+    (:action capture_by_white_pawn ;en passant white
         :parameters (?pawn - pawn_w ?color - color ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and
                            (occupied ?to_file ?to_rank)
                            (occupied_by_same_color ?to_file ?to_rank ?color)
                            (at ?pawn ?from_file ?from_rank)
                            (and ;diagonal capture:
-                                (plusOne_white ?from_rank ?to_rank)
+                                (plusOne ?from_rank ?to_rank)
                                 (diff_by_One ?from_file ?to_file)
                            )
                       )
@@ -213,7 +216,7 @@
                            (at ?pawn ?from_file ?from_rank)
                            (not(occupied ?to_file ?to_rank))
                            (or    
-                               (plusOne_white ?from_rank ?to_rank) ;single move
+                               (plusOne ?from_rank ?to_rank) ;single move
                                (and ;double move:
                                    (pawn_start_pos_white ?from_file ?from_rank)
                                    (diff_by_Two ?from_rank ?to_rank)
@@ -232,7 +235,7 @@
                            (at ?pawn ?from_file ?from_rank)
                            (not(occupied ?to_file ?to_rank))
                            (or    
-                               (plusOne_black ?from_rank ?to_rank) ;single move
+                               (minusOne ?from_rank ?to_rank) ;single move
                                (and ;double move:
                                    (pawn_start_pos_black ?from_file ?from_rank)
                                    (diff_by_Two ?from_rank ?to_rank)
@@ -262,16 +265,11 @@
                      (at ?knight ?to_file ?to_rank)
                 )
     )
+    
     (:action bishop_move
         :parameters (?bishop - bishop ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?bishop ?from_file ?from_rank)
                            (not(occupied ?to_file ?to_rank))
-                           ;Optimizing:
-                           ;(and(not(= ?from_file ?to_file))
-                           ;    (not(= ?from_rank ?to_rank))
-                           ;    (diff_by_N ?from_file ?to_file) 
-                           ;    (diff_by_N ?from_rank ?to_rank)
-                           ;)
                            (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
                       )
         :effect (and (not (at ?bishop ?from_file ?from_rank))
@@ -282,45 +280,23 @@
         :parameters (?rook - rook ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?rook ?from_file ?from_rank)
                            (not(occupied ?to_file ?to_rank))
-                           ;Optimizing:
-                           ;(and(or(and(diff_by_N ?from_file ?to_file) 
-                           ;       (diff_by_N ?from_rank ?to_rank))
-                           ;       (not(= ?from_file ?to_file))
-                           ;       (not(= ?from_rank ?to_rank))
-                           ;    )
-                           ;)
                            (or (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
                                (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank)
                            )
                       )
         :effect (and (not (at ?rook ?from_file ?from_rank))
                      (at ?rook ?to_file ?to_rank)
+                     (not(not_moved ?rook))
                 )
     )
     (:action queen_move
         :parameters (?queen - queen ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?queen ?from_file ?from_rank)
                            (not(occupied ?to_file ?to_rank))
-                           ;Optimizing:
-                           ;(or
-                           ;     ;rook:
-                           ;     (and(or(and(diff_by_N ?from_file ?to_file) 
-                           ;            (diff_by_N ?from_rank ?to_rank))
-                           ;            (not(= ?from_file ?to_file))
-                           ;            (not(= ?from_rank ?to_rank))
-                           ;         )
-                           ;     )
-                           ;     ;bishop
-                           ;     (and(not(= ?from_file ?to_file))
-                           ;         (not(= ?from_rank ?to_rank))
-                           ;         (diff_by_N ?from_file ?to_file) 
-                           ;         (diff_by_N ?from_rank ?to_rank)
-                           ;     )
-                           ;     (or (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                           ;         (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                           ;         (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                           ;     )
-                           ;)
+                           (or (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                               (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                               (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                           )
                       )
         :effect (and (not (at ?queen ?from_file ?from_rank))
                      (at ?queen ?to_file ?to_rank)
@@ -338,6 +314,26 @@
                       )
         :effect (and (not (at ?king ?from_file ?from_rank))
                      (at ?king ?to_file ?to_rank)
+                     (not(not_moved ?king))
+                )
+    )
+
+    (:action castling ;kingside & queenside
+        :parameters (?king - king ?rook - rook ?from_rank ?to_rank ?from_file_rook ?to_file_rook ?from_file_king ?to_file_king - location)
+        :precondition (and (not_moved ?king)
+                           (not_moved ?rook)
+                           (diff_by_Two ?from_file_king ?to_file_king)
+                           (= ?from_rank ?to_rank) ;necessary?
+                           ;Problem: the following line is always false somehow:
+                           (castling_possible ?king ?to_rank ?from_file_rook ?to_file_rook)
+                           (diff_by_One ?to_file_king ?to_file_rook) ;rook on the left or right of king
+                      )
+        :effect (and (not(at ?king ?from_file_king ?from_rank))
+                     (not(at ?rook ?from_file_rook ?from_rank))
+                     (at ?king ?to_file_king ?to_rank)
+                     (at ?rook ?to_file_rook ?to_rank)
+                     (not(not_moved ?king))
+                     (not(not_moved ?rook))
                 )
     )
 )

@@ -95,11 +95,11 @@ def one_forward(type):
         for to_rank in range(board_size):
             if type=='white': #white
                 if to_rank-from_rank==1:# and (from_rank+1)>1:
-                    prelude='plusOne_{}'.format(type)
+                    prelude='plusOne'
                     R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',from_rank+1,'n',to_rank+1)
             else: #black
                 if to_rank-from_rank==-1:# and (from_rank+1)<board_size:
-                    prelude='plusOne_{}'.format(type)
+                    prelude='minusOne'
                     R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',from_rank+1,'n',to_rank+1)
     return R
 

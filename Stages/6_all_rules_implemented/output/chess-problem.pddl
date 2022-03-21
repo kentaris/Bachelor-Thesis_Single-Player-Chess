@@ -18,8 +18,33 @@
         queen_b1 - queen_b
     )
     (:init
-		(at pawn_b1 n5 n4)
-		(at pawn_w1 n4 n3)
+		(at w_bishop_w1 n1 n5)
+
+		;Pawn double moves start for white:
+		(pawn_start_pos_white n1 n2)
+		(pawn_start_pos_white n2 n2)
+		(pawn_start_pos_white n3 n2)
+		(pawn_start_pos_white n4 n2)
+		(pawn_start_pos_white n5 n2)
+
+		;Pawn double moves start for black:
+		(pawn_start_pos_black n1 n4)
+		(pawn_start_pos_black n2 n4)
+		(pawn_start_pos_black n3 n4)
+		(pawn_start_pos_black n4 n4)
+		(pawn_start_pos_black n5 n4)
+
+		;Pawn single moves for white:
+		(plusOne n1 n2)
+		(plusOne n2 n3)
+		(plusOne n3 n4)
+		(plusOne n4 n5)
+
+		;Pawn single moves for black:
+		(minusOne n2 n1)
+		(minusOne n3 n2)
+		(minusOne n4 n3)
+		(minusOne n5 n4)
 
 		;Difference by Zero:
 		(diff_by_Zero n1 n1)
@@ -45,35 +70,17 @@
 		(diff_by_Two n3 n5)
 		(diff_by_Two n4 n2)
 		(diff_by_Two n5 n3)
-
-		;Pawn double moves start for white:
-		(pawn_start_pos_white n1 n2)
-		(pawn_start_pos_white n2 n2)
-		(pawn_start_pos_white n3 n2)
-		(pawn_start_pos_white n4 n2)
-		(pawn_start_pos_white n5 n2)
-
-		;Pawn double moves start for black:
-		(pawn_start_pos_black n1 n4)
-		(pawn_start_pos_black n2 n4)
-		(pawn_start_pos_black n3 n4)
-		(pawn_start_pos_black n4 n4)
-		(pawn_start_pos_black n5 n4)
-
-		;Pawn single moves for white:
-		(plusOne_white n1 n2)
-		(plusOne_white n2 n3)
-		(plusOne_white n3 n4)
-		(plusOne_white n4 n5)
-
-		;Pawn single moves for black:
-		(plusOne_black n2 n1)
-		(plusOne_black n3 n2)
-		(plusOne_black n4 n3)
-		(plusOne_black n5 n4)
+;[:init_diffByN_hor_ver]
+        
+        (not_moved king_w1)
+        (not_moved king_b1)
+        (not_moved rook_w1)
+        (not_moved rook_w2)
+        (not_moved rook_b1)
+        (not_moved rook_b2)
     )
     (:goal (and
-		(at pawn_w1 n5 n4)
+		(at w_bishop_w1 n5 n1)
            )
     )
 )
