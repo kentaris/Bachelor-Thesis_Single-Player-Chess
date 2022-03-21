@@ -41,7 +41,7 @@ The roadblocks below build on on another so to see the relevant files for this p
 3. [x] Implement **Two Knight's Walk** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
 4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
 5. [x] Implement **black pieces** as well [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][5_white&black_limitated]
-6. [ ] Rewrite all actions using **derived predicates** so I can use recursion to implment special rules.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
+6. [ ] Rewrite the problem using **derived predicates** so I can make use of recursion and axioms to implment all rules below.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
    1. [x] normal moves
    2. [ ] capture moves
       1. [x] en passant
