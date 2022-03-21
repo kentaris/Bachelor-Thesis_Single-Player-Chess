@@ -6,6 +6,9 @@ from subprocess import call
 import time
 
 class Global():
+    
+    path_to_downward='../../../downward/'
+    full_path_to_output_folder = '/home/ken/Documents/Bachelor-Thesis_Single-Player-Chess/Stages/6_all_rules_implemented/output'
     s=''
     g=''
     t=[0,0]
@@ -27,7 +30,7 @@ def write_pddl(txt_file,Type):
         for line in txt_file:
             f.write("".join(line))
     f.close()
-    with open('../../../downward/{}'.format(name), mode='w') as f:
+    with open(Global.path_to_downward+'/'+name, mode='w') as f:
         for line in txt_file:
             f.write("".join(line))
     f.close()
@@ -36,10 +39,10 @@ def execute_planner():
     '''executes the pddl planner which Augusto sent me'''
     Global.t[0]=time.perf_counter_ns()
     print('\n\n >>> executing planner')
-    call('./fast-downward.py chess-domain.pddl chess-problem.pddl --search "eager_greedy([ff])"',cwd="../../../downward/",shell=True)
-    files=os.listdir('../../../downward/')
+    call('./fast-downward.py chess-domain.pddl chess-problem.pddl --search "eager_greedy([ff])"',cwd=Global.path_to_downward,shell=True)
+    files=os.listdir(Global.path_to_downward)
     if 'sas_plan' in files:
-        call('mv sas_plan /home/ken/Documents/Bachelor-Thesis_Single-Player-Chess/Stages/6_all_rules_implemented/output',cwd="../../../downward/",shell=True)
+        call('mv sas_plan {}'.format(Global.full_path_to_output_folder),cwd=Global.path_to_downward,shell=True)
     else:
         print(' >>> \'sas_plan\' not fount')
         exit()
@@ -164,8 +167,8 @@ def time_it():
     print('\033[0m',end='')
 
 def main():
-    start_FEN='5/5/5/5/RK2R'#'5/4p/3P1/5/5'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN='5/5/5/5/R1RK1'#'5/4P/5/5/5'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='5/5/5/5/RK2R'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
+    goal_FEN='5/5/5/5/R1RK1'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')
