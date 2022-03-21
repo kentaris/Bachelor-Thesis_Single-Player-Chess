@@ -345,7 +345,7 @@
                      (at ?queen ?to_file ?to_rank)
                 )
     )
-    (:action king_move
+    (:action king_move ;TODO: King can't move into check or capture into check!
         :parameters (?king - king ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?king ?from_file ?from_rank)
                            (not(occupied ?to_file ?to_rank))

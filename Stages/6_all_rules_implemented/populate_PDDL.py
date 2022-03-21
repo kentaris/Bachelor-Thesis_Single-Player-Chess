@@ -69,7 +69,7 @@ def convert_plan():
     return copy_txt_file
     
 def compare_time(T):
-    '''returns difference of last recorded execution times and records it if not yet measured'''
+    '''prints the difference of last recorded execution times and records it if not yet measured'''
     try:
         with open('time', mode='r') as f:
             txt_file = f.readlines()
@@ -162,7 +162,8 @@ def time_it():
     Global.t[1]=time.perf_counter_ns()
     T=Global.t[1]-Global.t[0]
     t=translate_time(T,True)
-    print('\033[93m >>> time:',t,' ',end='')
+    #print('\033[93m >>> rounded time:',translate_time(round(int(T),-8),True)) #Round to 100 ms accuracy so output is more constant
+    print('\033[93m >>> exact time:',t,' ',end='')
     compare_time(T)
     print('\033[0m',end='')
 

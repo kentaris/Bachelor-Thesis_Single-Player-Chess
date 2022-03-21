@@ -5,7 +5,6 @@
         location - object
 
         pawn knight bishop rook queen king - figure
-        ;white black - color
 
         pawn_w   pawn_b   - pawn  
         knight_w knight_b - knight
@@ -13,9 +12,6 @@
         rook_w   rook_b   - rook  
         queen_w  queen_b  - queen 
         king_w   king_b   - king  
-
-        ;pawn_w knight_w bishop_w rook_w queen_w king_w - white
-        ;pawn_b knight_b bishop_b rook_b queen_b king_b - black
     )
     (:predicates
      ;normal predicates:
@@ -349,7 +345,7 @@
                      (at ?queen ?to_file ?to_rank)
                 )
     )
-    (:action king_move
+    (:action king_move ;TODO: King can't move into check or capture into check!
         :parameters (?king - king ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?king ?from_file ?from_rank)
                            (not(occupied ?to_file ?to_rank))

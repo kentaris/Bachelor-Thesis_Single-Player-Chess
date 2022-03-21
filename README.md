@@ -42,6 +42,27 @@ The roadblocks below build on on another so to see the relevant files for this p
 4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
 5. [x] Implement **black pieces** as well [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][5_white&black_limitated]
 6. [ ] Rewrite all actions using **derived predicates** so I can use recursion to implment special rules.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
+   1. [x] normal moves
+   2. [ ] capture moves
+      1. [x] en passant
+      2. [ ] all other captures
+   3. [ ] check inhibited moves
+      1. [ ] in check
+      2. [ ] absolute pin
+      3. [ ] move into check (by freeing the line for bishop, rook and queen)
+   4. [ ] Game termination
+      1. [ ] mate
+      2. [ ] draw
+         1. [ ] stale mate
+         2. [ ] repetition (draw if same position occurs three times)
+         3. [ ] 50 move limit (both players make 50 moves without captures or pawn moves then the game is automatically a draw)
+         4. [ ] lack of material
+         5. [ ] agreement ?
+   5. [ ] other rules
+      1. [x] double pawn move 
+      2. [x] blocked movement (ex: bishop can't move trough a pawn)
+      3. [ ] castling
+      4. [ ] taking turns
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.
