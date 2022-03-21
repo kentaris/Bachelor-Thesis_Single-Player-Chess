@@ -134,7 +134,10 @@ def print_plan(plan):
     print('The Plan:\n==========')
     for line in plan[:-1]:
         elem =line.split()
-        print('{}:\t{}{}->{}{}'.format(elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
+        if 'castling' in elem[0]:
+            print('castling:\t{}{} & {}{}'.format(chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
+        else:
+            print('{}:\t{}{}->{}{}'.format(elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
 
 def translate_time(T,print_=False):
     '''translates nanoseconds to s,ms,µs & ns'''
@@ -161,8 +164,8 @@ def time_it():
     print('\033[0m',end='')
 
 def main():
-    start_FEN='B4/5/5/5/5'#'5/5/5/5/RK2R'#'5/4p/3P1/5/5'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN='5/5/5/5/4B'#'5/5/5/5/R1RK1'#'5/4P/5/5/5'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='1K3/5/5/5/5'#'5/5/5/5/RK2R'#'B4/5/5/5/5'#'5/4p/3P1/5/5'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
+    goal_FEN='4K/5/5/5/5'#'5/5/5/5/R1RK1'#'5/5/4B/5/5'#'5/4P/5/5/5'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')

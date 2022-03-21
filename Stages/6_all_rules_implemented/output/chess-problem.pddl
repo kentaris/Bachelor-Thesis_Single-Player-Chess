@@ -18,7 +18,7 @@
         queen_b1 - queen_b
     )
     (:init
-		(at w_bishop_w1 n1 n5)
+		(at king_w1 n2 n5)
 
 		;Pawn double moves start for white:
 		(pawn_start_pos_white n1 n2)
@@ -80,7 +80,7 @@
         (not_moved rook_b2)
     )
     (:goal (and
-		(at w_bishop_w1 n5 n1)
+		(at king_w1 n5 n5)
            )
     )
 )
