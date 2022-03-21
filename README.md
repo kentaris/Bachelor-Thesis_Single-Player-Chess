@@ -41,7 +41,7 @@ The roadblocks below build on on another so to see the relevant files for this p
 3. [x] Implement **Two Knight's Walk** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
 4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
 5. [x] Implement **black pieces** as well [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][5_white&black_limitated]
-6. [ ] Implement all special rules using the concepts described in chapter 3 of the PDDL book (by P. Haslum) [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
+6. [ ] Rewrite all actions using **derived predicates** so I can use recursion to implment special rules.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.

@@ -145,6 +145,7 @@ def print_neighbor(board1,board2,indent='\t'):
     board1=board1.split('\n')
     board2=colors.dim+'  Goal:   \n'+colors.reset+board2+colors.reset
     board2=board2.split('\n')
+    print('The Board:\n==========')
     for line in range(len(board1)):
         print(board1[line],indent,board2[line])
 
