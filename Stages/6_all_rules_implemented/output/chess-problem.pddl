@@ -18,9 +18,8 @@
         queen_b1 - queen_b
     )
     (:init
+		(at rook_b1 n5 n1)
 		(at rook_w1 n1 n1)
-		(at rook_w2 n5 n1)
-		(at king_w1 n2 n1)
 
 		;Pawn double moves start for white:
 		(pawn_start_pos_white n1 n2)
@@ -72,6 +71,12 @@
 		(diff_by_Two n3 n5)
 		(diff_by_Two n4 n2)
 		(diff_by_Two n5 n3)
+
+		;Difference by Three:
+		(diff_by_Three n1 n4)
+		(diff_by_Three n2 n5)
+		(diff_by_Three n4 n1)
+		(diff_by_Three n5 n2)
 ;[:init_diffByN_hor_ver]
         
         (not_moved king_w1)
@@ -80,6 +85,10 @@
         (not_moved rook_w2)
         (not_moved rook_b1)
         (not_moved rook_b2)
+        (kingside_rook rook_w2)
+        (queenside_rook rook_w1)
+        (kingside_rook rook_b2)
+        (queenside_rook rook_b1)
 
         ;colors:
         (is_white knight_w1)
@@ -109,9 +118,7 @@
         (is_black queen_b1)
     )
     (:goal (and
-		(at rook_w1 n1 n1)
-		(at rook_w2 n3 n1)
-		(at king_w1 n4 n1)
+		(at rook_w1 n5 n1)
            )
     )
 )

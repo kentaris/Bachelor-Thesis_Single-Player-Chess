@@ -30,6 +30,10 @@
         (not_moved rook_w2)
         (not_moved rook_b1)
         (not_moved rook_b2)
+        (kingside_rook rook_w2)
+        (queenside_rook rook_w1)
+        (kingside_rook rook_b2)
+        (queenside_rook rook_b1)
 
         ;colors:
         (is_white knight_w1)

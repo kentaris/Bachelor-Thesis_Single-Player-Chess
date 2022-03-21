@@ -1,6 +1,5 @@
 ;;!domain: chess
 ;;!problem: chess-problem
-1: (rook_move rook_w2 n5 n1 n3 n1)
-2: (castling king_w1 rook_b1 n1 n2 n3 n1 n2 n1)
-3: (king_move king_w1 n3 n1 n4 n1)
-; cost = 3 (unit cost)
+1: (rook_move rook_b1 n5 n1 n5 n2)
+2: (rook_move rook_w1 n1 n1 n5 n1)
+; cost = 2 (unit cost)

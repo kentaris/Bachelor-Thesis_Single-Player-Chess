@@ -21,6 +21,7 @@
         (diff_by_Zero ?file ?rank - location)
         (diff_by_One ?file ?rank - location)
         (diff_by_Two ?file ?rank - location)
+        (diff_by_Three ?file ?rank - location)
         (plusOne ?file ?rank - location)
         (minusOne ?file ?rank - location)
         (pawn_start_pos_white ?from_file ?from_rank - location)
@@ -42,11 +43,14 @@
         (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
         (diag_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
 
-        (vert_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
-        (horiz_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
-        (diag_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
+        (vert_capturable ?figure - figure ?from_file ?from_rank ?to_file ?to_rank - location)
+        (horiz_capturable ?figure - figure ?from_file ?from_rank ?to_file ?to_rank - location)
+        (diag_capturable ?figure - figure ?from_file ?from_rank ?to_file ?to_rank - location)
+        (capturable ?figure - figure ?to_file ?to_rank - location)
 
-        (rook_to_king_possible  ?king - king ?rank ?from_file_rook ?to_file_rook - location)
+        (rook_to_king  ?king - king ?rank ?from_file_rook ?to_file_rook - location)
+        (kingside_rook ?rook - rook)
+        (queenside_rook ?rook - rook)
         (is_king_checked)
     )
 ;DERIVED PREDICATES:
@@ -128,7 +132,6 @@
             )
         )
     )
-
  ;rachable:
     (:derived (vert_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
         (or (
@@ -139,7 +142,7 @@
                       (not(=?from_rank ?next_rank)) ;don't stay on same rank
                       (diff_by_One ?from_rank ?next_rank) ;one step
                       (= ?from_file ?to_file) ;same file
-                      (vert_reachable ?from_file ?next_rank ?to_file ?to_rank)
+                      (vert_reachable ?from_file ?from_rank?to_file ?next_rank )
                  )
             )
         )
@@ -163,7 +166,7 @@
             (exists(?next_file ?next_rank - location)
                    (and (not(= ?from_file ?next_file)) ;don't stay on same file
                         (not(= ?from_rank ?next_rank)) ;don't stay on same rank
-                        (not(occupied ?next_file ?next_rank)) ;TODO: or capturable piece
+                        (not(occupied ?next_file ?next_rank)) ;TODO: capturable?
                         (diff_by_One ?from_file ?next_file) ;one step at a time
                         (diff_by_One ?from_rank ?next_rank) ;one step at a time
                         (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank) ;bishop needs to stay on the same diagonal
@@ -172,49 +175,68 @@
             )
         )
     )
-
  ;capturable
-    (:derived (diag_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
-        (and (diff_by_One ?from_file ?to_file) ;file +/-1
-			 (diff_by_One ?from_rank ?to_rank) ;rank +/-1
-			 (not(exists(?figure - figure) ;there isn't a figure of same color at destination
-			        (occupied_by ?to_file ?to_rank ?color)
+    (:derived (vert_capturable ?figure - figure ?from_file ?from_rank ?to_file ?to_rank - location)
+        (or (and(vert_adj ?from_file ?from_rank ?to_file ?to_rank)
+                (not(occupied_by_same_color ?figure ?to_file ?to_rank)) ;it is not my own color
+            )
+            (exists(?next_rank - location)
+                 (and (not(occupied ?to_file ?next_rank))
+                      (not(=?from_rank ?next_rank)) ;don't stay on same rank
+                      (diff_by_One ?from_rank ?next_rank) ;one step
+                      (= ?from_file ?to_file) ;same file
+                      (vert_reachable ?from_file ?from_rank?to_file ?next_rank )
                  )
-             )
-			 (occupied ?to_file ?to_rank) ;square also isn't empty (meaning black piece is on it)
-        )
-    )
-    (:derived (vert_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
-        (and (diff_by_One ?from_file ?to_file) ;file +/-1
-			 (= ?from_rank ?to_rank) ;rank +/-1
-			 (not(exists(?figure - figure) ;there isn't a figure of same color at destination
-			        (occupied_by ?to_file ?to_rank ?color)
-		         )
-             )
-			 (occupied ?to_file ?to_rank) ;square also isn't empty (meaning black piece is on it)
-        )
-    )
-    (:derived (horiz_capturable ?from_file ?from_rank ?to_file ?to_rank - location ?color - color)
-        (and (diff_by_One ?from_file ?to_file) ;file +/-1
-			 (= ?from_rank ?to_rank) ;rank +/-1
-			 (not(exists(?figure - figure) ;there isn't a figure of same color at destination
-			        (occupied_by ?to_file ?to_rank ?color)
-			     )
-             )
-			 (occupied ?to_file ?to_rank) ;square also isn't empty (meaning black piece is on it)
-        )
-    )
- ;king predicates:
-    ;TODO: check if King is walking through a check by castling
-    (:derived (rook_to_king_possible ?king - king ?rank ?from_file_rook ?to_file_rook - location) ;checks if the rook can move up to the king without there being any pieces inbetween
-        (or (occupied_by_figure ?king ?to_file_rook ?rank) ;move untill king is at position
-            (exists (?next_file_rook - location) 
-                    (and(diff_by_One ?from_file_rook ?to_file_rook) ;one step at a time
-			            (rook_to_king_possible ?king ?rank ?next_file_rook ?to_file_rook)
-                    )
             )
         )
     )
+    (:derived (horiz_capturable ?figure - figure ?from_file ?from_rank ?to_file ?to_rank - location)
+        (or (and(horiz_adj ?from_file ?from_rank ?to_file ?to_rank)
+                (not(occupied_by_same_color ?figure ?to_file ?to_rank)) ;it is not my own color
+            )
+            (exists(?next_file - location)
+                 (and (not(=?from_file ?to_file)) ;don't stay on same file
+                      (= ?from_rank ?to_rank) ;file +/-0
+                      (not(occupied_by_same_color ?figure ?to_file ?to_rank)) ;it is not my own color
+                      (diff_by_One ?from_file ?next_file) ;one step at a time
+                      (horiz_reachable ?next_file ?from_rank ?to_file ?to_rank)
+                 )
+            )
+        )
+    )
+    (:derived (diag_capturable ?figure - figure ?from_file ?from_rank ?to_file ?to_rank - location)
+        (or (and(diag_adj ?from_file ?from_rank ?to_file ?to_rank)
+                (not(occupied_by_same_color ?figure ?to_file ?to_rank)) ;it is not my own color
+            )
+            (exists(?next_file ?next_rank - location)
+                   (and (not(= ?from_file ?next_file)) ;don't stay on same file
+                        (not(= ?from_rank ?next_rank)) ;don't stay on same rank
+                        (diff_by_One ?from_file ?next_file) ;one step at a time
+                        (diff_by_One ?from_rank ?next_rank) ;one step at a time
+                        (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank) ;bishop needs to stay on the same diagonal
+                        (diag_capturable ?figure ?next_file ?next_rank ?to_file ?to_rank)
+                   )
+            )
+        )
+    )
+    (:derived (capturable ?figure - figure ?to_file ?to_rank - location)
+        (not(occupied_by_same_color ?figure ?to_file ?to_rank)) ;it is not my own color
+    )
+ ;king predicates:
+    ;TODO: check if King is walking through a check by castling or if king is in check when castling
+    (:derived (rook_to_king ?king - king ?rank ?from_file_rook ?to_file_rook - location) ;checks if the rook can move up to the king without there being any pieces inbetween
+        (or (horiz_adj ?from_file_rook ?rank ?to_file_rook ?rank)
+            (exists (?next_file_rook - location) 
+                (and(diff_by_One ?from_file_rook ?to_file_rook) ;one step at a time
+                    (or(not(occupied ?next_file_rook ?rank))
+                       (occupied_by_figure ?king ?next_file_rook ?rank)
+                    )
+			        (rook_to_king ?king ?rank ?next_file_rook ?to_file_rook)
+                )
+            )
+        )
+    )
+
     ;TODO:
     ;(:derived (is_king_checked) ;TODO: include this in piece movements: piece can't move if it's own colored king is checked by moving
     ;    (exists (?from_file ?to_file - location ?king - king)
@@ -305,6 +327,13 @@
                            )
                        )
         :effect (and (not (at ?knight ?from_file ?from_rank))
+                     (forall (?figure - figure)
+                        (when (and(at ?figure ?to_file ?to_rank)
+                                  (capturable ?knight ?to_file ?to_rank)
+                              )
+                            (not (at ?figure ?to_file ?to_rank))
+                        )
+                     )
                      (at ?knight ?to_file ?to_rank)
                 )
     )
@@ -312,10 +341,18 @@
     (:action bishop_move
         :parameters (?bishop - bishop ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?bishop ?from_file ?from_rank)
-                           (not(occupied ?to_file ?to_rank))
-                           (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                           (or (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                               (diag_capturable ?bishop ?from_file ?from_rank ?to_file ?to_rank)
+                           )
                       )
         :effect (and (not (at ?bishop ?from_file ?from_rank))
+                     (forall (?figure - figure)
+                        (when (and(at ?figure ?to_file ?to_rank)
+                                  (capturable ?bishop ?to_file ?to_rank)
+                              )
+                            (not (at ?figure ?to_file ?to_rank))
+                        )
+                     )
                      (at ?bishop ?to_file ?to_rank)
                 )
     )
@@ -328,6 +365,13 @@
                            )
                       )
         :effect (and (not (at ?rook ?from_file ?from_rank))
+                     (forall (?figure - figure)
+                        (when (and(at ?figure ?to_file ?to_rank)
+                                  (capturable ?rook ?to_file ?to_rank)
+                              )
+                            (not (at ?figure ?to_file ?to_rank))
+                        )
+                     )
                      (at ?rook ?to_file ?to_rank)
                      (not(not_moved ?rook))
                 )
@@ -342,6 +386,13 @@
                            )
                       )
         :effect (and (not (at ?queen ?from_file ?from_rank))
+                     (forall (?figure - figure)
+                        (when (and(at ?figure ?to_file ?to_rank)
+                                  (capturable ?queen ?to_file ?to_rank)
+                              )
+                            (not (at ?figure ?to_file ?to_rank))
+                        )
+                     )
                      (at ?queen ?to_file ?to_rank)
                 )
     )
@@ -370,20 +421,28 @@
                 )
     )
 
-    (:action castling ;kingside & queenside
-        :parameters (?king - king ?rook - rook ?from_file_king ?from_file_rook ?to_file_king ?from_rank ?to_file_rook ?to_rank - location)
+    (:action castling ;TODO: can't castle into check
+        :parameters (?king - king ?rook - rook ?from_file_king ?from_file_rook ?to_file_king ?rank1 ?to_file_rook ?rank2 - location)
         :precondition (and (not_moved ?king)
                            (not_moved ?rook)
+                           (= ?rank1 ?rank2) ;stay the same, they are just here so my utput prints a correct plan
                            (diff_by_Two ?from_file_king ?to_file_king)
-                           (= ?from_rank ?to_rank) ;necessary?
-                           ;Problem: the following line is always false somehow:
-                           (rook_to_king_possible ?king ?to_rank ?from_file_rook ?to_file_rook)
-                           (diff_by_One ?to_file_king ?to_file_rook) ;rook on the left or right of king
+                           ;TODO: following line seems to be always false(?) because castling is never triggered if it is not commented out
+                           (rook_to_king ?king ?rank1 ?from_file_rook ?to_file_rook) ;to check if any figure between rook and king
+                           (or (and(kingside_rook ?rook);kingside castling
+                                   (diff_by_Two ?from_file_rook ?to_file_rook)
+                                   (plusOne ?to_file_rook ?to_file_king) ;king on the right of the rook
+                               )
+                               (and(queenside_rook ?rook);queenside castling
+                                   (diff_by_Three ?from_file_rook ?to_file_rook)
+                                   (minusOne ?to_file_rook ?to_file_king) ;king on the left of the rook
+                               )
+                           )
                       )
-        :effect (and (not(at ?king ?from_file_king ?from_rank))
-                     (not(at ?rook ?from_file_rook ?from_rank))
-                     (at ?king ?to_file_king ?to_rank)
-                     (at ?rook ?to_file_rook ?to_rank)
+        :effect (and (not(at ?king ?from_file_king ?rank1))
+                     (not(at ?rook ?from_file_rook ?rank1))
+                     (at ?king ?to_file_king ?rank1)
+                     (at ?rook ?to_file_rook ?rank1)
                      (not(not_moved ?king))
                      (not(not_moved ?rook))
                 )

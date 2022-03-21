@@ -80,7 +80,7 @@ def compare_time(T):
         txt_file.append(str(T)+'\n')
         with open('time', mode='w') as f:
             f.write("".join(txt_file))
-        print('   > (measurement {} recorded)'.format(len(txt_file)))
+        print('   (measurement {} recorded)'.format(len(txt_file)))
     elif len(txt_file)>=2:
         #txt_file[0]=txt_file[1]
         #txt_file[1]=(str(T)+'\n')
@@ -94,7 +94,7 @@ def compare_time(T):
         sign=''
         if diff>0:
             sign='+'
-        print('   > {}{}ms (~ +/-{}ms)'.format(sign,int(diff),avg_diff))
+        print('   | {}{}ms (~ +/-{}ms)'.format(sign,int(diff),avg_diff))
     f.close()
 
 def load_file(Type,start_FEN=None,goal_FEN=None):
@@ -114,7 +114,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN,'start'))
         #print('start:\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         #print('goal:\n',PG.add_FEN_pos_to_PDDL(goal_FEN))
-        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
+        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(4))
         #txt_file=replace(txt_file,';[:init_diffByN_hor_ver]\n',PG.add_diffByN_hor_ver(9))
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
@@ -163,13 +163,13 @@ def time_it():
     T=Global.t[1]-Global.t[0]
     t=translate_time(T,True)
     #print('\033[93m >>> rounded time:',translate_time(round(int(T),-8),True)) #Round to 100 ms accuracy so output is more constant
-    print('\033[93m >>> exact time:',t,' ',end='')
+    print('\033[93m >>> time:',t,' ',end='')
     compare_time(T)
     print('\033[0m',end='')
 
 def main():
-    start_FEN='5/5/5/5/RK2R'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN='5/5/5/5/R1RK1'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='5/5/5/5/R3r'#'5/5/5/5/1K2R'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
+    goal_FEN ='5/5/5/5/4R'#'5/5/5/5/2RK1'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')
