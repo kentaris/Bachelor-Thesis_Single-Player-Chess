@@ -18,8 +18,8 @@
         queen_b1 - queen_b
     )
     (:init
-		(at rook_b1 n5 n1)
-		(at rook_w1 n1 n1)
+		(at rook_w1 n5 n1)
+		(at king_w1 n2 n1)
 
 		;Pawn double moves start for white:
 		(pawn_start_pos_white n1 n2)
@@ -118,7 +118,8 @@
         (is_black queen_b1)
     )
     (:goal (and
-		(at rook_w1 n5 n1)
+		(at rook_w1 n3 n1)
+		(at king_w1 n4 n1)
            )
     )
 )

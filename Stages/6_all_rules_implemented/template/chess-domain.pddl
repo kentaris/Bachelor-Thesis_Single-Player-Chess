@@ -315,7 +315,9 @@
     (:action knight_move
         :parameters (?knight - knight ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?knight ?from_file ?from_rank)
-                           (not(occupied ?to_file ?to_rank))
+                           (or(not(occupied ?to_file ?to_rank))
+                              (capturable ?knight ?to_file ?to_rank)
+                           )
                            (or
                                (and ;two files, one row:
                                    (diff_by_Two ?from_file ?to_file) ; file +/- 2
@@ -341,8 +343,13 @@
     (:action bishop_move
         :parameters (?bishop - bishop ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?bishop ?from_file ?from_rank)
-                           (or (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                               (diag_capturable ?bishop ?from_file ?from_rank ?to_file ?to_rank)
+                           (or;no piece at destination:
+                              (and(not(occupied ?to_file ?to_rank))
+                                  (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                              );capturable piece at destination:
+                              (and(occupied ?to_file ?to_rank)
+                                  (diag_capturable ?bishop ?from_file ?from_rank ?to_file ?to_rank)
+                              )
                            )
                       )
         :effect (and (not (at ?bishop ?from_file ?from_rank))
@@ -359,9 +366,18 @@
     (:action rook_move
         :parameters (?rook - rook ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?rook ?from_file ?from_rank)
-                           (not(occupied ?to_file ?to_rank))
-                           (or (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                               (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                           (or
+                              ;no piece at destination:
+                              (and(not(occupied ?to_file ?to_rank))
+                                  (or (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                                      (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                                  )
+                              );capturable piece at destination:
+                              (and(occupied ?to_file ?to_rank)
+                                  (or (vert_capturable ?rook ?from_file ?from_rank ?to_file ?to_rank)
+                                      (horiz_capturable ?rook ?from_file ?from_rank ?to_file ?to_rank)
+                                  )
+                              )
                            )
                       )
         :effect (and (not (at ?rook ?from_file ?from_rank))
@@ -379,10 +395,20 @@
     (:action queen_move
         :parameters (?queen - queen ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?queen ?from_file ?from_rank)
-                           (not(occupied ?to_file ?to_rank))
-                           (or (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                               (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                               (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                           (or
+                              ;no piece at destination:
+                              (and(not(occupied ?to_file ?to_rank))
+                                  (or (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                                      (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                                      (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                                  )
+                              );capturable piece at destination:
+                              (and(occupied ?to_file ?to_rank)
+                                  (or (vert_capturable ?queen ?from_file ?from_rank ?to_file ?to_rank)
+                                      (horiz_capturable ?queen ?from_file ?from_rank ?to_file ?to_rank)
+                                      (diag_capturable ?queen ?from_file ?from_rank ?to_file ?to_rank)
+                                  )
+                              )
                            )
                       )
         :effect (and (not (at ?queen ?from_file ?from_rank))
@@ -396,10 +422,14 @@
                      (at ?queen ?to_file ?to_rank)
                 )
     )
-    (:action king_move ;TODO: King can't move into check or capture into check!
+    (:action king_move 
         :parameters (?king - king ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and (at ?king ?from_file ?from_rank)
-                           (not(occupied ?to_file ?to_rank))
+                           (or
+                               (not(occupied ?to_file ?to_rank))
+                               (capturable ?king ?to_file ?to_rank)
+                               ;TODO: King can't move into check or capture into check!
+                           )
                            (or 
                                (and ;diagonal move
                                    (diff_by_One ?from_file ?to_file)
@@ -416,6 +446,13 @@
                            )
                       )
         :effect (and (not (at ?king ?from_file ?from_rank))
+                     (forall (?figure - figure)
+                        (when (and(at ?figure ?to_file ?to_rank)
+                                  (capturable ?king ?to_file ?to_rank)
+                              )
+                            (not (at ?figure ?to_file ?to_rank))
+                        )
+                     )
                      (at ?king ?to_file ?to_rank)
                      (not(not_moved ?king))
                 )

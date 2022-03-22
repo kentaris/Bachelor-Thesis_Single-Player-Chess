@@ -168,8 +168,8 @@ def time_it():
     print('\033[0m',end='')
 
 def main():
-    start_FEN='5/5/5/5/R3r'#'5/5/5/5/1K2R'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN ='5/5/5/5/4R'#'5/5/5/5/2RK1'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='5/5/5/5/1K2R'#'2K2/krpb1/3R1/PNR2/rQ1Bn'  #'1q3/4B/2Q2/5/Rb2r'
+    goal_FEN ='5/5/5/5/2RK1'#'PKbQr/kr3/1R1RN/2n1B/2p2'  #'1Q3/4b/5/5/4R'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')
