@@ -94,7 +94,7 @@ def compare_time(T):
         sign=''
         if diff>0:
             sign='+'
-        print('   | {}{}ms (~ +/-{}ms)'.format(sign,int(diff),avg_diff))
+        print('   | {}{}ms'.format(sign,int(diff)))
     f.close()
 
 def load_file(Type,start_FEN=None,goal_FEN=None):
@@ -168,8 +168,16 @@ def time_it():
     print('\033[0m',end='')
 
 def main():
-    start_FEN='5/5/5/5/1K2R'#'2K2/krpb1/3R1/PNR2/rQ1Bn'  #'1q3/4B/2Q2/5/Rb2r'
-    goal_FEN ='5/5/5/5/2RK1'#'PKbQr/kr3/1R1RN/2n1B/2p2'  #'1Q3/4b/5/5/4R'
+    '''
+    Problems:
+    - Pieces can dissapear if they are present in start_FEN but not in goal_FEN
+    - Pieces can move out of the way to acheave certain goal state even tough in the goal state it says that the piece needs to be captured
+        -start_FEN='5/5/Q4/R4/5'
+        -goal_FEN ='5/5/R4/5/5'   --> queen moves out of the way instead of returning 'no plan found' or 'unreachable position'
+    - 
+    '''
+    start_FEN='5/5/q4/R4/5'#'5/5/5/4R/R3K' #'2K2/krpb1/3R1/PNR2/rQ1Bn'  #'1q3/4B/2Q2/5/Rb2r'
+    goal_FEN ='5/5/R4/5/5' #'5/5/5/5/2KR1' #'PKbQr/kr3/1R1RN/2n1B/2p2'  #'1Q3/4b/5/5/4R'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')
