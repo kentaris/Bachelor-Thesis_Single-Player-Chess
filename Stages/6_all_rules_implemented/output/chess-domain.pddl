@@ -14,7 +14,7 @@
         king_w   king_b   - king  
     )
     (:predicates
-     ;normal predicates:
+     ;static predicates:
         (at ?figure - figure ?file ?rank - location)
         (not_moved ?figure - figure)
         ;(diff_by_N ?file ?rank - location)
@@ -28,6 +28,14 @@
         (pawn_start_pos_black ?from_file ?from_rank - location)
         (is_white ?figure - figure)
         (is_black ?figure - figure)
+        ;(mate)
+        ;(DRAW_BY_stale_mate)
+        ;(DRAW_BY_repetition)
+        ;(DRAW_BY_50_move)
+        ;(DRAW_BY_lack_of_material)
+        (TRUE)
+        (FALSE)
+
      ;derived predicates:
         (occupied ?file ?rank - location)
         (occupied_by ?file ?rank - location ?color - color)
@@ -51,7 +59,7 @@
         (rook_to_king  ?king - king ?rank ?from_file_rook ?to_file_rook - location)
         (kingside_rook ?rook - rook)
         (queenside_rook ?rook - rook)
-        (is_king_checked)
+        (am_I_pinned ?figure - figure ?from_file ?from_rank - location)
     )
 ;DERIVED PREDICATES:
  ;;;;;;;;;;;;;;;;;;;;
@@ -237,14 +245,17 @@
         )
     )
 
-    ;TODO:
-    ;(:derived (is_king_checked) ;TODO: include this in piece movements: piece can't move if it's own colored king is checked by moving
-    ;    (exists (?from_file ?to_file - location ?king - king)
-    ;            (and(at ?king ?from_file ?to_file)
-    ;                
-    ;            )
-    ;    )
-    ;)
+    ;is this maybe more efficient with the "state trajectory constraints" from page 77 ff. ? --> '(always<condition>)': enforces a condition to be true over all states in the plan
+    (:derived (am_I_pinned ?figure - figure ?from_file ?from_rank - location) ;TODO: include this in piece movements: piece can't move if it's own colored king is checked by moving
+        (exists (?king_file ?king_rank - location ?king - king)
+              (and(at ?king ?king_file ?king_rank)
+                  (occupied_by_same_color ?figure ?king_file ?king_rank) ;do I have the same color as that king
+                  (exists (?capturer - figure ?file ?rank - location) ;is there a piece at some position that can capture that king if I am not at my current position
+                        (FALSE)
+                  )
+              )
+        )
+    )
 
 ;ACTIONS
  ;;;;;;;;

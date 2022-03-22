@@ -50,14 +50,7 @@ The roadblocks below build on on another so to see the relevant files for this p
       1. [ ] absolute pin
       2. [ ] in check
       3. [ ] don't move into check
-   4. [ ] Game termination
-      1. [ ] mate
-      2. [ ] draw
-         1. [ ] stale mate
-         2. [ ] repetition (draw if same position occurs three times)
-         3. [ ] 50 move limit (both players make 50 moves without captures or pawn moves then the game is automatically a draw)
-         4. [ ] lack of material
-         5. [ ] agreement ?
+   4. [ ] Game termination (only mate)
    5. [ ] other rules
       1. [x] double pawn move 
       2. [x] blocked movement (ex: bishop can't move trough a pawn)

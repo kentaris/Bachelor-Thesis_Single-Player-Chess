@@ -61,6 +61,8 @@
         (is_black w_bishop_b1)
         (is_black b_bishop_b1)
         (is_black queen_b1)
+
+        (TRUE)
     )
     (:goal (and
 ;[:goal_position]
