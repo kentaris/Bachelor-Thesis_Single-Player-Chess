@@ -24,6 +24,8 @@
         (diff_by_Three ?file ?rank - location)
         (plusOne ?file ?rank - location)
         (minusOne ?file ?rank - location)
+        (minusOne_nTimes ?x ?y - location)
+        (plusOne_nTimes ?x ?y - location)
         (pawn_start_pos_white ?from_file ?from_rank - location)
         (pawn_start_pos_black ?from_file ?from_rank - location)
         (is_white ?figure - figure)
@@ -52,7 +54,7 @@
         (horiz_capturable ?from_file ?from_rank ?to_file ?to_rank - location)
         (diag_capturable ?from_file ?from_rank ?to_file ?to_rank - location)
 
-        (king_to_rook ?rook - rook ?rank ?from_file_king ?to_file_king - location)
+        (king_to_rook_possible ?rook - rook ?rank ?from_file_king ?to_file_king - location)
         (kingside_rook ?rook - rook)
         (queenside_rook ?rook - rook)
         (am_I_pinned ?figure - figure ?from_file ?from_rank - location)
@@ -142,11 +144,29 @@
             (or
                 (and
                     (plusOne ?from ?next)
-                    (plusOne ?next ?to)
+                    (plusOne ?next ?to) ;TODO: test : plusOne_nTimes
                 )
                 (and
                     (minusOne ?from ?next)
-                    (minusOne ?next ?to)
+                    (minusOne ?next ?to) ;TODO: test : minusOne_nTimes
+                )
+            )
+        )
+    )
+    (:derived (plusOne_nTimes ?x ?y - location)
+        (or (plusOne ?x ?y)
+            (exists(?next - location)
+                (and(plusOne ?x ?next)
+                    (plusOne_nTimes ?next ?y)
+                )
+            )
+        )
+    )
+    (:derived (minusOne_nTimes ?x ?y - location)
+        (or (minusOne ?x ?y)
+            (exists(?next - location)
+                (and(minusOne ?x ?next)
+                    (minusOne_nTimes ?next ?y)
                 )
             )
         )
@@ -207,17 +227,19 @@
     
  ;king predicates:
     ;TODO: check if King is walking through a check by castling or if king is in check when castling
-    (:derived (king_to_rook ?rook - rook ?rank ?from_file_king ?to_file_king - location) ;checks if the rook can move up to the king without there being any pieces inbetween
-        (or (and(horiz_adj ?from_file_king ?rank ?to_file_king ?rank)
-                (occupied_by_figure ?rook ?to_file_king ?rank)
-                ;(occupied_by_same_color ?rook ?to_file_king ?rank) ;if in-check is implemented, this is unnecessary...
+    (:derived (king_to_rook_possible ?rook - rook ?rank ?from_file_king ?from_file_rook - location) ;checks if the rook can move up to the king without there being any pieces inbetween
+        (or (and(occupied_by_figure ?rook ?from_file_rook ?rank)
+                ;(occupied_by_same_color ?rook ?from_file_king ?rank) ;check if king has same color as rook... oesn't work because ?from_file_king gets replaceswith ?next_file_king and there will never be a king at it so recursion doesn't work
+                (horiz_adj ?from_file_king ?rank ?from_file_rook ?rank)
             )
             (exists (?next_file_king - location) 
-                (and(diff_by_One ?from_file_king ?next_file_king) ;one step at a time
+                (and(diff_by_One ?from_file_king ?next_file_king)
                     (or(not(occupied ?next_file_king ?rank))
-                       (occupied_by_figure ?rook ?next_file_king ?rank)
+                       (and(occupied_by_figure ?rook ?next_file_king ?rank)
+                           (occupied_by_same_color ?rook ?next_file_king ?rank)
+                       )
                     )
-			        (king_to_rook ?rook ?rank ?next_file_king ?to_file_king)
+			        (king_to_rook_possible ?rook ?rank ?next_file_king ?from_file_rook)
                 )
             )
         )
@@ -480,8 +502,10 @@
                                    (diff_by_Three ?from_file_rook ?to_file_rook)
                                    (minusOne ?to_file_rook ?to_file_king) ;king on the left of the rook
                                )
-                           );TODO: check if this is correctly working:
-                           (king_to_rook ?rook ?rank1 ?from_file_rook ?to_file_rook) ;to check if any figure between rook and king
+                           )
+                           (occupied_by_figure ?rook ?from_file_rook ?rank1)
+                           ;(occupied_by_same_color ?rook ?from_file_king ?rank1) ;doesn't work somehow.... I don't see why
+                           (king_to_rook_possible ?rook ?rank1 ?from_file_king ?from_file_rook) ;to check if any figure between rook and king
                       )
         :effect (and (at ?king ?to_file_king ?rank1)
                      (at ?rook ?to_file_rook ?rank1)
