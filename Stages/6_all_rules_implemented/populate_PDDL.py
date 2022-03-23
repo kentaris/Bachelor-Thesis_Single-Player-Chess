@@ -171,13 +171,13 @@ def main():
     '''
     Problems:
     - Pieces can dissapear if they are present in start_FEN but not in goal_FEN
-    - Pieces can move out of the way to acheave certain goal state even tough in the goal state it says that the piece needs to be captured
+    - Pieces can move out of the way to acheave certain goal state even tough in the goal state it says that the piece needs to be "captured"/not be on the board
         -start_FEN='5/5/Q4/R4/5'
         -goal_FEN ='5/5/R4/5/5'   --> queen moves out of the way instead of returning 'no plan found' or 'unreachable position'
     - 
     '''
-    start_FEN='1q3/4B/2Q2/5/Rb2r'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN ='1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='3r1/5/5/3p1/2K2'#'1q3/4B/2Q2/5/Rb2r'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
+    goal_FEN ='3r1/5/5/3K1/5'#'1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')

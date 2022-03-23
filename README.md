@@ -51,10 +51,10 @@ The roadblocks below build on on another so to see the relevant files for this p
       2. [ ] in check
       3. [ ] don't move into check
    4. [ ] Game termination (only mate)
-   5. [ ] other rules
+   5. [x] other rules
       1. [x] double pawn move 
       2. [x] blocked movement (ex: bishop can't move trough a pawn)
-      3. [ ] castling
+      3. [x] castling
       4. [ ] taking turns
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.

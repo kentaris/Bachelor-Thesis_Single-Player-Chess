@@ -30,6 +30,7 @@
         (pawn_start_pos_black ?from_file ?from_rank - location)
         (is_white ?figure - figure)
         (is_black ?figure - figure)
+        (white_s_turn)
         (TRUE)
         (FALSE)
 
@@ -50,14 +51,11 @@
         (diag_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
 
         (capturable ?figure - figure ?to_file ?to_rank - location)
-        (vert_capturable ?from_file ?from_rank ?to_file ?to_rank - location)
-        (horiz_capturable ?from_file ?from_rank ?to_file ?to_rank - location)
-        (diag_capturable ?from_file ?from_rank ?to_file ?to_rank - location)
 
         (king_to_rook_possible ?rook - rook ?rank ?from_file_king ?to_file_king - location)
         (kingside_rook ?rook - rook)
         (queenside_rook ?rook - rook)
-        (am_I_pinned ?figure - figure ?from_file ?from_rank - location)
+        (king_move_into_check ?king - king ?to_file ?to_rank - location)
     )
 ;DERIVED PREDICATES:
  ;;;;;;;;;;;;;;;;;;;;
@@ -137,7 +135,7 @@
             )
         )
     )
-    (:derived (between ?from ?next ?to - location)
+    (:derived (between ?from ?next ?to - location) ;TODO: test if i need to extend this by plusOne_nTimes & minusOne....
         (and
             (not(= ?from ?next))
             (not(= ?next ?to))
@@ -244,18 +242,25 @@
             )
         )
     )
-
-    ;(:derived (am_I_pinned ?figure - figure ?from_file ?from_rank - location) ;TODO: include this in piece movements: piece can't move if it's own colored king is checked by moving
-    ;    (exists (?king_file ?king_rank - location ?king - king)
-    ;          (and(at ?king ?king_file ?king_rank)
-    ;              (occupied_by_same_color ?figure ?king_file ?king_rank) ;do I have the same color as that king
-    ;              (exists (?capturer - figure ?file ?rank - location) ;is there a piece at some position that can capture that king if I am not at my current position
-    ;                    (FALSE)
-    ;              )
-    ;          )
-    ;    )
-    ;)
-
+    ;the '?from_file' and '?from_rank' variables are the location to which the king wants to move (the should be location). from here we check if he can move to a piece that can capture him (including the king because they can't come too close o thats the same thing).
+    (:derived (king_move_into_check ?king - king ?from_file ?from_rank - location) ;TODO: include this in piece movements: piece can't move if it's own colored king is checked by moving
+        (exists(?to_file ?to_rank - location)
+            (and (or (and(= ?from_file ?to_file) ;vertical movement
+                         (not(= ?from_rank ?to_rank))
+                         ;(vert_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
+                     )
+                     (and(= ?from_rank ?to_rank) ;horizontal movement
+                         (not(= ?from_file ?to_file))
+                         ;(horiz_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
+                     )
+                     (and(not(= ?from_rank ?to_rank)) ;diagonal movement
+                         (not(= ?from_file ?to_file))
+                         ;(diag_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
+                     )
+                 )
+            )
+        )
+    )
 ;ACTIONS
  ;;;;;;;;
     (:action en_passant ;TODO: check if moving causes own king to be checked
@@ -286,6 +291,7 @@
                         )
                      )
                      (at ?pawn ?to_file ?to_rank)
+                     (not(white_s_turn))
                 )
     )
     (:action pawn_move
@@ -319,6 +325,7 @@
                        )
         :effect (and (not (at ?pawn ?from_file ?from_rank))
                      (at ?pawn ?to_file ?to_rank)
+                     (not(white_s_turn))
                 )
     )
     (:action knight_move
@@ -348,6 +355,7 @@
                         )
                      )
                      (at ?knight ?to_file ?to_rank)
+                     (not(white_s_turn))
                 )
     )    
     (:action bishop_move
@@ -375,6 +383,7 @@
                         )
                      )
                      (at ?bishop ?to_file ?to_rank)
+                     (not(white_s_turn))
                 )
     )
     (:action rook_move
@@ -408,6 +417,7 @@
                      )
                      (at ?rook ?to_file ?to_rank)
                      (not(not_moved ?rook))
+                     (not(white_s_turn))
                 )
     )
     (:action queen_move
@@ -444,6 +454,7 @@
                         )
                      )
                      (at ?queen ?to_file ?to_rank)
+                     (not(white_s_turn))
                 )
     )
     (:action king_move 
@@ -480,9 +491,9 @@
                      )
                      (at ?king ?to_file ?to_rank)
                      (not(not_moved ?king))
+                     (not(white_s_turn))
                 )
     )
-
     (:action castling ;TODO: can't castle into check
         ;TODO: Only works with FEN CODE if we have 2 rooks on the board because the rooks get classified wrongly in start and goal pos
         :parameters (?king - king ?rook - rook ?from_file_king ?from_file_rook ?to_file_king ?rank1 ?to_file_rook ?rank2 - location)
@@ -513,6 +524,7 @@
                      (not(not_moved ?rook))
                      (not(at ?king ?from_file_king ?rank1))
                      (not(at ?rook ?from_file_rook ?rank1))
+                     (not(white_s_turn))
                 )
     )
 )

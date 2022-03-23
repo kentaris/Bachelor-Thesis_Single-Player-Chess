@@ -62,6 +62,8 @@
         (is_black b_bishop_b1)
         (is_black queen_b1)
 
+        (white_s_turn)
+
         (TRUE)
     )
     (:goal (and
