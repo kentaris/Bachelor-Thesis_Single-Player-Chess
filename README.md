@@ -50,7 +50,7 @@ The roadblocks below build on on another so to see the relevant files for this p
       1. [ ] absolute pin
       2. [ ] in check
       3. [ ] don't move into check
-   4. [ ] Game termination (only mate)
+   4. [ ] Game termination (only checkmate) --> given if opponent's king is under attack and can't escape
    5. [x] other rules
       1. [x] double pawn move 
       2. [x] blocked movement (ex: bishop can't move trough a pawn)

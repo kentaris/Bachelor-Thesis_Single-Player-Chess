@@ -220,6 +220,7 @@ def board_to_FEN(board):
                 file=0
             file+=1
     return FEN[:-1]
+    
 
 #print(FEN_to_Chess_board('2P2/5/1PNP1/P2NP/5'))
 #start=add_coordinate_System(printable_board(FEN_to_Chess_board('5/5/5/PPPPP/1N1N1'),True,True))

@@ -1,3 +1,4 @@
+from curses.ascii import isalpha, isdigit
 import FEN
 
 board_size=5 #to change the board size
@@ -170,5 +171,34 @@ def board():
         R+='\t\t'+r+'\n'
     return R
 
+def add_removed_pieces(start_FEN,goal_FEN):
+    board=FEN.FEN_to_Chess_board(goal_FEN)
+    start_FEN=list(start_FEN)
+    goal_FEN=list(goal_FEN)
+    length=start_FEN.count('/')+1
+    diff=[]
+    for e in start_FEN:
+        if e not in goal_FEN and isalpha(e):
+            diff.append(e)
+    done=[] #TODO: test this....
+    R=''
+    for fig in diff:
+        for i in range(start_FEN.count(fig)): #every figure can occur multiple times
+            file=0
+            for col in zip(*board): #iterate over columns instead of rows of the board
+                for rank in range(length):
+                    if vars(figures)[fig][i] not in done:
+                        print(fig,i)
+                        figure=vars(figures)[fig][i]
+                        done.append(figure)
+                        R+='\t\t(removed {}{})\n'.format(vars(figures_plain)[fig],i+1)
+                file+=1
+    print(R)
+    return R
+
 #print(add_FEN_pos_to_PDDL('5/5/5/PPPPP/1N1N1')) #ToDo: may still be wrong but should be right
 #print(add_diffByN_hor_ver())
+
+#start_FEN='5/5/Q4/R4/5'
+#goal_FEN='5/5/R4/5/5'
+#print(add_removed_pieces(start_FEN,goal_FEN))

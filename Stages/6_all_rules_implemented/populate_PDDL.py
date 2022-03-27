@@ -121,6 +121,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
 
         #goal:
         txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN,'start')) #TODO: this does work only limitedly: I canot assign right numbers to pieces so let's do this by hand right now
+        txt_file=replace(txt_file,';[:removed]\n',PG.add_removed_pieces(start_FEN,goal_FEN))
 
         #Visualize :init & :goal pos
         Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
@@ -177,7 +178,7 @@ def main():
     - 
     '''
     start_FEN='3r1/5/5/3p1/2K2'#'1q3/4B/2Q2/5/Rb2r'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN ='3r1/5/5/3K1/5'#'1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    goal_FEN =#'3r1/5/5/3K1/5'#'1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain')

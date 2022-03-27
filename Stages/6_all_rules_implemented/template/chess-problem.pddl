@@ -68,6 +68,7 @@
     )
     (:goal (and
 ;[:goal_position]
+;[:removed]
            )
     )
 )
