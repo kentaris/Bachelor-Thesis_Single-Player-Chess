@@ -1,6 +1,4 @@
 ;;!domain: chess
 ;;!problem: chess-problem
-1: (queen_move queen_w1 n1 n3 n3 n1)
-2: (rook_move rook_w1 n1 n2 n1 n3)
-3: (queen_move queen_w1 n3 n1 n5 n1)
-; cost = 3 (unit cost)
+1: (king_move king_w1 n3 n1 n4 n2)
+; cost = 1 (unit cost)
