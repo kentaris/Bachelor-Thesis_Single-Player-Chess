@@ -15,8 +15,6 @@
     )
     (:predicates
      ;static predicates:
-        (at ?figure - figure ?file ?rank - location)
-        (not_moved ?figure - figure)
         ;(diff_by_N ?file ?rank - location)
         (diff_by_Zero ?file ?rank - location)
         (diff_by_One ?file ?rank - location)
@@ -30,10 +28,19 @@
         (pawn_start_pos_black ?from_file ?from_rank - location)
         (is_white ?figure - figure)
         (is_black ?figure - figure)
-        (removed ?figure - figure)
-        (white_s_turn)
+        (is_pawn ?pawn - pawn)
+        (is_knight ?knight - knight)
+        (is_bishop ?bishop - bishop)
+        (is_rook ?rook - rook)
+        (is_queen ?queen - queen)
+        (is_king ?king - king)
         (TRUE)
         (FALSE)
+     ;fluent/normal predicates:
+        (at ?figure - figure ?file ?rank - location)
+        (not_moved ?figure - figure)
+        (removed ?figure - figure)
+        (white_s_turn)
 
      ;derived predicates:
         (empty ?file ?rank - location)
@@ -57,6 +64,8 @@
         (kingside_rook ?rook - rook)
         (queenside_rook ?rook - rook)
         (king_move_into_check ?king - king ?to_file ?to_rank - location)
+        (red_zone ?figure - figure ?to_file ?to_rank - location)
+        (king_capturable_by_rook ?rook - rook ?from_file ?from_rank ?to_file ?to_rank - location)
     )
 ;DERIVED PREDICATES:
  ;;;;;;;;;;;;;;;;;;;;
@@ -225,43 +234,65 @@
     )
     
  ;king predicates:
-    ;TODO: check if King is walking through a check by castling or if king is in check when castling
-    (:derived (king_to_rook_possible ?rook - rook ?rank ?from_file_king ?from_file_rook - location) ;checks if the rook can move up to the king without there being any pieces inbetween
-        (or (and(occupied_by_figure ?rook ?from_file_rook ?rank)
-                ;(occupied_by_same_color ?rook ?from_file_king ?rank) ;check if king has same color as rook... oesn't work because ?from_file_king gets replaceswith ?next_file_king and there will never be a king at it so recursion doesn't work
-                (horiz_adj ?from_file_king ?rank ?from_file_rook ?rank)
-            )
-            (exists (?next_file_king - location) 
-                (and(diff_by_One ?from_file_king ?next_file_king)
-                    (or(not(occupied ?next_file_king ?rank))
-                       (and(occupied_by_figure ?rook ?next_file_king ?rank)
-                           (occupied_by_same_color ?rook ?next_file_king ?rank)
-                       )
+    ;;TODO: check if King is walking through a check by castling or if king is in check when castling
+    ;(:derived (king_to_rook_possible ?rook - rook ?rank ?from_file_king ?from_file_rook - location) ;checks if the rook can move up to the king without there being any pieces inbetween
+    ;    (or (and(occupied_by_figure ?rook ?from_file_rook ?rank)
+    ;            ;(occupied_by_same_color ?rook ?from_file_king ?rank) ;check if king has same color as rook... oesn't work because ?from_file_king gets replaceswith ?next_file_king and there will never be a king at it so recursion doesn't work
+    ;            (horiz_adj ?from_file_king ?rank ?from_file_rook ?rank)
+    ;        )
+    ;        (exists (?next_file_king - location) 
+    ;            (and(diff_by_One ?from_file_king ?next_file_king)
+    ;                (or(not(occupied ?next_file_king ?rank))
+    ;                   (and(occupied_by_figure ?rook ?next_file_king ?rank)
+    ;                       (occupied_by_same_color ?rook ?next_file_king ?rank)
+    ;                   )
+    ;                )
+	;		        (king_to_rook_possible ?rook ?rank ?next_file_king ?from_file_rook)
+    ;            )
+    ;        )
+    ;    )
+    ;)
+
+    (:derived (red_zone ?figure - figure ?kt_file ?kt_rank - location) ;for some figure (capturer) on the board: is there a king of opposite color it can move to?
+        (exists(?rook - rook ?cf_file ?cf_rank - location)
+            ;TODO: check if two of the same pieces can be messed up/exchanged
+            (and(at ?rook ?cf_file ?cf_rank) ;valid starting location
+                ;TODO: optimize by checking if it's on the same diagonal, horiz, vertic- line or if it is a Knight. we can ignore all other pieces                
+                (at ?rook ?kt_file ?kt_rank) ;rook is not at king position
+                (not(at ?rook ?cf_file ?cf_rank)) ;rook is where he's supposed to be
+                (not(occupied_by_same_color ?rook ?cf_file ?cf_rank)) ;king cannot be checked by his own pieces
+                ;can the king be reached by the capturer:
+                (or (and(= ?kt_file ?cf_file) ;vertical movement
+                        (not(= ?kt_rank ?ct_rank))
+                        (vert_reachable ?kt_file ?kt_rank ?ct_file ?ct_rank)
                     )
-			        (king_to_rook_possible ?rook ?rank ?next_file_king ?from_file_rook)
+                    (and(= ?kt_rank ?ct_rank) ;horizontal movement
+                        (not(= ?kt_file ?ct_file))
+                        (horiz_reachable ?kt_file ?kt_rank ?ct_file ?ct_rank)
+                    )
                 )
             )
         )
     )
     ;the '?from_file' and '?from_rank' variables are the location to which the king wants to move (the should be location). from here we check if he can move to a piece that can capture him (including the king because they can't come too close o thats the same thing).
-    (:derived (king_move_into_check ?king - king ?from_file ?from_rank - location) ;TODO: include this in piece movements: piece can't move if it's own colored king is checked by moving
-        (exists(?to_file ?to_rank - location)
-            (and (or (and(= ?from_file ?to_file) ;vertical movement
-                         (not(= ?from_rank ?to_rank))
-                         ;(vert_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
-                     )
-                     (and(= ?from_rank ?to_rank) ;horizontal movement
-                         (not(= ?from_file ?to_file))
-                         ;(horiz_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
-                     )
-                     (and(not(= ?from_rank ?to_rank)) ;diagonal movement
-                         (not(= ?from_file ?to_file))
-                         ;(diag_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
-                     )
-                 )
-            )
-        )
-    )
+    ;(:derived (king_move_into_check ?king - king ?from_file ?from_rank - location) ;TODO: include this in piece movements: piece can't move if it's own colored king is checked by moving
+    ;    (exists(?to_file ?to_rank - location)
+    ;        (and (or (and(= ?from_file ?to_file) ;vertical movement
+    ;                     (not(= ?from_rank ?to_rank))
+    ;                     ;(vert_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
+    ;                 )
+    ;                 (and(= ?from_rank ?to_rank) ;horizontal movement
+    ;                     (not(= ?from_file ?to_file))
+    ;                     ;(horiz_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
+    ;                 )
+    ;                 (and(not(= ?from_rank ?to_rank)) ;diagonal movement
+    ;                     (not(= ?from_file ?to_file))
+    ;                     ;(diag_reachable_capturer_piece ?king ?from_file ?from_rank ?to_file ?to_rank)
+    ;                 )
+    ;             )
+    ;        )
+    ;    )
+    ;)
 ;ACTIONS
  ;;;;;;;;
     (:action en_passant ;TODO: check if moving causes own king to be checked
@@ -487,6 +518,7 @@
                                    (diff_by_One ?from_rank ?to_rank)
                                )
                            )
+                           (not(red_zone ?king ?to_file ?to_rank))
                       )
         :effect (and (not (at ?king ?from_file ?from_rank))
                      (forall (?figure - figure)
@@ -535,4 +567,9 @@
                      (not(white_s_turn))
                 )
     )
+
+    ;(:action check_mate
+    ;    if the king cannot move anymore and no other action can be taken it is mate
+    ;)
+    
 )

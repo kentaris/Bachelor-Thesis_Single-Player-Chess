@@ -119,6 +119,9 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
 
+        txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN))
+        txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
+
         #goal:
         txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN,'start')) #TODO: this does work only limitedly: I canot assign right numbers to pieces so let's do this by hand right now
         txt_file=replace(txt_file,';[:removed]\n',PG.add_removed_pieces(start_FEN,goal_FEN))
@@ -181,7 +184,7 @@ def main():
     goal_FEN ='3r1/5/5/3K1/5'#'1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
-        load_file('domain')
+        load_file('domain',start_FEN)
         execute_planner()
         FEN.print_neighbor(Global.s,Global.g)
         plan=convert_plan()
@@ -195,7 +198,7 @@ def main():
         time_it()
     elif sys.argv[1]=='create': #just create .pddl files
         load_file('problem',start_FEN,goal_FEN)
-        load_file('domain')
+        load_file('domain',start_FEN)
         
 if __name__ == "__main__":
     main()

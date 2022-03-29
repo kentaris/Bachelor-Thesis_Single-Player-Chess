@@ -171,6 +171,29 @@ def board():
         R+='\t\t'+r+'\n'
     return R
 
+def add_color_predicates(start_FEN):
+    R=''
+    elements=[i for i in list(start_FEN) if i!='/' and not isdigit(i)]
+    for e in elements:
+        if e.isupper():
+            for figure in vars(figures)[e]:
+                if int(figure[-1:])<=board_size:
+                    R+='\t\t(is_white {})\n'.format(figure)
+        if e.islower():
+            for figure in vars(figures)[e]:
+                if int(figure[-1:])<=board_size:
+                    R+='\t\t(is_black {})\n'.format(figure)
+    return R
+
+def add_piece_types(start_FEN):
+    R=''
+    elements=[i for i in list(start_FEN) if i!='/' and not isdigit(i)]
+    for e in elements:
+        for figure in vars(figures)[e]:
+            if int(figure[-1:])<=board_size:
+                R+='\t\t(is_{} {})\n'.format(figure[:-3],figure)
+    return R
+
 def add_removed_pieces(start_FEN,goal_FEN):
     board=FEN.FEN_to_Chess_board(goal_FEN)
     start_FEN=list(start_FEN)
@@ -201,4 +224,5 @@ def add_removed_pieces(start_FEN,goal_FEN):
 
 #start_FEN='5/5/Q4/R4/5'
 #goal_FEN='5/5/R4/5/5'
+#print(add_piece_types(start_FEN))
 #print(add_removed_pieces(start_FEN,goal_FEN))

@@ -36,31 +36,8 @@
         (queenside_rook rook_b1)
 
         ;colors:
-        (is_white knight_w1)
-        (is_white knight_w2)
-        (is_white pawn_w1)
-        (is_white pawn_w2)
-        (is_white pawn_w3)
-        (is_white pawn_w4)
-        (is_white pawn_w5)
-        (is_white king_w1)
-        (is_white rook_w1 rook_w2)
-        (is_white w_bishop_w1)
-        (is_white b_bishop_w1)
-        (is_white queen_w1)
-        
-        (is_black knight_b1)
-        (is_black knight_b2)
-        (is_black pawn_b1)
-        (is_black pawn_b2)
-        (is_black pawn_b3)
-        (is_black pawn_b4)
-        (is_black pawn_b5)
-        (is_black king_b1)
-        (is_black rook_b1 rook_b2)
-        (is_black w_bishop_b1)
-        (is_black b_bishop_b1)
-        (is_black queen_b1)
+;[:colors]
+;[:piece_types]
 
         (white_s_turn)
 
