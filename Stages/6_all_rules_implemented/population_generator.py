@@ -3,13 +3,13 @@ import FEN
 
 board_size=5 #to change the board size
 
-def add_FEN_pos_to_PDDL(fen,type):
+def add_FEN_pos_to_PDDL(fen,type='None'):
     '''returns the PDDL line format of the occupied board positions of a given FEN string'''
     length=fen.count('/')+1
     done=[]
     R=''
     board=FEN.FEN_to_Chess_board(fen)
-    if type=='goal':
+    if type=='goal': #TODO: not needed atm: remove?
         for rank in range(length):
             for file in range(length):
                 if board[rank][file] in vars(figures_plain):
@@ -17,7 +17,6 @@ def add_FEN_pos_to_PDDL(fen,type):
                     color='white'
                     if figure[-1:]=='b':
                         color='black'
-                    print(color)
                     R+='\t\t(occupied_by n'+str((file+1))+' n'+str(board_size-(rank))+' '+figure[:-2]+' '+color+')\n'
     else:
         for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board
@@ -146,6 +145,7 @@ def add_diffByN(N):
     '''returns PDDL lines "(Difference by n1 n1) from 0 up to the nuber given to this function'''
     R=''
     for n in range(N):
+        n+=1
         word=num2word(n)
         line=create_diffBy_list(n,word)
         R+='\n\t\t;Difference by {}:\n'.format(word)+line
@@ -154,6 +154,7 @@ def add_diffByN(N):
 def add_diffByN_hor_ver(N):
     R=''
     for diff in range(N):
+        diff+=1
         R+='\n\t\t;Diff by {}:\n'.format(num2word(diff))
         for n1 in range(N):
             for n2 in range(N):
@@ -174,24 +175,32 @@ def board():
 def add_color_predicates(start_FEN):
     R=''
     elements=[i for i in list(start_FEN) if i!='/' and not isdigit(i)]
+    done=[]
     for e in elements:
         if e.isupper():
             for figure in vars(figures)[e]:
-                if int(figure[-1:])<=board_size:
+                if int(figure[-1:])<=board_size and figure not in done:
+                    done.append(figure)
                     R+='\t\t(is_white {})\n'.format(figure)
         if e.islower():
             for figure in vars(figures)[e]:
-                if int(figure[-1:])<=board_size:
+                if int(figure[-1:])<=board_size and figure not in done:
+                    done.append(figure)
                     R+='\t\t(is_black {})\n'.format(figure)
     return R
 
 def add_piece_types(start_FEN):
     R=''
+    done=[]
     elements=[i for i in list(start_FEN) if i!='/' and not isdigit(i)]
     for e in elements:
         for figure in vars(figures)[e]:
-            if int(figure[-1:])<=board_size:
-                R+='\t\t(is_{} {})\n'.format(figure[:-3],figure)
+            if int(figure[-1:])<=board_size and figure not in done:
+                done.append(figure)
+                if 'bishop' in figure:
+                    R+='\t\t(is_{} {})\n'.format('bishop',figure)
+                else:
+                    R+='\t\t(is_{} {})\n'.format(figure[:-3],figure)
     return R
 
 def add_removed_pieces(start_FEN,goal_FEN):
@@ -211,16 +220,18 @@ def add_removed_pieces(start_FEN,goal_FEN):
             for col in zip(*board): #iterate over columns instead of rows of the board
                 for rank in range(length):
                     if vars(figures)[fig][i] not in done:
-                        print(fig,i)
                         figure=vars(figures)[fig][i]
                         done.append(figure)
                         R+='\t\t(removed {}{})\n'.format(vars(figures_plain)[fig],i+1)
                 file+=1
-    print(R)
     return R
 
-#print(add_FEN_pos_to_PDDL('5/5/5/PPPPP/1N1N1')) #ToDo: may still be wrong but should be right
-#print(add_diffByN_hor_ver())
+print('this is solved in ~2secs:')
+print(add_FEN_pos_to_PDDL('5/1pppp/1R1N1/PPP2/5'))
+print(add_FEN_pos_to_PDDL('5/Ppp2/RPpN1/4p/5'))
+
+print('just one little change: the additional en-passant move: b3->c4: it runs forever')
+print(add_FEN_pos_to_PDDL('5/PpP2/R1pN1/4p/5'))
 
 #start_FEN='5/5/Q4/R4/5'
 #goal_FEN='5/5/R4/5/5'

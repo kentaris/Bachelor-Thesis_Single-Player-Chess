@@ -18,9 +18,15 @@
         queen_b1 - queen_b
     )
     (:init
-		(at pawn_b1 n4 n2)
-		(at rook_b1 n4 n5)
-		(at king_w1 n3 n1)
+		(at pawn_b1 n2 n4)
+		(at pawn_b2 n3 n4)
+		(at pawn_b3 n4 n4)
+		(at pawn_b4 n5 n4)
+		(at pawn_w1 n1 n2)
+		(at pawn_w2 n2 n2)
+		(at pawn_w3 n3 n2)
+		(at knight_w1 n4 n3)
+		(at rook_w1 n2 n3)
 
 		;Pawn double moves start for white:
 		(pawn_start_pos_white n1 n2)
@@ -48,13 +54,6 @@
 		(minusOne n4 n3)
 		(minusOne n5 n4)
 
-		;Difference by Zero:
-		(diff_by_Zero n1 n1)
-		(diff_by_Zero n2 n2)
-		(diff_by_Zero n3 n3)
-		(diff_by_Zero n4 n4)
-		(diff_by_Zero n5 n5)
-
 		;Difference by One:
 		(diff_by_One n1 n2)
 		(diff_by_One n2 n1)
@@ -78,6 +77,10 @@
 		(diff_by_Three n2 n5)
 		(diff_by_Three n4 n1)
 		(diff_by_Three n5 n2)
+
+		;Difference by Four:
+		(diff_by_Four n1 n5)
+		(diff_by_Four n5 n1)
 ;[:init_diffByN_hor_ver]
         
         (not_moved king_w1)
@@ -92,31 +95,34 @@
         (queenside_rook rook_b1)
 
         ;colors:
-		(is_black rook_b1)
-		(is_black rook_b2)
 		(is_black pawn_b1)
 		(is_black pawn_b2)
 		(is_black pawn_b3)
 		(is_black pawn_b4)
 		(is_black pawn_b5)
-		(is_white king_w1)
-		(is_rook rook_b1)
-		(is_rook rook_b2)
-		(is_pawn pawn_b1)
-		(is_pawn pawn_b2)
-		(is_pawn pawn_b3)
-		(is_pawn pawn_b4)
-		(is_pawn pawn_b5)
-		(is_king king_w1)
+		(is_white rook_w1)
+		(is_white rook_w2)
+		(is_white knight_w1)
+		(is_white knight_w2)
+		(is_white pawn_w1)
+		(is_white pawn_w2)
+		(is_white pawn_w3)
+		(is_white pawn_w4)
+		(is_white pawn_w5)
+;[:piece_types]
 
         (white_s_turn)
 
         (TRUE)
     )
     (:goal (and
-		(at rook_b1 n4 n5)
-		(at king_w1 n4 n2)
-		(removed pawn_b1)
+		(at pawn_b1 n2 n4)
+		(at pawn_b2 n3 n3)
+		(at pawn_b3 n5 n2)
+		(at pawn_w1 n1 n4)
+		(at pawn_w2 n3 n4)
+		(at knight_w1 n4 n3)
+		(at rook_w1 n1 n3)
            )
     )
 )

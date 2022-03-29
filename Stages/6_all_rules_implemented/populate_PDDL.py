@@ -4,6 +4,7 @@ import population_generator as PG
 import FEN
 from subprocess import call
 import time
+import unit_test
 
 class Global():
     
@@ -111,7 +112,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         #init:
         #start_FEN='5/4p/5/PPPPP/RQKNB'
         #goal_FEN='B1P2/4Q/1PNPp/P3P/3RK'
-        txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN,'start'))
+        txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         #print('start:\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         #print('goal:\n',PG.add_FEN_pos_to_PDDL(goal_FEN))
         txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(4))
@@ -120,10 +121,10 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
 
         txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN))
-        txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
+        #txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
 
         #goal:
-        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN,'start')) #TODO: this does work only limitedly: I canot assign right numbers to pieces so let's do this by hand right now
+        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN)) #TODO: this does work only limitedly: I canot assign right numbers to pieces so let's do this by hand right now
         txt_file=replace(txt_file,';[:removed]\n',PG.add_removed_pieces(start_FEN,goal_FEN))
 
         #Visualize :init & :goal pos
@@ -180,8 +181,8 @@ def main():
         -goal_FEN ='5/5/R4/5/5'   --> queen moves out of the way instead of returning 'no plan found' or 'unreachable position'
     - 
     '''
-    start_FEN='3r1/5/5/3p1/2K2'#'1q3/4B/2Q2/5/Rb2r'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN ='3r1/5/5/3K1/5'#'1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='5/1pppp/1R1N1/PPP2/5'#'2ppp/1p1RB/P4/3PP/5'#'3r1/5/5/3p1/2K2'#'1q3/4B/2Q2/5/Rb2r'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
+    goal_FEN ='5/PpP2/R1pN1/4p/5'#'1P3/3p1/3B1/3P1/5'#'3r1/5/5/3K1/5'#'1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)
@@ -192,6 +193,8 @@ def main():
         time_it()
     elif sys.argv[1]=='planner': #just execute the planner on the existing .pddl files (so I can edit them and test stuff quickly)
         execute_planner()
+        Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
+        Global.g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN),True,True))
         FEN.print_neighbor(Global.s,Global.g)
         plan=convert_plan()
         print_plan(plan)
@@ -199,6 +202,26 @@ def main():
     elif sys.argv[1]=='create': #just create .pddl files
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)
+    elif sys.argv[1]=='test': #unit tests
+        succ=[]
+        fail=[]
+        for i in range(len(vars(unit_test.units))-4):
+            print(i)
+            try:
+                test=unit_test.get(i)
+                load_file('problem',test[0],test[1])
+                load_file('domain',test[0])
+                execute_planner()
+                succ.append(i)
+                print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
+            except:
+                fail.append(i)
+                print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
+        print('\nsummary:\n========')
+        for i in succ:
+            print('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
+        for i in fail:
+            print('\033[93m \u274c #{} failed: (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
         
 if __name__ == "__main__":
     main()

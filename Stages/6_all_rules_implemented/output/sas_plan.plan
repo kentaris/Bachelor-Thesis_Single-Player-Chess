@@ -1,4 +1,9 @@
 ;;!domain: chess
 ;;!problem: chess-problem
-1: (king_move king_w1 n3 n1 n4 n2)
-; cost = 1 (unit cost)
+1: (pawn_move pawn_b4 n5 n4 n5 n2)
+2: (pawn_move pawn_w1 n1 n2 n1 n4)
+3: (rook_move rook_w1 n2 n3 n1 n3)
+4: (pawn_move pawn_w3 n3 n2 n3 n3)
+5: (en_passant pawn_b3 n4 n4 n3 n3)
+6: (pawn_move pawn_w2 n2 n2 n2 n3)
+; cost = 6 (unit cost)
