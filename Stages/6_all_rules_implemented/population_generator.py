@@ -226,12 +226,12 @@ def add_removed_pieces(start_FEN,goal_FEN):
                 file+=1
     return R
 
-print('this is solved in ~2secs:')
-print(add_FEN_pos_to_PDDL('5/1pppp/1R1N1/PPP2/5'))
-print(add_FEN_pos_to_PDDL('5/Ppp2/RPpN1/4p/5'))
-
-print('just one little change: the additional en-passant move: b3->c4: it runs forever')
-print(add_FEN_pos_to_PDDL('5/PpP2/R1pN1/4p/5'))
+#print('this is solved in ~2secs:')
+#print(add_FEN_pos_to_PDDL('5/1pppp/1R1N1/PPP2/5'))
+#print(add_FEN_pos_to_PDDL('5/Ppp2/RPpN1/4p/5'))
+#
+#print('just one little change: the additional en-passant move: b3->c4: it runs forever')
+#print(add_FEN_pos_to_PDDL('5/PpP2/R1pN1/4p/5'))
 
 #start_FEN='5/5/Q4/R4/5'
 #goal_FEN='5/5/R4/5/5'

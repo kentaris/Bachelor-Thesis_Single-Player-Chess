@@ -121,7 +121,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
 
         txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN))
-        #txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
+        txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
 
         #goal:
         txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN)) #TODO: this does work only limitedly: I canot assign right numbers to pieces so let's do this by hand right now
@@ -162,14 +162,18 @@ def translate_time(T,print_=False):
     else:
         return [s_int,ms_int,µs_int,ns_int]
 
-def time_it():
+def time_it(R=None):
     '''calculates the time it took to execute program'''
     Global.t[1]=time.perf_counter_ns()
     T=Global.t[1]-Global.t[0]
     t=translate_time(T,True)
     #print('\033[93m >>> rounded time:',translate_time(round(int(T),-8),True)) #Round to 100 ms accuracy so output is more constant
-    print('\033[93m >>> time:',t,' ',end='')
-    compare_time(T)
+    if R==None:
+        print('\033[93m >>> time:',t,' ',end='')
+        compare_time(T)
+    else:
+        return t
+    
     print('\033[0m',end='')
 
 def main():
@@ -181,8 +185,8 @@ def main():
         -goal_FEN ='5/5/R4/5/5'   --> queen moves out of the way instead of returning 'no plan found' or 'unreachable position'
     - 
     '''
-    start_FEN='5/1pppp/1R1N1/PPP2/5'#'2ppp/1p1RB/P4/3PP/5'#'3r1/5/5/3p1/2K2'#'1q3/4B/2Q2/5/Rb2r'#'2K2/krpb1/3R1/PNR2/rQ1Bn'
-    goal_FEN ='5/PpP2/R1pN1/4p/5'#'1P3/3p1/3B1/3P1/5'#'3r1/5/5/3K1/5'#'1Q3/4b/5/5/4R'#'PKbQr/kr3/1R1RN/2n1B/2p2'
+    start_FEN='2br1/3PK/1N3/P1n2/5'
+    goal_FEN ='3r1/1b1K1/1N3/P4/4n'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)
@@ -206,22 +210,22 @@ def main():
         succ=[]
         fail=[]
         for i in range(len(vars(unit_test.units))-4):
-            print(i)
             try:
                 test=unit_test.get(i)
                 load_file('problem',test[0],test[1])
                 load_file('domain',test[0])
                 execute_planner()
-                succ.append(i)
-                print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
+                succ.append([i,time_it('return value')])
+                print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(chr(i+65),test[0],test[1]))
             except:
-                fail.append(i)
-                print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
+                fail.append([i,'-'])
+                print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m'.format(chr(i+65),test[0],test[1]))
         print('\nsummary:\n========')
         for i in succ:
-            print('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
+            print('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(i[0])+65),test[0],test[1],i[1]))
+
         for i in fail:
-            print('\033[93m \u274c #{} failed: (\'{}\',\'{}\')\033[0m'.format(i,test[0],test[1]))
+            print('\033[93m \u274c #{} failed:\t  (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(i[0])+65),test[0],test[1],i[1]))
         
 if __name__ == "__main__":
     main()
