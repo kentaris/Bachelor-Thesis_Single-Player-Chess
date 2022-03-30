@@ -185,8 +185,8 @@ def main():
         -goal_FEN ='5/5/R4/5/5'   --> queen moves out of the way instead of returning 'no plan found' or 'unreachable position'
     - 
     '''
-    start_FEN='2br1/3PK/1N3/P1n2/5'
-    goal_FEN ='3r1/1b1K1/1N3/P4/4n'
+    start_FEN='3r1/5/5/3p1/2K2'#'2p2/3pK/5/5/5'
+    goal_FEN ='3r1/5/5/3K1/5'#'5/2K2/5/5/5'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)
