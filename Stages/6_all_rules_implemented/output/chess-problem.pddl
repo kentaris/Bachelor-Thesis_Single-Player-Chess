@@ -18,9 +18,9 @@
         queen_b1 - queen_b
     )
     (:init
-		(at pawn_b1 n4 n2)
-		(at rook_b1 n4 n5)
-		(at king_w1 n3 n1)
+		(at knight_b1 n2 n4)
+		(at knight_b2 n4 n5)
+		(at king_w1 n3 n3)
 
 		;Pawn double moves start for white:
 		(pawn_start_pos_white n1 n2)
@@ -89,21 +89,11 @@
         (queenside_rook rook_b1)
 
         ;colors:
-		(is_black rook_b1)
-		(is_black rook_b2)
-		(is_black pawn_b1)
-		(is_black pawn_b2)
-		(is_black pawn_b3)
-		(is_black pawn_b4)
-		(is_black pawn_b5)
+		(is_black knight_b1)
+		(is_black knight_b2)
 		(is_white king_w1)
-		(is_rook rook_b1)
-		(is_rook rook_b2)
-		(is_pawn pawn_b1)
-		(is_pawn pawn_b2)
-		(is_pawn pawn_b3)
-		(is_pawn pawn_b4)
-		(is_pawn pawn_b5)
+		(is_knight knight_b1)
+		(is_knight knight_b2)
 		(is_king king_w1)
 
         (white_s_turn)
@@ -111,9 +101,9 @@
         (TRUE)
     )
     (:goal (and
-		(at rook_b1 n4 n5)
-		(at king_w1 n4 n2)
-		(removed pawn_b1)
+		(at king_w1 n4 n5)
+		(removed knight_b1)
+		(removed knight_b2)
            )
     )
 )

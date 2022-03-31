@@ -40,6 +40,7 @@
         (not_moved ?figure - figure)
         (removed ?figure - figure)
         (white_s_turn)
+        (double_moved ?pawn - pawn)
 
      ;derived predicates:
         (occupied ?file ?rank - location)
@@ -277,29 +278,69 @@
     
  ;king predicates:
     (:derived (red_zone ?king - king ?kt_file ?kt_rank - location) ;for some figure (capturer) on the board: is there a king of opposite color it can move to?
-        (exists(?rook - rook ?c_file ?c_rank - location)
-            (and(at ?rook ?c_file ?c_rank) ;valid starting location
-                ;TODO: optimize by checking if it's on the same horiz, vertic- line               
-                ;(not(at ?rook ?kt_file ?kt_rank)) ;rook is not at king position
-                ;(not(at ?king ?c_file ?c_rank)) ;king is not at rook position
-                
-                ;king cannot be checked by his own pieces:
-                (and(or (and(is_black ?rook)
-                            (is_white ?king)
+        (or
+            (exists(?pawn - pawn ?c_file ?c_rank - location)
+                (and(at ?pawn ?c_file ?c_rank)
+                    (diag_adj ?c_file ?c_rank ?kt_file ?kt_rank)
+                    (diff_by_One ?kt_file ?c_file) ;diagonal capure
+                    (not(= ?kt_file ?c_file))
+                    (not(= ?kt_rank ?c_rank))
+                    (and(or (and(is_black ?pawn)
+                                (is_white ?king)
+                                (minusOne ?c_rank ?kt_rank)
+                            )
+                            (and(is_white ?pawn)
+                                (is_black ?king)
+                                (plusOne ?c_rank ?kt_rank)
+                            )
                         )
-                        (and(is_white ?rook)
-                            (is_black ?king)
+                    )              
+                )
+            )
+            (exists(?knight - knight ?c_file ?c_rank - location)
+                (and(at ?knight ?c_file ?c_rank)
+                    (not(= ?c_file ?kt_file)) ;kt_file & kt_rank should = landing position for the knight
+                    (not(= ?c_rank ?kt_rank))
+                    (or
+                        (and ;two files, one row:
+                            (diff_by_Two ?c_file ?kt_file) ; file +/- 2
+                            (diff_by_One ?c_rank ?kt_rank)) ; rank +/- 1
+                        (and ;two rows, one file:
+                            (diff_by_Two ?c_rank ?kt_rank) ; rank +/- 2
+                            (diff_by_One ?c_file ?kt_file) ; file +/- 1
                         )
                     )
                 )
-                ;can the king be reached by the capturer:
-                (or (and(= ?kt_file ?c_file) ;vertical movement
-                        (not(= ?kt_rank ?c_rank))
-                        (vert_reachable ?c_file ?c_rank ?kt_file ?kt_rank)
+            )
+            ;(exists(?bishop - bishop ?c_file ?c_rank - location)
+            ;    (and(at ?bishop ?c_file ?c_rank)
+            ;        (FALSE)
+            ;    )
+            ;)
+            (exists(?rook - rook ?c_file ?c_rank - location)
+                (and(at ?rook ?c_file ?c_rank) ;valid starting location
+                    ;TODO: optimize by checking if it's on the same horiz, vertic- line               
+                    ;(not(at ?rook ?kt_file ?kt_rank)) ;rook is not at king position
+                    ;(not(at ?king ?c_file ?c_rank)) ;king is not at rook position
+
+                    ;king cannot be checked by his own pieces:
+                    (and(or (and(is_black ?rook)
+                                (is_white ?king)
+                            )
+                            (and(is_white ?rook)
+                                (is_black ?king)
+                            )
+                        )
                     )
-                    (and(= ?kt_rank ?c_rank) ;horizontal movement
-                        (not(= ?kt_file ?c_file))
-                        (horiz_reachable ?c_file ?c_rank ?kt_file ?kt_rank)
+                    ;can the king be reached by the capturer:
+                    (or (and(= ?kt_file ?c_file) ;vertical movement
+                            (not(= ?kt_rank ?c_rank))
+                            (vert_reachable ?c_file ?c_rank ?kt_file ?kt_rank)
+                        )
+                        (and(= ?kt_rank ?c_rank) ;horizontal movement
+                            (not(= ?kt_file ?c_file))
+                            (horiz_reachable ?c_file ?c_rank ?kt_file ?kt_rank)
+                        )
                     )
                 )
             )
@@ -307,17 +348,25 @@
     )
 ;ACTIONS
  ;;;;;;;;
-    (:action en_passant ;TODO: check if moving causes own king to be checked
+    ;(:action en_passant
+    ;    :parameters (?pawn - pawn ?from_file ?from_rank ?to_file ?to_rank - location)
+    ;    :precondition (and (double_moved ?pawn) ;TODO: we also need to check if the double move happend in the last turn: forall
+    ;                  )
+    ;    :effect (
+    ;            )
+    ;)
+    
+    (:action pawn_capture ;TODO: check if moving causes own king to be checked
         :parameters (?pawn - pawn ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and
                            ;(is_pawn ?pawn)
                            (at ?pawn ?from_file ?from_rank)
-                           ;(not(at ?pawn ?to_file ?to_rank))
+                           (diff_by_One ?from_file ?to_file)
+                           (diff_by_One ?from_rank ?to_rank)
                            (not(= ?from_file ?to_file))
                            (not(= ?from_rank ?to_rank))
                            (occupied ?to_file ?to_rank) ;there is a piece on it
                            (not(occupied_by_same_color ?pawn ?to_file ?to_rank)) ;it is not my own color
-                           (at ?pawn ?from_file ?from_rank)
                            (and ;diagonal capture:
                                 (or(and(plusOne ?from_rank ?to_rank) ;white pawns move up the board only
                                        (is_white ?pawn)
@@ -341,7 +390,7 @@
                      (not(white_s_turn))
                 )
     )
-    (:action pawn_move
+    (:action pawn_move_one
         :parameters (?pawn - pawn ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and 
                            ;(is_pawn ?pawn)
@@ -350,28 +399,49 @@
                            (not(= ?from_rank ?to_rank))
                            (= ?from_file ?to_file)
                            (not(occupied ?to_file ?to_rank))
+                           (diff_by_One ?from_rank ?to_rank)
                            (or    
-                               (or (plusOne ?from_rank ?to_rank) ;single move white
-                                   (and ;double move white:
-                                       (is_white ?pawn)
-                                       (pawn_start_pos_white ?from_file ?from_rank)
-                                       (diff_by_Two ?from_rank ?to_rank) ;we don't need to check if it's white or black here because as long as the diff is 2 and it is at starting pos, then the pawn can't go into the wrong direction because it would fall off the board 
-                                       (vert_reachable ?from_file ?from_rank ?to_file ?to_rank) 
-                                    )
+                               (and(plusOne ?from_rank ?to_rank) ;single move white
+                                   (is_white ?pawn)
                                )
-                               (or (minusOne ?from_rank ?to_rank) ;single move black
-                                   (and ;double move black:
-                                       (is_black ?pawn)
-                                       (pawn_start_pos_black ?from_file ?from_rank)
-                                       (diff_by_Two ?from_rank ?to_rank) ;we don't need to check if it's white or black here because as long as the diff is 2 and it is at starting pos, then the pawn can't go into the wrong direction because it would fall off the board 
-                                       (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
-                                    )
+                               (and(minusOne ?from_rank ?to_rank) ;single move black
+                                   (is_black ?pawn)
                                )
                            )
                        )
         :effect (and (not (at ?pawn ?from_file ?from_rank))
                      (at ?pawn ?to_file ?to_rank)
                      (not(white_s_turn))
+                )
+    )
+    (:action pawn_move_two
+        :parameters (?pawn - pawn ?from_file ?from_rank ?to_file ?to_rank - location)
+        :precondition (and (not(double_moved ?pawn))
+                           ;(is_pawn ?pawn)
+                           (at ?pawn ?from_file ?from_rank)
+                           ;(not(at ?pawn ?to_file ?to_rank))
+                           (not(= ?from_rank ?to_rank))
+                           (= ?from_file ?to_file)
+                           (not(occupied ?to_file ?to_rank))
+                           (or 
+                               (and ;double move white:
+                                   (is_white ?pawn)
+                                   (pawn_start_pos_white ?from_file ?from_rank)
+                                   (diff_by_Two ?from_rank ?to_rank) ;we don't need to check if it's white or black here because as long as the diff is 2 and it is at starting pos, then the pawn can't go into the wrong direction because it would fall off the board 
+                                   (vert_reachable ?from_file ?from_rank ?to_file ?to_rank) 
+                               )
+                               (and ;double move black:
+                                    (is_black ?pawn)
+                                    (pawn_start_pos_black ?from_file ?from_rank)
+                                    (diff_by_Two ?from_rank ?to_rank) ;we don't need to check if it's white or black here because as long as the diff is 2 and it is at starting pos, then the pawn can't go into the wrong direction because it would fall off the board 
+                                    (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
+                               )
+                           )
+                       )
+        :effect (and (not (at ?pawn ?from_file ?from_rank))
+                     (at ?pawn ?to_file ?to_rank)
+                     (not(white_s_turn))
+                     (not(double_moved ?pawn))
                 )
     )
     (:action knight_move
@@ -512,15 +582,27 @@
     )
     (:action king_move 
         :parameters (?king - king ?from_file ?from_rank ?to_file ?to_rank - location)
-        :precondition (and (is_king ?king)
+        :precondition (and ;(is_king ?king)
                            (at ?king ?from_file ?from_rank)                           
-                           (not(at ?king ?to_file ?to_rank))
+                           ;(not(at ?king ?to_file ?to_rank))
+                           ;(occupied_by_figure ?king ?from_file ?from_rank)
+                           ;;TODO: test if this works in all szenarios: 
+                           (not(red_zone ?king ?to_file ?to_rank))
+                           ;(not(and(= ?from_file ?to_file)
+                           ;        (= ?from_rank ?to_rank)
+                           ;))
+                           ;(or(diff_by_One ?from_file ?to_file)
+                           ;   (diff_by_One ?from_rank ?to_rank)
+                           ;)
+                           ;(not
+                           ;     (and
+                           ;         (not(= ?from_file ?to_file))
+                           ;         (not(= ?from_rank ?to_rank))
+                           ;         (not(diff_by_One ?from_file ?to_file))
+                           ;         (not(diff_by_One ?from_rank ?to_rank))
+                           ;     )
+                           ;)
                            (or
-                               (not(occupied ?to_file ?to_rank))
-                               (not(occupied_by_same_color ?king ?to_file ?to_rank)) ;capturable piece = opposite color
-                               ;TODO: King can't move into check or capture into check!
-                           )
-                           (or 
                                (and ;diagonal move
                                    (diff_by_One ?from_file ?to_file)
                                    (diff_by_One ?from_rank ?to_rank)
@@ -534,7 +616,6 @@
                                    (diff_by_One ?from_rank ?to_rank)
                                )
                            )
-                           (not(red_zone ?king ?to_file ?to_rank))
                       )
         :effect (and (not (at ?king ?from_file ?from_rank))
                      (forall (?figure - figure)
