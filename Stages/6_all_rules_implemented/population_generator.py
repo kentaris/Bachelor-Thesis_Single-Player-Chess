@@ -1,50 +1,46 @@
 from curses.ascii import isalpha, isdigit
 import FEN
+import numpy as np
 
 board_size=5 #to change the board size
 
 def add_FEN_pos_to_PDDL(fen,type='None'):
     '''returns the PDDL line format of the occupied board positions of a given FEN string'''
-    length=fen.count('/')+1
     done=[]
     R=''
     board=FEN.FEN_to_Chess_board(fen)
-    if type=='goal': #TODO: not needed atm: remove?
-        for rank in range(length):
-            for file in range(length):
-                if board[rank][file] in vars(figures_plain):
-                    figure=vars(figures_plain)[board[rank][file]]
-                    color='white'
-                    if figure[-1:]=='b':
-                        color='black'
-                    R+='\t\t(occupied_by n'+str((file+1))+' n'+str(board_size-(rank))+' '+figure[:-2]+' '+color+')\n'
-    else:
-        for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board
-            for i in range(fen.count(fig)): #every figure can occur multiple times
-                idx=0
-                file=0
-                for col in zip(*board): #iterate over columns instead of rows of the board
-                    for rank in range(length):
-                        if board[rank][file]==fig and vars(figures)[fig][idx] not in done:
-                            figure=vars(figures)[fig][idx]
-                            done.append(figure)
-                            R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-(rank))+')\n'
-                            idx+=1
-                    file+=1
+    for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
+        if fig in fen:
+            idx=0 #index of the current figure 'fig'
+            file=0 #current file
+            #save=None 
+            for col in zip(*board): #iterate over columns instead of rows of the board
+                for rank in range(len(col)): #iterate over ranks
+                    #TODO: if I want to allow multiple queens and kings of the same color
+                    #try: 
+                    #    vars(figures)[fig][idx]
+                    #except: 
+                    #    save=vars(figures)[fig][idx-1]
+                    #    print('\t',save,)
+                    if col[rank]==fig and vars(figures)[fig][idx] not in done:
+                        figure=vars(figures)[fig][idx]
+                        done.append(figure)
+                        R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        idx+=1
+                file+=1 #update file
     return R
-
 class figures_plain:
     #black pieces:
     p='pawn_b'
     n='knight_b'
-    b='w_bishop_b'
+    b='bishop_b'
     r='rook_b'
     q='queen_b'
     k='king_b'
     #white pieces:
     P='pawn_w'
     N='knight_w'
-    B='w_bishop_w'
+    B='bishop_w'
     R='rook_w'
     Q='queen_w'
     K='king_w'
@@ -52,14 +48,14 @@ class figures:
     #black pieces:
     p=['pawn_b1','pawn_b2','pawn_b3','pawn_b4','pawn_b5','pawn_b6','pawn_b7','pawn_b8']
     n=['knight_b1','knight_b2']
-    b=['w_bishop_b1','b_bishop_b1']
+    b=['bishop_b1','bishop_b2']
     r=['rook_b1','rook_b2']
     q=['queen_b1']
     k=['king_b1']
     #white pieces:
     P=['pawn_w1','pawn_w2','pawn_w3','pawn_w4','pawn_w5','pawn_w6','pawn_w7','pawn_w8']
     N=['knight_w1','knight_w2']
-    B=['w_bishop_w1','b_bishop_w1']
+    B=['bishop_w1','bishop_w2']
     R=['rook_w1','rook_w2']
     Q=['queen_w1']
     K=['king_w1']
@@ -178,7 +174,7 @@ def add_color_predicates(start_FEN):
     done=[]
     for e in elements:
         if e.isupper():
-            for figure in vars(figures)[e]:
+            for figure in vars(figures)[e]: #TODO: here I add all figures instead of only the ones I need. this is only a cosmetic issue I think
                 if int(figure[-1:])<=board_size and figure not in done:
                     done.append(figure)
                     R+='\t\t(is_white {})\n'.format(figure)
@@ -204,26 +200,32 @@ def add_piece_types(start_FEN):
     return R
 
 def add_removed_pieces(start_FEN,goal_FEN):
-    board=FEN.FEN_to_Chess_board(goal_FEN)
-    start_FEN=list(start_FEN)
-    goal_FEN=list(goal_FEN)
-    length=start_FEN.count('/')+1
-    diff=[]
-    for e in start_FEN:
-        if e not in goal_FEN and isalpha(e):
-            diff.append(e)
-    done=[] #TODO: test this....
+    start_board=np.ndarray.flatten(np.array(FEN.FEN_to_Chess_board(start_FEN)))
+    end_board=np.ndarray.flatten(np.array(FEN.FEN_to_Chess_board(goal_FEN)))
     R=''
-    for fig in diff:
-        for i in range(start_FEN.count(fig)): #every figure can occur multiple times
-            file=0
-            for col in zip(*board): #iterate over columns instead of rows of the board
-                for rank in range(length):
-                    if vars(figures)[fig][i] not in done:
-                        figure=vars(figures)[fig][i]
-                        done.append(figure)
-                        R+='\t\t(removed {}{})\n'.format(vars(figures_plain)[fig],i+1)
-                file+=1
+    #print(start_board,'\n',end_board)
+    done=[]
+    diff=[]
+
+    for i in range(len(start_board)):
+        if start_board[i] not in end_board:
+            diff.append(start_board[i])
+
+    board=FEN.FEN_to_Chess_board(start_FEN)
+    for fig in diff: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
+        print(fig)
+        idx=0 #index of the current figure 'fig'
+        file=0 #current file
+        for col in zip(*board): #iterate over columns instead of rows of the board
+            for rank in range(len(col)): #iterate over ranks
+                if col[rank]==fig and vars(figures_plain)[fig][idx] not in done:
+                    print('>>  ',fig)
+                    figure=vars(figures)[fig][idx]
+                    done.append(figure)
+                    R+='\t\t(removed {}{})\n'.format(vars(figures_plain)[fig],idx+1)
+                    idx+=1
+            file+=1 #update file
+
     return R
 
 #print('this is solved in ~2secs:')
@@ -237,3 +239,6 @@ def add_removed_pieces(start_FEN,goal_FEN):
 #goal_FEN='5/5/R4/5/5'
 #print(add_piece_types(start_FEN))
 #print(add_removed_pieces(start_FEN,goal_FEN))
+
+print(add_FEN_pos_to_PDDL('b4/b4/R4/5/5'))
+print(add_removed_pieces('b4/b4/R4/5/5','R4/5/5/5/5'))

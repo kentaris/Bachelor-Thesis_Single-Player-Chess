@@ -115,7 +115,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         #print('start:\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         #print('goal:\n',PG.add_FEN_pos_to_PDDL(goal_FEN))
-        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(4))
+        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
         #txt_file=replace(txt_file,';[:init_diffByN_hor_ver]\n',PG.add_diffByN_hor_ver(9))
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
@@ -177,25 +177,9 @@ def time_it(R=None):
     print('\033[0m',end='')
 
 def main():
-    '''
-    Problems:
-    - Pieces can dissapear if they are present in start_FEN but not in goal_FEN
-    - Pieces can move out of the way to acheave certain goal state even tough in the goal state it says that the piece needs to be "captured"/not be on the board
-        -start_FEN='5/5/Q4/R4/5'
-        -goal_FEN ='5/5/R4/5/5'   --> queen moves out of the way instead of returning 'no plan found' or 'unreachable position'
-    - 
-    '''
-    start_FEN='b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
-    goal_FEN ='K4/5/5/5/5'#'3r1/5/5/3K1/5'
+    start_FEN='b4/b4/R4/5/5'#'1b3/2b2/3P1/5/5'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
+    goal_FEN ='R4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
 
-    '''
-knight_b1:      B4->D3
-king_w1:        C3->D4
-king_w1:        D4->D5
-knight_b1:      D3->C5
-king_w1:        D5->C5
-king_w1:        C5->D5
-    '''
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)

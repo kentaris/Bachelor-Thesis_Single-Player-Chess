@@ -24,7 +24,7 @@ def printable_board(board,color=False,symbols=False):
                 elif letter.isupper(): #white pieces
                     r+=colors.highlight+colors.white_pieces+symbol
                 else: #empty space
-                    if (i+j)%2==1: #white
+                    if (i+j)%2==0: #white
                         r+=colors.highlight+colors.white_spaces+symbol#rgb(32, 57, 88)
                     else: #black
                         r+=colors.highlight+colors.black_spaces+symbol

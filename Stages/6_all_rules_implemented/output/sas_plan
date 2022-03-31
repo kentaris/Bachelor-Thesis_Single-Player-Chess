@@ -1,7 +1,0 @@
-(knight_move knight_b1 n2 n4 n4 n3)
-(king_move king_w1 n3 n3 n4 n4)
-(king_move king_w1 n4 n4 n4 n5)
-(knight_move knight_b1 n4 n3 n3 n5)
-(king_move king_w1 n4 n5 n3 n5)
-(king_move king_w1 n3 n5 n4 n5)
-; cost = 6 (unit cost)
