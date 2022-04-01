@@ -48,14 +48,14 @@ class figures:
     #black pieces:
     p=['pawn_b1','pawn_b2','pawn_b3','pawn_b4','pawn_b5','pawn_b6','pawn_b7','pawn_b8']
     n=['knight_b1','knight_b2']
-    b=['bishop_b1','bishop_b2']
+    b=['b_bishop_b1','w_bishop_b2']
     r=['rook_b1','rook_b2']
     q=['queen_b1']
     k=['king_b1']
     #white pieces:
     P=['pawn_w1','pawn_w2','pawn_w3','pawn_w4','pawn_w5','pawn_w6','pawn_w7','pawn_w8']
     N=['knight_w1','knight_w2']
-    B=['bishop_w1','bishop_w2']
+    B=['b_bishop_w1','w_bishop_w2']
     R=['rook_w1','rook_w2']
     Q=['queen_w1']
     K=['king_w1']
@@ -200,6 +200,9 @@ def add_piece_types(start_FEN):
     return R
 
 def add_removed_pieces(start_FEN,goal_FEN):
+    '''
+    this checks the difference between start and end pos fen and returns the removed pieces as predicates with their repective numbers. Now there is a problem: if we have two rooks in the starting position and only one in the ending position, we don't know which rook of the two has been captured. With the rooks this is not a problem because they can reach any file anyways so they can just exchange spots, but with pawns and with bishops this is a problem. I don't know yet how to solve it with the pawns so I'll just nuber them in the same way as I do number the original pawns which leads to some problems. With the bishops I do know which one has been captured since they have a fixed square color asigned to them.
+    '''
     start_board=np.ndarray.flatten(np.array(FEN.FEN_to_Chess_board(start_FEN)))
     end_board=np.ndarray.flatten(np.array(FEN.FEN_to_Chess_board(goal_FEN)))
     R=''
@@ -212,19 +215,26 @@ def add_removed_pieces(start_FEN,goal_FEN):
             diff.append(start_board[i])
 
     board=FEN.FEN_to_Chess_board(start_FEN)
-    for fig in diff: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
-        print(fig)
-        idx=0 #index of the current figure 'fig'
-        file=0 #current file
-        for col in zip(*board): #iterate over columns instead of rows of the board
-            for rank in range(len(col)): #iterate over ranks
-                if col[rank]==fig and vars(figures_plain)[fig][idx] not in done:
-                    print('>>  ',fig)
-                    figure=vars(figures)[fig][idx]
-                    done.append(figure)
-                    R+='\t\t(removed {}{})\n'.format(vars(figures_plain)[fig],idx+1)
-                    idx+=1
-            file+=1 #update file
+    for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
+        if fig in diff:
+            idx=0 #index of the current figure 'fig'
+            file=0 #current file
+            print(board)
+            for col in zip(*board): #iterate over columns instead of rows of the board
+                for rank in range(len(col)): #iterate over ranks
+                    if col[rank]==fig and vars(figures)[fig][idx] not in done:
+                        if fig not in ['b','B']: #TODO: problem with the pawns, maybe I can fix it here? maybe by asking for user input on unclear pawn positions?
+                            figure=vars(figures)[fig][idx]
+                        elif fig in ['b','B']:
+                            if (file+rank)%2==0: #white/top left square
+                                figure=vars(figures)[fig][1]
+                            else:
+                                figure=vars(figures)[fig][0]
+                            print(figure)
+                        done.append(figure)
+                        R+='\t\t(removed {})\n'.format(figure)
+                        idx+=1
+                file+=1 #update file
 
     return R
 

@@ -57,7 +57,7 @@ class colors:
 
     reset = '\033[0m'
 
-def true_board_squares(board,filler=Filler):
+def true_board_squares(board,filler=Filler): #TODO: not needed?
     """takes a FEN_to_Chess_board() board as input and gives an array containing the positions of the pieces as tuples (Ex: ('A1', 'ROOK_w') )"""
     square_names=valid_moves.matrix_form_board(valid_moves.board())
     List=[]
@@ -69,23 +69,23 @@ def true_board_squares(board,filler=Filler):
                 List.append((square_names[rank][file],name))
     return List
 
-def printable_true_board_squares(List,prefix,indent=''):
+def printable_true_board_squares(List,prefix,indent=''):#TODO: not needed?
     """convert true_board_squares() to string which can be either printed or inserted into a PDDL file"""
     L=''
     for e in List:
         L+=indent+'('+prefix+' '+str(e[1])+' '+str(e[0])+')\n'
     return L[:-1]
 
-def FEN_names_to_pddl_names(figure,square): #TODO: this function is wrong somehow...
+def FEN_names_to_pddl_names(figure,square): #TODO: not needed? #TODO: this function is wrong somehow...
     """takes a FEN code figure name (p,n,b,...) as input and gives back the corresponding name defined in the figures() dictionary"""
     if figure.lower()!='b':
-        return vars(figures)[figure]
+        return vars(figures)[figure][2:]
     else: #there are two square colored bishops
         if (square[0]+square[1])%2==0: #black if even TODO: somehow this is reversed: black if uneven but I dont know why... it is NOT because it starts at 0 because then black would still be even
             #print('>>> ',square[0],square[1],'white')
-            return vars(figures)[figure][0] #TODO: issue: returns ''__main__' as well... don't know if this may cause problems... : ['__main__', 'pawn', 'knight', 'w_bishop', 'b_bishop', 'rook', 'queen', 'king', 'PAWN', 'KNIGHT', 'W_BISHOP', 'B_BISHOP', 'ROOK', 'QUEEN', 'KING', <attribute '__dict__' of 'figures' objects>, <attribute '__weakref__' of 'figures' objects>, None]
+            return vars(figures)[figure][1] #TODO: issue: returns ''__main__' as well... don't know if this may cause problems... : ['__main__', 'pawn', 'knight', 'w_bishop', 'b_bishop', 'rook', 'queen', 'king', 'PAWN', 'KNIGHT', 'W_BISHOP', 'B_BISHOP', 'ROOK', 'QUEEN', 'KING', <attribute '__dict__' of 'figures' objects>, <attribute '__weakref__' of 'figures' objects>, None]
         else:
-            return vars(figures)[figure][1]
+            return vars(figures)[figure][0]
 
 class figures:
     #black pieces:

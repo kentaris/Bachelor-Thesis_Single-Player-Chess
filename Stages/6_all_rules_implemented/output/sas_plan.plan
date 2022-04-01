@@ -1,4 +1,5 @@
 ;;!domain: chess
 ;;!problem: chess-problem
-1: (rook_move rook_w1 n1 n3 n1 n5)
-; cost = 1 (unit cost)
+1: (rook_move rook_w1 n1 n3 n1 n4)
+2: (rook_move rook_w1 n1 n4 n1 n5)
+; cost = 2 (unit cost)
