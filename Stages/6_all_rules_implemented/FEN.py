@@ -81,7 +81,7 @@ def FEN_names_to_pddl_names(figure,square): #TODO: not needed? #TODO: this funct
     if figure.lower()!='b':
         return vars(figures)[figure][2:]
     else: #there are two square colored bishops
-        if (square[0]+square[1])%2==0: #black if even TODO: somehow this is reversed: black if uneven but I dont know why... it is NOT because it starts at 0 because then black would still be even
+        if (square[0]+square[1])%2==1: #black if even TODO: somehow this is reversed: black if uneven but I dont know why... it is NOT because it starts at 0 because then black would still be even
             #print('>>> ',square[0],square[1],'white')
             return vars(figures)[figure][1] #TODO: issue: returns ''__main__' as well... don't know if this may cause problems... : ['__main__', 'pawn', 'knight', 'w_bishop', 'b_bishop', 'rook', 'queen', 'king', 'PAWN', 'KNIGHT', 'W_BISHOP', 'B_BISHOP', 'ROOK', 'QUEEN', 'KING', <attribute '__dict__' of 'figures' objects>, <attribute '__weakref__' of 'figures' objects>, None]
         else:

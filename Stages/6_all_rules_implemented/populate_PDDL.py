@@ -177,8 +177,8 @@ def time_it(R=None):
     print('\033[0m',end='')
 
 def main():
-    start_FEN='b4/b4/R4/5/5'#'1b3/2b2/3P1/5/5'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
-    goal_FEN ='R4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
+    start_FEN='P4/5/5/5/4b'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
+    goal_FEN ='b4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
 
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)

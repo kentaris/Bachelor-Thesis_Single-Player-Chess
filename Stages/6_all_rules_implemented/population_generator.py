@@ -1,12 +1,14 @@
-from curses.ascii import isalpha, isdigit
+from curses.ascii import isdigit
+from pprint import pp
 import FEN
 import numpy as np
 
 board_size=5 #to change the board size
 
-def add_FEN_pos_to_PDDL(fen,type='None'):
+def add_FEN_pos_to_PDDL(fen,type=None):
     '''returns the PDDL line format of the occupied board positions of a given FEN string'''
     done=[]
+    F=[]
     R=''
     board=FEN.FEN_to_Chess_board(fen)
     for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
@@ -26,8 +28,11 @@ def add_FEN_pos_to_PDDL(fen,type='None'):
                         figure=vars(figures)[fig][idx]
                         done.append(figure)
                         R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        F.append(figure)
                         idx+=1
                 file+=1 #update file
+    if type is not None:
+        return F
     return R
 class figures_plain:
     #black pieces:
@@ -203,52 +208,19 @@ def add_removed_pieces(start_FEN,goal_FEN):
     '''
     this checks the difference between start and end pos fen and returns the removed pieces as predicates with their repective numbers. Now there is a problem: if we have two rooks in the starting position and only one in the ending position, we don't know which rook of the two has been captured. With the rooks this is not a problem because they can reach any file anyways so they can just exchange spots, but with pawns and with bishops this is a problem. I don't know yet how to solve it with the pawns so I'll just nuber them in the same way as I do number the original pawns which leads to some problems. With the bishops I do know which one has been captured since they have a fixed square color asigned to them.
     '''
-    start_board=np.ndarray.flatten(np.array(FEN.FEN_to_Chess_board(start_FEN)))
-    end_board=np.ndarray.flatten(np.array(FEN.FEN_to_Chess_board(goal_FEN)))
+    start=add_FEN_pos_to_PDDL(start_FEN,'r')
+    goal=add_FEN_pos_to_PDDL(goal_FEN,'r')
     R=''
-    #print(start_board,'\n',end_board)
-    done=[]
-    diff=[]
-
-    for i in range(len(start_board)):
-        if start_board[i] not in end_board:
-            diff.append(start_board[i])
-
-    board=FEN.FEN_to_Chess_board(start_FEN)
-    for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
-        if fig in diff:
-            idx=0 #index of the current figure 'fig'
-            file=0 #current file
-            print(board)
-            for col in zip(*board): #iterate over columns instead of rows of the board
-                for rank in range(len(col)): #iterate over ranks
-                    if col[rank]==fig and vars(figures)[fig][idx] not in done:
-                        if fig not in ['b','B']: #TODO: problem with the pawns, maybe I can fix it here? maybe by asking for user input on unclear pawn positions?
-                            figure=vars(figures)[fig][idx]
-                        elif fig in ['b','B']:
-                            if (file+rank)%2==0: #white/top left square
-                                figure=vars(figures)[fig][1]
-                            else:
-                                figure=vars(figures)[fig][0]
-                            print(figure)
-                        done.append(figure)
-                        R+='\t\t(removed {})\n'.format(figure)
-                        idx+=1
-                file+=1 #update file
-
+    for row in range(len(start)):
+        if start[row] not in goal:
+            R+='\t\t(removed {})\n'.format(start[row])
     return R
 
-#print('this is solved in ~2secs:')
-#print(add_FEN_pos_to_PDDL('5/1pppp/1R1N1/PPP2/5'))
-#print(add_FEN_pos_to_PDDL('5/Ppp2/RPpN1/4p/5'))
-#
-#print('just one little change: the additional en-passant move: b3->c4: it runs forever')
-#print(add_FEN_pos_to_PDDL('5/PpP2/R1pN1/4p/5'))
-
-#start_FEN='5/5/Q4/R4/5'
-#goal_FEN='5/5/R4/5/5'
-#print(add_piece_types(start_FEN))
-#print(add_removed_pieces(start_FEN,goal_FEN))
-
-print(add_FEN_pos_to_PDDL('b4/b4/R4/5/5'))
-print(add_removed_pieces('b4/b4/R4/5/5','R4/5/5/5/5'))
+start_FEN='PPPPP/5/5/5/3bb'
+goal_FEN ='b4/4P/5/5/5'
+start=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
+goal=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN),True,True))
+FEN.print_neighbor(start,goal)
+print(add_FEN_pos_to_PDDL(start_FEN))
+print(add_FEN_pos_to_PDDL(goal_FEN))
+print(add_removed_pieces(start_FEN,goal_FEN))

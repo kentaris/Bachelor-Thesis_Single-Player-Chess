@@ -58,6 +58,7 @@
         (vert_reachable2 ?from_file ?from_rank ?to_file ?to_rank - location)
         (horiz_reachable2 ?from_file ?from_rank ?to_file ?to_rank - location)
         (diag_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
+        (diag_reachable2 ?from_file ?from_rank ?to_file ?to_rank - location)
 
         (king_to_rook_possible ?rook - rook ?rank ?from_file_king ?to_file_king - location)
         (kingside_rook ?rook - rook)
@@ -275,6 +276,22 @@
             )
         )
     )
+    (:derived (diag_reachable2 ?from_file ?from_rank ?to_file ?to_rank - location)
+        (or (diag_adj ?from_file ?from_rank ?to_file ?to_rank)
+            (exists(?next_file ?next_rank - location)
+                   (and (not(= ?from_file ?to_file))
+                        (not(= ?from_rank ?to_rank))
+                        (not(= ?from_file ?next_file)) ;don't stay on same file
+                        (not(= ?from_rank ?next_rank)) ;don't stay on same rank
+                        (diff_by_One ?from_file ?next_file) ;one step at a time
+                        (diff_by_One ?from_rank ?next_rank) ;one step at a time
+                        (not(occupied ?next_file ?next_rank)) ;TODO: capturable?
+                        (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank) ;bishop needs to stay on the same diagonal
+                        (diag_reachable2 ?next_file ?next_rank ?to_file ?to_rank)
+                   )
+            )
+        )
+    )
     
  ;king predicates:
     (:derived (red_zone ?king - king ?kt_file ?kt_rank - location) ;for some figure (capturer) on the board: is there a king of opposite color it can move to?
@@ -285,6 +302,14 @@
                     (diff_by_One ?kt_file ?c_file) ;diagonal capure
                     (not(= ?kt_file ?c_file))
                     (not(= ?kt_rank ?c_rank))
+                    (and(or (and(is_black ?pawn)
+                                (is_white ?king)
+                            )
+                            (and(is_white ?pawn)
+                                (is_black ?king)
+                            )
+                        )
+                    )
                     (and(or (and(is_black ?pawn)
                                 (is_white ?king)
                                 (minusOne ?c_rank ?kt_rank)
@@ -301,6 +326,15 @@
                 (and(at ?knight ?c_file ?c_rank)
                     (not(= ?c_file ?kt_file)) ;kt_file & kt_rank should = landing position for the knight
                     (not(= ?c_rank ?kt_rank))
+                    ;king cannot be checked by his own pieces:
+                    (and(or (and(is_black ?knight)
+                                (is_white ?king)
+                            )
+                            (and(is_white ?knight)
+                                (is_black ?king)
+                            )
+                        )
+                    )
                     (or
                         (and ;two files, one row:
                             (diff_by_Two ?c_file ?kt_file) ; file +/- 2
@@ -312,11 +346,22 @@
                     )
                 )
             )
-            ;(exists(?bishop - bishop ?c_file ?c_rank - location)
-            ;    (and(at ?bishop ?c_file ?c_rank)
-            ;        (FALSE)
-            ;    )
-            ;)
+            (exists(?bishop - bishop ?c_file ?c_rank - location)
+                (and(at ?bishop ?c_file ?c_rank)
+                    ;king cannot be checked by his own pieces:
+                    (and(or (and(is_black ?bishop)
+                                (is_white ?king)
+                            )
+                            (and(is_white ?bishop)
+                                (is_black ?king)
+                            )
+                        )
+                    )
+                    (not(= ?c_file ?kt_file))
+                    (not(= ?c_rank ?kt_rank))
+                    (diag_reachable2 ?c_file ?c_rank ?kt_file ?kt_rank)
+                )
+            )
             (exists(?rook - rook ?c_file ?c_rank - location)
                 (and(at ?rook ?c_file ?c_rank) ;valid starting location
                     ;TODO: optimize by checking if it's on the same horiz, vertic- line               
@@ -335,11 +380,64 @@
                     ;can the king be reached by the capturer:
                     (or (and(= ?kt_file ?c_file) ;vertical movement
                             (not(= ?kt_rank ?c_rank))
-                            (vert_reachable ?c_file ?c_rank ?kt_file ?kt_rank)
+                            (vert_reachable2 ?c_file ?c_rank ?kt_file ?kt_rank)
                         )
                         (and(= ?kt_rank ?c_rank) ;horizontal movement
                             (not(= ?kt_file ?c_file))
-                            (horiz_reachable ?c_file ?c_rank ?kt_file ?kt_rank)
+                            (horiz_reachable2 ?c_file ?c_rank ?kt_file ?kt_rank)
+                        )
+                    )
+                )
+            )
+            (exists(?queen - queen ?c_file ?c_rank - location)
+                (and(at ?queen ?c_file ?c_rank)
+                    ;king cannot be checked by his own pieces:
+                    (and(or (and(is_black ?queen)
+                                (is_white ?king)
+                            )
+                            (and(is_white ?queen)
+                                (is_black ?king)
+                            )
+                        )
+                    )
+                    ;can the king be reached by the capturer:
+                    (or (and(= ?kt_file ?c_file) ;vertical movement
+                            (not(= ?kt_rank ?c_rank))
+                            (vert_reachable2 ?c_file ?c_rank ?kt_file ?kt_rank)
+                        )
+                        (and(= ?kt_rank ?c_rank) ;horizontal movement
+                            (not(= ?kt_file ?c_file))
+                            (horiz_reachable2 ?c_file ?c_rank ?kt_file ?kt_rank)
+                        )
+                        (and ;diagonal movement
+                            (not(= ?c_file ?kt_file))
+                            (not(= ?c_rank ?kt_rank))
+                            (diag_reachable2 ?c_file ?c_rank ?kt_file ?kt_rank)
+                        )
+                    )
+                )
+            )
+            (exists(?king2 - king ?c_file ?c_rank - location)
+                (and(at ?king2 ?c_file ?c_rank)
+                    (and(or (and(is_black ?king2)
+                                (is_white ?king)
+                            )
+                            (and(is_white ?king2)
+                                (is_black ?king)
+                            )
+                        )
+                        (or (and ;diagonal move
+                                (diff_by_One ?c_file ?kt_file)
+                                (diff_by_One ?c_rank ?kt_rank)
+                            )
+                            (and ;vertical move
+                                (= ?c_rank ?kt_rank)
+                                (diff_by_One ?c_file ?kt_file)
+                            )
+                            (and ;horizontal move
+                                (= ?c_file ?kt_file)
+                                (diff_by_One ?c_rank ?kt_rank)
+                            )
                         )
                     )
                 )
@@ -587,7 +685,7 @@
                            ;(not(at ?king ?to_file ?to_rank))
                            ;(occupied_by_figure ?king ?from_file ?from_rank)
                            ;;TODO: test if this works in all szenarios: 
-                           ;(not(red_zone ?king ?to_file ?to_rank))
+                           (not(red_zone ?king ?to_file ?to_rank))
                            ;(not(and(= ?from_file ?to_file)
                            ;        (= ?from_rank ?to_rank)
                            ;))

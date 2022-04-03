@@ -1,5 +1,11 @@
 ;;!domain: chess
 ;;!problem: chess-problem
-1: (rook_move rook_w1 n1 n3 n1 n4)
-2: (rook_move rook_w1 n1 n4 n1 n5)
-; cost = 2 (unit cost)
+1: (queen_move queen_b1 n1 n5 n5 n5)
+2: (queen_move queen_b1 n5 n5 n5 n3)
+3: (king_move king_w1 n3 n3 n2 n4)
+4: (king_move king_w1 n2 n4 n1 n5)
+5: (queen_move queen_b1 n5 n3 n5 n5)
+6: (queen_move queen_b1 n5 n5 n2 n5)
+7: (king_move king_w1 n1 n5 n2 n5)
+8: (king_move king_w1 n2 n5 n1 n5)
+; cost = 8 (unit cost)
