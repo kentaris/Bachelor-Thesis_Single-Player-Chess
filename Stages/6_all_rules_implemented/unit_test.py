@@ -18,7 +18,7 @@ class units:
     P=['k3K/2ppp/1p1BR/r4/5','k3K/5/5/r4/p1ppp'] #more time consuming planning (I don't know why since it's simpler than previous test) with 2 kings on the board
     Q=['3n1/1n3/2K2/5/5','3K1/5/5/5/5'] #king captures knight protected by a knight. TODO: here something strange happens... the king moves more than he needs to. I'm not sure if the problem is the planner itself or if I'm somehow preventing my piece from capturing. I tested a bit with unprotected knights in the same position and the same happens...
     R=['1b3/2r2/3K1/5/5','1K3/5/5/5/5'] #king captures rook protected by a bishop
-    R=['q4/1r3/2K2/5/5','K4/5/5/5/5'] #king captures rook protected by a queen
+    S=['q4/1r3/2K2/5/5','K4/5/5/5/5'] #king captures rook protected by a queen
 
 def get(N):
     return vars(units)[chr(N+65)]

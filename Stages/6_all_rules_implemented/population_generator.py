@@ -216,11 +216,11 @@ def add_removed_pieces(start_FEN,goal_FEN):
             R+='\t\t(removed {})\n'.format(start[row])
     return R
 
-start_FEN='PPPPP/5/5/5/3bb'
-goal_FEN ='b4/4P/5/5/5'
-start=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
-goal=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN),True,True))
-FEN.print_neighbor(start,goal)
-print(add_FEN_pos_to_PDDL(start_FEN))
-print(add_FEN_pos_to_PDDL(goal_FEN))
-print(add_removed_pieces(start_FEN,goal_FEN))
+#start_FEN='PPPPP/5/5/5/3bb'
+#goal_FEN ='b4/4P/5/5/5'
+#start=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
+#goal=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN),True,True))
+#FEN.print_neighbor(start,goal)
+#print(add_FEN_pos_to_PDDL(start_FEN))
+#print(add_FEN_pos_to_PDDL(goal_FEN))
+#print(add_removed_pieces(start_FEN,goal_FEN))

@@ -5,6 +5,7 @@ import FEN
 from subprocess import call
 import time
 import unit_test
+import validator
 
 class Global():
     
@@ -55,12 +56,12 @@ def convert_plan():
     with open('output/sas_plan', mode='r') as f:
         txt_file = f.readlines()
         copy_txt_file=txt_file.copy()
-        txt_file.insert(0,';;!problem: chess-problem\n')
-        txt_file.insert(0,';;!domain: chess\n')
+        #txt_file.insert(0,';;!problem: chess-problem\n')
+        #txt_file.insert(0,';;!domain: chess\n')
     f.close()
-    for line in range(len(txt_file)):
-        if line >1 and line<len(txt_file)-1:
-            txt_file[line]=str(line-1)+': '+txt_file[line]
+    #for line in range(len(txt_file)):
+    #    if line >1 and line<len(txt_file)-1:
+    #        txt_file[line]=str(line-1)+': '+txt_file[line]
     with open('output/sas_plan', mode='w') as f:
         for line in txt_file:
             f.write("".join(line))
@@ -176,6 +177,9 @@ def time_it(R=None):
     
     print('\033[0m',end='')
 
+class Validation_Error(Exception):
+    pass
+
 def main():
     start_FEN='P4/5/5/5/4b'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
     goal_FEN ='b4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
@@ -210,15 +214,34 @@ def main():
                 execute_planner()
                 succ.append([i,time_it('return value')])
                 print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(chr(i+65),test[0],test[1]))
-            except:
-                fail.append([i,'-'])
+                plan=convert_plan()
+                #print_plan(plan)
+                if not validator.validate(test[0],test[1],plan):
+                    raise Validation_Error
+            except Validation_Error:
+                fail.append([i,'\033[01;31mvalidation error\033[0m'])
+                print('\033[01;31m \t\t>>> validation error\033[0m')
+            except KeyboardInterrupt:
+                fail.append([i,'keyboard interrupt'])
+                print('\033[93m \t\t>>> keyboard interrupt\033[0m')
+                #exit()
+            except Exception as e:
+                fail.append([i,e])
                 print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m'.format(chr(i+65),test[0],test[1]))
         print('\nsummary:\n========')
-        for i in succ:
-            print('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(i[0])+65),test[0],test[1],i[1]))
-
-        for i in fail:
-            print('\033[93m \u274c #{} failed:\t  (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(i[0])+65),test[0],test[1],i[1]))
+        txt=[]
+        for i in range(len(succ)):
+            s=succ[i]
+            txt.append('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),test[0],test[1],s[1]))
+            print(txt[i])
+        for i in range(len(fail)):
+            s=fail[i]
+            txt.append('\033[93m \u274c #{} failed:\t  (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),test[0],test[1],s[1]))
+            print(txt[i+len(succ)])
+        with open('test_results.txt', mode='w') as f:
+            for line in txt:
+                f.write("".join(line[(1+len(line.split()[0])):-4]))
+        f.close()
         
 if __name__ == "__main__":
     main()

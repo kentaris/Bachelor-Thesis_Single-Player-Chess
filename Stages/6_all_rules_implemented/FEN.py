@@ -156,13 +156,24 @@ def trim(board,size):
         Board.append(board[i][:size])
     return Board
 
+def expand_board(FEN,size):
+    '''expands the given fen code to a bigger board'''
+    board=FEN_to_Chess_board(FEN)
+    exp_board=board
+    for row in range(len(board)): #append spaces to right
+        for i in range(size-len(board[row])):
+            exp_board[row].append(Filler)
+    f=[Filler for i in range(size)]
+    for i in range(size-FEN.count('/')-1): #shift board down
+        exp_board.insert(0,f)
+    return board_to_FEN(exp_board)
+
 def FEN_to_Chess_board(FEN,filler=Filler):
     """converts a FEN code to a 2d array representing the chess board"""
     #lowercase letters=black pieces
     FEN=FEN.split()[0]
     length=FEN.count('/')+1
     board=trim(valid_moves.board(),length)
-
     rank=0
     file=0
     for pos in range(len(FEN)):
@@ -181,6 +192,28 @@ def FEN_to_Chess_board(FEN,filler=Filler):
                 else:
                     file+=int(FEN[pos])
     return board
+
+def next_pos(start_board,line,original_size):
+    '''
+    this function takes a board and a plan-file line as an input and manipulates the board to get the next state
+    '''
+    line=line.split()
+    From=[int(line[-4][1]),int(line[-3][1])]
+    To=[int(line[-2][1]),int(line[-1][1])]
+    
+    #coordinates conversion:
+    f_f=From[0]-1
+    f_r=((original_size-1)-From[1])+(8-(original_size-1))
+    t_f=To[0]-1
+    t_r=((original_size-1)-To[1])+(8-(original_size-1))
+
+    copy_from=start_board[f_r][f_f]
+    start_board[f_r][f_f]=Filler
+    copy_to=start_board[t_r][t_f]
+    start_board[t_r][t_f]=copy_from
+
+    move=chr(f_f+97)+str(f_r+1)+chr(t_f+97)+str(t_r+1)
+    return [start_board,move]
 
 def add_coordinate_System(board):
     """adds a nice coordinate system around the given chess board"""
@@ -230,3 +263,4 @@ def board_to_FEN(board):
 #print_neighbor(start,goal)
 #print("\x1b[38;2;92;162;251mTRUECOLOR\x1b[0m\n")
 #print('\x1b[3;1;92;162;251m'+'\t\t\t\u2659 \u2658 \u2657 \u2656 \u2655 \u2654\n')
+
