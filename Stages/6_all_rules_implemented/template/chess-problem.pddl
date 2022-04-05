@@ -45,6 +45,7 @@
     )
     (:goal (and
 ;[:goal_position]
+;TODO: the removed predicate still has to be given the exact pawn that has been removed. If I do the same as with the white_pawn_at derived predicate I need to give it a location but I don't know that location. How can I fix this? For now I just leave away the removed predicates for pawns but this can lead to pawns being at locations I don't want them to be.
 ;[:removed]
            )
     )

@@ -1,0 +1,10 @@
+https://github.com/ivangiangreco/basilea-latex
+(-intro)
+-background (mathematically)
+    -what is planning
+    -what is pddl
+        -formal definition of pddl
+-modeling
+
+derived predicate checking after piece moves if king of same color is in check (meaning piece must have been pinned) if thats true then invalid pos
+put in every acction not invalid pos so it gets pruned

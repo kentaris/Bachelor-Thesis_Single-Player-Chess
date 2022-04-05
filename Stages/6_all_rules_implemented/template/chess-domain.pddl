@@ -45,7 +45,6 @@
      ;derived predicates:
         (occupied ?file ?rank - location)
         (occupied_by_same_color ?figure - figure ?file ?rank - location)
-        (occupied_by_figure ?figure - figure ?file ?rank - location)
 
         (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location)
         (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location)
@@ -64,18 +63,51 @@
         (kingside_rook ?rook - rook)
         (queenside_rook ?rook - rook)
 
+        (white_pawn_at ?file ?rank - location)
+        (black_pawn_at ?file ?rank - location)
+
         (red_zone ?figure - figure ?to_file ?to_rank - location)
+
+        (myturn ?figure - figure)
     )
 ;DERIVED PREDICATES:
  ;;;;;;;;;;;;;;;;;;;;
  ;Square info:
+    (:derived (myturn ?figure - figure)
+        (TRUE) ;TODO: uncomment the following lines to take turns
+        ;(or
+        ;    (and
+        ;        (is_white ?figure)
+        ;        (white_s_turn)
+        ;    )
+        ;    (and
+        ;        (is_black ?figure)
+        ;        (not(white_s_turn))
+        ;    )
+        ;)
+    )
+    (:derived (white_pawn_at ?file ?rank - location)
+        (exists(?figure - figure)
+            (and
+                (at ?figure ?file ?rank)
+                (is_pawn ?figure)
+                (is_white ?figure)
+            )
+        )
+    )
+    (:derived (black_pawn_at ?file ?rank - location)
+        (exists(?figure - figure)
+            (and
+                (at ?figure ?file ?rank)
+                (is_pawn ?figure)
+                (is_black ?figure)
+            )
+        )
+    )
     (:derived (occupied ?file ?rank - location) ;check if some figure is at location
         (exists(?figure - figure)
             (at ?figure ?file ?rank)
         )
-    )
-    (:derived (occupied_by_figure ?figure - figure ?file ?rank - location) ;check if some figure is at location with same color
-        (at ?figure ?file ?rank)
     )
     (:derived (occupied_by_same_color ?figure - figure ?file ?rank - location) ;check if some figure is at location with same color
         (and
@@ -463,6 +495,7 @@
                            (diff_by_One ?from_rank ?to_rank)
                            (not(= ?from_file ?to_file))
                            (not(= ?from_rank ?to_rank))
+                           (myturn ?pawn)
                            (occupied ?to_file ?to_rank) ;there is a piece on it
                            (not(occupied_by_same_color ?pawn ?to_file ?to_rank)) ;it is not my own color
                            (and ;diagonal capture:
@@ -498,6 +531,7 @@
                            (= ?from_file ?to_file)
                            (not(occupied ?to_file ?to_rank))
                            (diff_by_One ?from_rank ?to_rank)
+                           (myturn ?pawn)
                            (or    
                                (and(plusOne ?from_rank ?to_rank) ;single move white
                                    (is_white ?pawn)
@@ -521,6 +555,7 @@
                            (not(= ?from_rank ?to_rank))
                            (= ?from_file ?to_file)
                            (not(occupied ?to_file ?to_rank))
+                           (myturn ?pawn)
                            (or 
                                (and ;double move white:
                                    (is_white ?pawn)
@@ -548,6 +583,7 @@
                            (at ?knight ?from_file ?from_rank)
                            (not(= ?from_file ?to_file))
                            (not(= ?from_rank ?to_rank))
+                           (myturn ?knight)
                            (or
                                (and ;two files, one row:
                                    (diff_by_Two ?from_file ?to_file) ; file +/- 2
@@ -560,6 +596,12 @@
                            (or(not(occupied ?to_file ?to_rank))
                               (not(occupied_by_same_color ?knight ?to_file ?to_rank)) ;capturable piece = opposite color
                            )
+                           (not(exists (?king - king ?kf_file ?kf_rank - location)
+                               (and (at ?king ?kf_file ?kf_rank)
+                                    (not(occupied_by_same_color ?knight ?kf_file ?kf_rank))
+                                    (red_zone ?king ?kf_file ?kf_rank)
+                               )
+                           ))
                        )
         :effect (and (not (at ?knight ?from_file ?from_rank))
                      (forall (?figure - figure)
@@ -581,6 +623,7 @@
                           ;(not(at ?bishop ?to_file ?to_rank))
                           (not(= ?from_file ?to_file))
                           (not(= ?from_rank ?to_rank))
+                          (myturn ?bishop)
                           (or ;no piece at destination:
                              (not(occupied ?to_file ?to_rank))
                              ;capturable piece at destination:
@@ -615,6 +658,7 @@
                                  (not(occupied_by_same_color ?rook ?to_file ?to_rank)) ;capturable piece = opposite color
                              )
                           )
+                          (myturn ?rook)
                           (or (and(= ?from_file ?to_file) ;vertical movement
                                   (not(= ?from_rank ?to_rank))
                                   ;(vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
@@ -651,6 +695,7 @@
                                  (not(occupied_by_same_color ?queen ?to_file ?to_rank)) ;capturable piece = opposite color
                              )
                           )
+                          (myturn ?queen)
                           (or (and(= ?from_file ?to_file) ;vertical movement
                                   (not(= ?from_rank ?to_rank))
                                   (vert_reachable ?from_file ?from_rank ?to_file ?to_rank)
@@ -685,6 +730,7 @@
                            ;(not(at ?king ?to_file ?to_rank))
                            ;(occupied_by_figure ?king ?from_file ?from_rank)
                            ;;TODO: test if this works in all szenarios: 
+                           (myturn ?king)
                            (not(red_zone ?king ?to_file ?to_rank))
                            ;(not(and(= ?from_file ?to_file)
                            ;        (= ?from_rank ?to_rank)

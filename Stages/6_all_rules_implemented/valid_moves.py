@@ -216,12 +216,15 @@ def king():
     List=set(List)
     return List
 
-def board():
+def board(Filler=None):
     List=[]
     for number in range(8):
         row=[]
         for letter in range(8):
-            row.append((letter+1,number+1))
+            if Filler==None:
+                row.append((letter+1,number+1))
+            else:
+                row.append(Filler)
         List.append(row)
     return List
 

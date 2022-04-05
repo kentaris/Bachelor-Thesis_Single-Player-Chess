@@ -1,7 +1,5 @@
-from curses.ascii import isdigit
-from pprint import pp
+from curses.ascii import isdigit #TODO: replace with .isnumeric() to remove this line
 import FEN
-import numpy as np
 
 board_size=5 #to change the board size
 
@@ -10,7 +8,7 @@ def add_FEN_pos_to_PDDL(fen,type=None):
     done=[]
     F=[]
     R=''
-    board=FEN.FEN_to_Chess_board(fen)
+    board=FEN.FEN_to_Chess_board(fen,board_size)
     for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
         if fig in fen:
             idx=0 #index of the current figure 'fig'
@@ -27,11 +25,19 @@ def add_FEN_pos_to_PDDL(fen,type=None):
                     if col[rank]==fig and vars(figures)[fig][idx] not in done:
                         figure=vars(figures)[fig][idx]
                         done.append(figure)
-                        R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         F.append(figure)
+                        if fig.lower() != 'p':
+                            R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        elif fig.lower() == 'p' and type=='goal':
+                            if fig.isupper():
+                                R+='\t\t(white_pawn_at '+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                            else:
+                                R+='\t\t(black_pawn_at '+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        else:
+                            R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         idx+=1
                 file+=1 #update file
-    if type is not None:
+    if type =='remove':
         return F
     return R
 class figures_plain:
@@ -208,11 +214,11 @@ def add_removed_pieces(start_FEN,goal_FEN):
     '''
     this checks the difference between start and end pos fen and returns the removed pieces as predicates with their repective numbers. Now there is a problem: if we have two rooks in the starting position and only one in the ending position, we don't know which rook of the two has been captured. With the rooks this is not a problem because they can reach any file anyways so they can just exchange spots, but with pawns and with bishops this is a problem. I don't know yet how to solve it with the pawns so I'll just nuber them in the same way as I do number the original pawns which leads to some problems. With the bishops I do know which one has been captured since they have a fixed square color asigned to them.
     '''
-    start=add_FEN_pos_to_PDDL(start_FEN,'r')
-    goal=add_FEN_pos_to_PDDL(goal_FEN,'r')
+    start=add_FEN_pos_to_PDDL(start_FEN,'remove')
+    goal=add_FEN_pos_to_PDDL(goal_FEN,'remove')
     R=''
     for row in range(len(start)):
-        if start[row] not in goal:
+        if start[row] not in goal and start[row][0].lower() != 'p': #TODO: see todo in 
             R+='\t\t(removed {})\n'.format(start[row])
     return R
 

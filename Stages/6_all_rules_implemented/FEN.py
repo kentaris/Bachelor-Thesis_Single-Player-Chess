@@ -1,5 +1,5 @@
 import valid_moves
-import numpy as np
+#import population_generator as PG
 
 Filler='⬚' #⬚ ▢
 
@@ -18,7 +18,6 @@ def printable_board(board,color=False,symbols=False):
                 letter=symbol
                 if symbols and symbol in vars(figures):
                     symbol=vars(figures_symbols)[symbol]
-
                 if letter.islower(): #black pieces
                     r+=colors.highlight+colors.black_pieces+symbol #[38;2;92;162;   92, 162, 251
                 elif letter.isupper(): #white pieces
@@ -158,7 +157,7 @@ def trim(board,size):
 
 def expand_board(FEN,size):
     '''expands the given fen code to a bigger board'''
-    board=FEN_to_Chess_board(FEN)
+    board=FEN_to_Chess_board(FEN,size)
     exp_board=board
     for row in range(len(board)): #append spaces to right
         for i in range(size-len(board[row])):
@@ -168,12 +167,27 @@ def expand_board(FEN,size):
         exp_board.insert(0,f)
     return board_to_FEN(exp_board)
 
-def FEN_to_Chess_board(FEN,filler=Filler):
+def make_board(size,Filler=None):
+    List=[]
+    for number in range(size):
+        row=[]
+        for letter in range(size):
+            if Filler==None:
+                row.append((letter+1,number+1))
+            else:
+                row.append(Filler)
+        List.append(row)
+    return List
+
+def FEN_to_Chess_board(FEN,size):
     """converts a FEN code to a 2d array representing the chess board"""
     #lowercase letters=black pieces
     FEN=FEN.split()[0]
     length=FEN.count('/')+1
-    board=trim(valid_moves.board(),length)
+    if length!=size:
+        print('\033[93m invalid FEN position given!\033[0m Given FEN has {} rows but the board is defined to have size {}.'.format(length,size))
+        exit()
+    board=make_board(size,Filler)
     rank=0
     file=0
     for pos in range(len(FEN)):
@@ -186,11 +200,11 @@ def FEN_to_Chess_board(FEN,filler=Filler):
                 file+=1
             elif FEN[pos].isnumeric():
                 for i in range(int(FEN[pos])):
-                    board[rank][file+i]=filler
-                if file==length-1:
-                    file=0
-                else:
-                    file+=int(FEN[pos])
+                    board[rank][file+i]=Filler
+                file+=int(FEN[pos])
+            
+            if pos%length>length:
+                file=0
     return board
 
 def next_pos(start_board,line,original_size):

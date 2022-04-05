@@ -48,14 +48,13 @@ The roadblocks below build on on another so to see the relevant files for this p
       2. [x] all other captures
    3. [ ] check inhibited moves
       1. [ ] absolute pin
-      2. [ ] in check
-      3. [ ] don't move into check
+      2. [x] in check
    4. [ ] Game termination (only checkmate) --> given if opponent's king is under attack and can't escape
    5. [x] other rules
       1. [x] double pawn move 
       2. [x] blocked movement (ex: bishop can't move trough a pawn)
       3. [x] castling
-      4. [ ] taking turns
+      4. [x] taking turns
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.

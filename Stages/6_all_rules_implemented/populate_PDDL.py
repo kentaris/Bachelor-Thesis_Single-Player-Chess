@@ -125,12 +125,12 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
         txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
 
         #goal:
-        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN)) #TODO: this does work only limitedly: I canot assign right numbers to pieces so let's do this by hand right now
+        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN,'goal'))
         txt_file=replace(txt_file,';[:removed]\n',PG.add_removed_pieces(start_FEN,goal_FEN))
 
         #Visualize :init & :goal pos
-        Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
-        Global.g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN),True,True))
+        Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,PG.board_size),True,True))
+        Global.g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN,PG.board_size),True,True))
         FEN.print_neighbor(Global.s,Global.g)
     else:
         pass
@@ -181,9 +181,8 @@ class Validation_Error(Exception):
     pass
 
 def main():
-    start_FEN='P4/5/5/5/4b'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
-    goal_FEN ='b4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
-
+    start_FEN=start_FEN='5/5/1pp2/1Pp2/5'#'5/1pppp/1R1N1/PPP2/5'#'b4/5/2n2/5/4K'#'P4/5/5/5/4b'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
+    goal_FEN ='5/5/1pP2/5/2p2'#'5/PpP2/R1pN1/4p/5'#'b4/5/5/5/1n2K'#'b4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)
@@ -194,8 +193,8 @@ def main():
         time_it()
     elif sys.argv[1]=='planner': #just execute the planner on the existing .pddl files (so I can edit them and test stuff quickly)
         execute_planner()
-        Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
-        Global.g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN),True,True))
+        Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,PG.board_size),True,True))
+        Global.g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN,PG.board_size),True,True))
         FEN.print_neighbor(Global.s,Global.g)
         plan=convert_plan()
         print_plan(plan)
@@ -203,7 +202,7 @@ def main():
     elif sys.argv[1]=='create': #just create .pddl files
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)
-    elif sys.argv[1]=='test': #unit tests
+    elif sys.argv[1]=='test': #perform all unit tests
         succ=[]
         fail=[]
         for i in range(len(vars(unit_test.units))-4):
@@ -212,35 +211,38 @@ def main():
                 load_file('problem',test[0],test[1])
                 load_file('domain',test[0])
                 execute_planner()
-                succ.append([i,time_it('return value')])
+                succ.append([i,test[0],test[1],time_it('return value')])
                 print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(chr(i+65),test[0],test[1]))
                 plan=convert_plan()
-                #print_plan(plan)
+                print_plan(plan)
                 if not validator.validate(test[0],test[1],plan):
                     raise Validation_Error
             except Validation_Error:
                 fail.append([i,'\033[01;31mvalidation error\033[0m'])
                 print('\033[01;31m \t\t>>> validation error\033[0m')
             except KeyboardInterrupt:
-                fail.append([i,'keyboard interrupt'])
-                print('\033[93m \t\t>>> keyboard interrupt\033[0m')
+                t=time_it('return value')
+                fail.append([i,test[0],test[1],'keyboard interrupt after: {}'.format(t)])
+                print('\033[93m \t\t>>> keyboard interrupt after: {}\033[0m'.format(t))
                 #exit()
-            except Exception as e:
-                fail.append([i,e])
-                print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m'.format(chr(i+65),test[0],test[1]))
+            except:# Exception as e:
+                t=time_it('return value')
+                fail.append([i,test[0],test[1],'\'sas-plan\' not found after {}'.format(t)])
+                print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m after {}'.format(chr(i+65),test[0],test[1],t))
         print('\nsummary:\n========')
         txt=[]
         for i in range(len(succ)):
             s=succ[i]
-            txt.append('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),test[0],test[1],s[1]))
+            txt.append('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),s[1],s[2],s[3]))
             print(txt[i])
         for i in range(len(fail)):
             s=fail[i]
-            txt.append('\033[93m \u274c #{} failed:\t  (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),test[0],test[1],s[1]))
+            txt.append('\033[93m \u274c #{} failed:\t  (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),s[1],s[2],s[3]))
             print(txt[i+len(succ)])
         with open('test_results.txt', mode='w') as f:
             for line in txt:
-                f.write("".join(line[(1+len(line.split()[0])):-4]))
+                l=line[(1+len(line.split()[0])):-4]+'\n'
+                f.write("".join(l))
         f.close()
         
 if __name__ == "__main__":
