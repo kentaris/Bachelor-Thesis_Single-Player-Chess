@@ -42,6 +42,7 @@
         (white_s_turn)
         (last_piece_moved ?figure - figure ?file ?rank - location)
         (double_moved ?pawn - pawn)
+        (empty_square ?file ?rank - location)
 
      ;derived predicates:
         (myturn ?figure - figure)
@@ -473,6 +474,8 @@
     ;                 (at ?pawn ?to_file ?to_rank)
     ;                 (last_piece_moved ?pawn ?to_file ?to_rank)
     ;                 (not(white_s_turn))
+    ;                 (empty_square ?from_file ?from_rank)
+    ;                 (not(empty_square ?to_file ?to_rank))
     ;            )
     ;)
     
@@ -505,7 +508,7 @@
                         (when (and(at ?figure ?to_file ?to_rank) ;ADL conditional effect
                                 (not(occupied_by_same_color ?pawn ?to_file ?to_rank))) ;capturable piece = opposite color
                             (and(not (at ?figure ?to_file ?to_rank))
-                                (removed ?figure)
+                                (removed ?figure) ;TODO: can this be a problem with pawns? exclude them?
                             )
                         ))
                      )
@@ -517,6 +520,8 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )
     (:action pawn_move_one
@@ -549,6 +554,8 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )
     (:action pawn_move_two
@@ -588,6 +595,8 @@
                         (white_s_turn)
                      )
                      (double_moved ?pawn)
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )
     (:action knight_move
@@ -633,6 +642,8 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )    
     (:action bishop_move
@@ -669,6 +680,8 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )
     (:action rook_move
@@ -712,6 +725,8 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )
     (:action queen_move
@@ -758,6 +773,8 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )
     (:action king_move 
@@ -815,6 +832,8 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file ?from_rank)
+                     (not(empty_square ?to_file ?to_rank))
                 )
     )
     (:action castling ;TODO: can't castle into check
@@ -855,6 +874,10 @@
                      (when (not(white_s_turn))
                         (white_s_turn)
                      )
+                     (empty_square ?from_file_king ?rank1)
+                     (not(empty_square ?to_file_king ?rank1))
+                     (empty_square ?from_file_rook ?rank1)
+                     (not(empty_square ?to_file_rook ?rank1))
                 )
     )    
 )

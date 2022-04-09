@@ -9,8 +9,8 @@ def add_FEN_pos_to_PDDL(fen,type=None):
     F=[]
     R=''
     board=FEN.FEN_to_Chess_board(fen,board_size)
-    for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K']: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
-        if fig in fen:
+    for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K',FEN.Filler]: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
+        if fig in fen or fig==FEN.Filler:
             idx=0 #index of the current figure 'fig'
             file=0 #current file
             #save=None 
@@ -22,7 +22,9 @@ def add_FEN_pos_to_PDDL(fen,type=None):
                     #except: 
                     #    save=vars(figures)[fig][idx-1]
                     #    print('\t',save,)
-                    if col[rank]==fig and vars(figures)[fig][idx] not in done:
+                    if col[rank]==fig and col[rank]==FEN.Filler:
+                        R+='\t\t(empty_square'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                    elif col[rank]==fig and vars(figures)[fig][idx] not in done:
                         figure=vars(figures)[fig][idx]
                         done.append(figure)
                         F.append(figure)
@@ -244,3 +246,5 @@ def add_removed_pieces(start_FEN,goal_FEN):
 #print(add_FEN_pos_to_PDDL(start_FEN))
 #print(add_FEN_pos_to_PDDL(goal_FEN))
 #print(add_removed_pieces(start_FEN,goal_FEN))
+
+print(add_FEN_pos_to_PDDL('PPPPP/5/5/5/3bb'))

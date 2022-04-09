@@ -1,7 +1,6 @@
 import valid_moves
-#import population_generator as PG
 
-Filler='⬚' #⬚ ▢
+Filler='\u2B1A' #⬚ ▢
 
 def printable_board(board,color=False,symbols=False):
     """
@@ -196,10 +195,10 @@ def FEN_to_Chess_board(FEN,size):
             rank+=1
             file=0
         else:
-            if not FEN[pos].isnumeric():
+            if not FEN[pos].isdigit():
                 board[rank][file]=FEN[pos]
                 file+=1
-            elif FEN[pos].isnumeric():
+            elif FEN[pos].isdigit():
                 for i in range(int(FEN[pos])):
                     board[rank][file+i]=Filler
                 file+=int(FEN[pos])

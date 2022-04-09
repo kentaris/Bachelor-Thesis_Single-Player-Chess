@@ -1,4 +1,6 @@
 (bishop_move b_bishop_w1 n5 n1 n2 n4)
 (pawn_move_one pawn_b1 n1 n5 n1 n4)
-(bishop_move b_bishop_w1 n2 n4 n1 n3)
-; cost = 3 (unit cost)
+(bishop_move b_bishop_w1 n2 n4 n3 n5)
+(pawn_move_one pawn_b1 n1 n4 n1 n3)
+(bishop_move b_bishop_w1 n3 n5 n1 n3)
+; cost = 5 (unit cost)
