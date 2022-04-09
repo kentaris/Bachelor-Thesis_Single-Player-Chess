@@ -157,7 +157,8 @@ def trim(board,size):
 
 def expand_board(FEN,size):
     '''expands the given fen code to a bigger board'''
-    board=FEN_to_Chess_board(FEN,size)
+    length=FEN.count('/')+1
+    board=FEN_to_Chess_board(FEN,length)
     exp_board=board
     for row in range(len(board)): #append spaces to right
         for i in range(size-len(board[row])):
@@ -207,7 +208,7 @@ def FEN_to_Chess_board(FEN,size):
                 file=0
     return board
 
-def next_pos(start_board,line,original_size):
+def next_move(line,original_size):
     '''
     this function takes a board and a plan-file line as an input and manipulates the board to get the next state
     '''
@@ -221,13 +222,17 @@ def next_pos(start_board,line,original_size):
     t_f=To[0]-1
     t_r=((original_size-1)-To[1])+(8-(original_size-1))
 
-    copy_from=start_board[f_r][f_f]
-    start_board[f_r][f_f]=Filler
-    copy_to=start_board[t_r][t_f]
-    start_board[t_r][t_f]=copy_from
+    #copy_from=start_board[f_r][f_f]
+    #start_board[f_r][f_f]=Filler
+    #copy_to=start_board[t_r][t_f]
+    #start_board[t_r][t_f]=copy_from
+
+    #the row-coordinates in python array rows range from 0-7 here and the row-coordinates from a chess board go the other way round:
+    f_r=7-f_r
+    t_r=7-t_r
 
     move=chr(f_f+97)+str(f_r+1)+chr(t_f+97)+str(t_r+1)
-    return [start_board,move]
+    return move
 
 def add_coordinate_System(board):
     """adds a nice coordinate system around the given chess board"""

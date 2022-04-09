@@ -34,7 +34,7 @@
         (queenside_rook rook_w1)
         (kingside_rook rook_b2)
         (queenside_rook rook_b1)
-
+;[:can_double_move]
         ;colors:
 ;[:colors]
 ;[:piece_types]

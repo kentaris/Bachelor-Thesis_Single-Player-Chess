@@ -1,6 +1,6 @@
 class units:
     A=['P4/5/5/5/4b','b4/5/5/5/5'] #bishop captures a pawn
-    B=['5/5/5/PPPPP/5','5/PPPPP/5/5/5'] #5 white pawns do a double move
+    B=['5/r4/5/PPPPP/5','5/PPPPP/5/5/5'] #5 white pawns do a double move
     C=['5/2pp1/5/2P2/5','5/2p2/2p2/5/5'] #pawns column (2 black ones) by capture of a white pawn
     D=['5/R4/5/5/p4','5/5/5/5/R4'] #rook captures pawn horizontally
     E=['5/5/4r/4P/5','5/4P/4r/5/5'] #pawn double move with rook in front of it (rook has to move out of the way)

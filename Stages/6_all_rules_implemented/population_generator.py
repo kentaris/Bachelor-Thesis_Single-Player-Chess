@@ -71,12 +71,40 @@ class figures:
     Q=['queen_w1']
     K=['king_w1']
 
+def add_double_moves_pawn(board_size):
+    R=''
+    R+=';white pawns:\n'
+    for i in range(len(vars(figures)['P'])):
+        if i<board_size:
+            R+='\t\t(can_double_move {})\n'.format(vars(figures)['P'][i])
+    R+=';black pawns:\n'
+    for i in range(len(vars(figures)['p'])):
+        if i<board_size:
+            R+='\t\t(can_double_move {})\n'.format(vars(figures)['p'][i])
+    return R
+
 def add_double_pawn_moves():
     R=''
     R+='\n\t\t;Pawn double moves start for white:\n'
     R+=pawn_double('white')
     R+='\n\t\t;Pawn double moves start for black:\n'
     R+=pawn_double('black')
+    return R
+
+def pawn_double(type):
+    '''returns the PDDL line format of type={'white', 'black'} for pawn double moves'''
+    R=''
+    diffBy_array=[]
+    to_rank=4
+    from_rank=2
+    if type=='black': 
+        to_rank=board_size-3; 
+        from_rank=board_size-1
+    for file in range(board_size):
+        diffBy_array.append((file+1,from_rank,file+1,to_rank))
+    for t in diffBy_array:
+        prelude='pawn_start_pos_{}'.format(type)
+        R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',t[0],'n',t[1])#,'n',t[2],'n',t[3])
     return R
 
 def add_one_forward():
@@ -108,20 +136,6 @@ def one_forward(type):
                 if to_rank-from_rank==-1:# and (from_rank+1)<board_size:
                     prelude='minusOne'
                     R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',from_rank+1,'n',to_rank+1)
-    return R
-
-def pawn_double(type):
-    '''returns the PDDL line format of type={'white', 'black'} for pawn double moves'''
-    R=''
-    diffBy_array=[]
-    to_rank=4
-    from_rank=2
-    if type=='black': to_rank=board_size-3; from_rank=board_size-1
-    for file in range(board_size):
-        diffBy_array.append((file+1,from_rank,file+1,to_rank))
-    for t in diffBy_array:
-        prelude='pawn_start_pos_{}'.format(type)
-        R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',t[0],'n',t[1])#,'n',t[2],'n',t[3])
     return R
 
 def create_diffBy_list(diff,name,get=False):

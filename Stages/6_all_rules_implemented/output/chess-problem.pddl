@@ -18,8 +18,8 @@
         queen_b1 - queen_b
     )
     (:init
-		(at b_bishop_b1 n5 n1)
-		(at pawn_w1 n1 n5)
+		(at pawn_b1 n1 n5)
+		(at b_bishop_w1 n5 n1)
 
 		;Pawn double moves start for white:
 		(pawn_start_pos_white n1 n2)
@@ -82,29 +82,29 @@
         (queenside_rook rook_w1)
         (kingside_rook rook_b2)
         (queenside_rook rook_b1)
-
+;[:can_double_move]
         ;colors:
-		(is_white pawn_w1)
-		(is_white pawn_w2)
-		(is_white pawn_w3)
-		(is_white pawn_w4)
-		(is_white pawn_w5)
-		(is_black b_bishop_b1)
-		(is_black w_bishop_b2)
-		(is_pawn pawn_w1)
-		(is_pawn pawn_w2)
-		(is_pawn pawn_w3)
-		(is_pawn pawn_w4)
-		(is_pawn pawn_w5)
-		(is_bishop b_bishop_b1)
-		(is_bishop w_bishop_b2)
+		(is_black pawn_b1)
+		(is_black pawn_b2)
+		(is_black pawn_b3)
+		(is_black pawn_b4)
+		(is_black pawn_b5)
+		(is_white b_bishop_w1)
+		(is_white w_bishop_w2)
+		(is_pawn pawn_b1)
+		(is_pawn pawn_b2)
+		(is_pawn pawn_b3)
+		(is_pawn pawn_b4)
+		(is_pawn pawn_b5)
+		(is_bishop b_bishop_w1)
+		(is_bishop w_bishop_w2)
 
         (white_s_turn)
 
         (TRUE)
     )
     (:goal (and
-		(at b_bishop_b1 n1 n5)
+		(at b_bishop_w1 n1 n3)
 ;TODO: the removed predicate still has to be given the exact pawn that has been removed. If I do the same as with the white_pawn_at derived predicate I need to give it a location but I don't know that location. How can I fix this? For now I just leave away the removed predicates for pawns but this can lead to pawns being at locations I don't want them to be.
            )
     )

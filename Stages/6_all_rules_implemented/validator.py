@@ -1,32 +1,37 @@
 import chess
 import FEN
 
-def validate(start_FEN, goal_FEN, plan):
-    s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,start_FEN.count('/')+1),True,True))
-    g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN,start_FEN.count('/')+1),True,True))
+def validate(start_FEN, goal_FEN, plan, color=None):
+    original_size=start_FEN.count('/')+1
+    s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,original_size),True,True))
+    g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN,original_size),True,True))
     FEN.print_neighbor(s,g)
     print('\t> validating [\'{}\', \'{}\']'.format(start_FEN, goal_FEN))
-    original_size=start_FEN.count('/')+1
-    start_board = FEN.FEN_to_Chess_board(FEN.expand_board(start_FEN,8),8)
-    goal_board = FEN.FEN_to_Chess_board(FEN.expand_board(goal_FEN,8),8)
-    #start_FEN=FEN.expand_board(start_FEN,8)
+    print('\t > The Plan: ', plan)
+
+    start_FEN=FEN.expand_board(start_FEN,8)
+    goal_FEN=FEN.expand_board(goal_FEN,8)
+    if color!=None:
+        if color[0]=='w':
+            start_FEN+=+' w KQkq - 0 1'
+        if color[0]=='b':
+            start_FEN+=+' b KQkq - 0 1'
+    start_board = FEN.expand_board(start_FEN,8)
+    print(start_board)
+    goal_board = FEN.expand_board(goal_FEN,8)
+    board=chess.Board(start_board) #Documentation: https://github.com/niklasf/python-chess
+    #board2=chess.Board(FEN.board_to_FEN(start_board)+' b KQkq - 0 1')
     for i in range(len(plan)-1):
         line=plan[i]
-        #print(line)
-        board=chess.Board(FEN.board_to_FEN(start_board)+' w KQkq - 0 1') #Documentation: https://github.com/niklasf/python-chess
-        board2=chess.Board(FEN.board_to_FEN(start_board)+' b KQkq - 0 1')
+        move=chess.Move.from_uci(FEN.next_move(line,original_size))
+        print('in:')
         print(board)
-        #print(board)
-        [start_board,move]=FEN.next_pos(start_board,line,original_size)
-        #print(move)
-        #print('...',chess.Move.from_uci(move))
-        valid_moves=sorted(set([str(m) for m in list(board.legal_moves)]+[str(m) for m in list(board2.legal_moves)]))
-        #print(valid_moves)
-        if chess.Move.from_uci(move) not in board.legal_moves and chess.Move.from_uci(move) not in board2.legal_moves:
-            print('> not a legal move: {}'.format(move))
+        #valid_moves=[str(m) for m in list(board.legal_moves)]
+        if move not in board.legal_moves:
+            print('\t   > not a legal move: {} {}'.format(move, line))
             return False
-        else:
-            pass
-    print('True')
-    exit()
-    return True
+        board.push(move) #TODO: test if this really updates the board or if I need to set it = also
+        print('next:',move,line)
+        print(board)
+
+#validate('5/1pppp/1R1N1/PPP2/5', '5/Ppp2/RPpN1/4p/5',['(rook_move rook_w1 n2 n3 n1 n3)\n','(pawn_move_one pawn_w2 n2 n2 n2 n3)\n','(pawn_move_two pawn_b4 n5 n4 n5 n2)\n','(pawn_move_one pawn_w3 n3 n2 n3 n3)\n','(pawn_capture pawn_b3 n4 n4 n3 n3)\n','(rook_move rook_w1 n1 n3 n1 n5)\n','(rook_move rook_w1 n1 n5 n4 n5)\n','(pawn_move_two pawn_w1 n1 n2 n1 n4)\n','(knight_move knight_w1 n4 n3 n3 n1)\n','(rook_move rook_w1 n4 n5 n4 n2)\n','(rook_move rook_w1 n4 n2 n1 n2)\n','(rook_move rook_w1 n1 n2 n1 n3)\n','(knight_move knight_w1 n3 n1 n4 n3)\n','; cost = 13 (unit cost)\n'])
