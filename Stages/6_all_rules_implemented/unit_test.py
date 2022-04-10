@@ -1,9 +1,9 @@
-class units:
-    A=['P4/5/5/5/4b','b4/5/5/5/5'] #bishop captures a pawn
-    B=['5/r4/5/PPPPP/5','5/PPPPP/5/5/5'] #5 white pawns do a double move
+class units: #TODO: currently only positions where white starts are allowed. easy to change tough
+    A=['p4/5/5/5/4B','B4/5/5/5/5'] #white bishop captures a pawn
+    B=['5/r4/5/PPPPP/5','5/PPPPP/5/5/4r'] #5 white pawns do a double move with a black rook present
     C=['5/2pp1/5/2P2/5','5/2p2/2p2/5/5'] #pawns column (2 black ones) by capture of a white pawn
     D=['5/R4/5/5/p4','5/5/5/5/R4'] #rook captures pawn horizontally
-    E=['5/5/4r/4P/5','5/4P/4r/5/5'] #pawn double move with rook in front of it (rook has to move out of the way)
+    E=['4r/5/4R/4P/5','4r/4P/4R/5/5'] #white pawn double move with white rook in front of it (rook has to move out of the way)
     F=['3r1/5/5/3p1/2K2','3r1/5/5/3K1/5'] #white king captures pawn which is protected by a rook
     G=['5/5/5/5/R3p','5/5/5/5/4R'] #rook capturing a pawn vertically
     H=['2p2/3pK/5/5/5','5/2K2/5/5/5'] #white king captures pawn which is protected by a pawn
@@ -15,7 +15,7 @@ class units:
     M=['5/2p2/3p1/4K/5','5/2K2/5/5/5'] #king captures black pawnn chain from behind (protected)
     N=['2K2/krpb1/3R1/PNR2/rQ1Bn','PKbQr/kr3/1R1RN/2n1B/2p2'] #lots of movements with all pieces INCLUDING king
     O=['1K3/2p2/3p1/5/5','5/5/3K1/5/5'] #king captures black pawnn chain from behind (not protected)
-    P=['k3K/2ppp/1p1BR/r4/5','k3K/5/5/r4/p1ppp'] #more time consuming planning (I don't know why since it's simpler than previous test) with 2 kings on the board
+    P=['k3K/2ppp/1p1BR/r4/5','k3K/5/5/r4/p1ppp'] #more time consuming planning (I don't know why since it's simpler than previous test) with 2 kings on the board+
     Q=['3n1/1n3/2K2/5/5','3K1/5/5/5/5'] #king captures knight protected by a knight. TODO: here something strange happens... the king moves more than he needs to. I'm not sure if the problem is the planner itself or if I'm somehow preventing my piece from capturing. I tested a bit with unprotected knights in the same position and the same happens...
     R=['1b3/2r2/3K1/5/5','1K3/5/5/5/5'] #king captures rook protected by a bishop
     S=['q4/1r3/2K2/5/5','K4/5/5/5/5'] #king captures rook protected by a queen

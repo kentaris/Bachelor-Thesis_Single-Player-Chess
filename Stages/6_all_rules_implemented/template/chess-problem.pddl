@@ -3,19 +3,19 @@
     (:objects
         n1 n2 n3 n4 n5 - location
     	;white pieces:
-        knight_w1 knight_w2 - knight_w
         pawn_w1 pawn_w2 pawn_w3 pawn_w4 pawn_w5 - pawn_w
-        king_w1 - king_w
-        rook_w1 rook_w2 - rook_w
+        knight_w1 knight_w2 - knight_w
         b_bishop_w1 w_bishop_w2 - bishop_w
+        rook_w1 rook_w2 - rook_w
         queen_w1 - queen_w
+        king_w1 - king_w
     	;black pieces:
-    	knight_b1 knight_b2 - knight_b
-        pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn_b
-    	king_b1 - king_b
-        rook_b1 rook_b2 - rook_b
+    	pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn_b
+        knight_b1 knight_b2 - knight_b
         b_bishop_b1 w_bishop_b2 - bishop_b
+        rook_b1 rook_b2 - rook_b
         queen_b1 - queen_b
+        king_b1 - king_b
     )
     (:init
 ;[:init_start_state]
@@ -23,6 +23,7 @@
 ;[:init_plusOne]
 ;[:init_diffByN]
 ;[:init_diffByN_hor_ver]
+;[:last_pawn_line]
         
         (not_moved king_w1)
         (not_moved king_b1)

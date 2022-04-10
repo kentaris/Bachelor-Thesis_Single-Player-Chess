@@ -140,6 +140,14 @@ def one_forward(type):
                     R+='\t\t({} {}{} {}{})\n'.format(prelude,'n',from_rank+1,'n',to_rank+1)
     return R
 
+def add_last_pawn_line():
+    R=''
+    for i in range(board_size): #black pawns
+        R+='\t\t(last_pawn_line n{} n1)\n'.format(i+1)
+    for i in range(board_size): #black pawns
+        R+='\t\t(last_pawn_line n{} n{})\n'.format(i+1,board_size)
+    return R
+
 def create_diffBy_list(diff,name,get=False):
     '''returns the pddl line format of the given diff (=Difference) of two numbers. it returns all combinations of f and r. 'name' refers to the diff_by_[name] and 'get' is not used anywhere yet.'''
     diffBy_array=[]
@@ -247,4 +255,4 @@ def add_removed_pieces(start_FEN,goal_FEN):
 #print(add_FEN_pos_to_PDDL(goal_FEN))
 #print(add_removed_pieces(start_FEN,goal_FEN))
 
-print(add_FEN_pos_to_PDDL('PPPPP/5/5/5/3bb'))
+#print(add_FEN_pos_to_PDDL('PPPPP/5/5/5/3bb'))

@@ -124,6 +124,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
 
         txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN))
         txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
+        txt_file=replace(txt_file,';[:last_pawn_line]\n',PG.add_last_pawn_line())
 
         #goal:
         txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN,'goal'))
@@ -180,8 +181,8 @@ class Validation_Error(Exception):
     pass
 
 def main():
-    start_FEN=start_FEN='p4/5/5/5/4B'#'5/5/5/rRrR1/5'#'5/5/4r/4P/5'#'5/5/1pp2/1Pp2/5'#'5/1pppp/1R1N1/PPP2/5'#'b4/5/2n2/5/4K'#'P4/5/5/5/4b'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
-    goal_FEN ='5/5/B4/5/5'#'5/rRrR1/5/5/5'#'5/4P/4r/5/5'#'5/5/1pP2/5/2p2'#'5/PpP2/R1pN1/4p/5'#'b4/5/5/5/1n2K'#'b4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
+    start_FEN=start_FEN='3r1/5/5/3p1/2K2'#'5/5/5/rRrR1/5'#'5/5/4r/4P/5'#'5/5/1pp2/1Pp2/5'#'5/1pppp/1R1N1/PPP2/5'#'b4/5/2n2/5/4K'#'P4/5/5/5/4b'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
+    goal_FEN ='3r1/5/5/3K1/5'#'5/rRrR1/5/5/5'#'5/4P/4r/5/5'#'5/5/1pP2/5/2p2'#'5/PpP2/R1pN1/4p/5'#'b4/5/5/5/1n2K'#'b4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN)
         load_file('domain',start_FEN)

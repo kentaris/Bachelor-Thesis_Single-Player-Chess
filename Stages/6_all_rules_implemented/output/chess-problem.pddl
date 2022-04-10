@@ -3,23 +3,25 @@
     (:objects
         n1 n2 n3 n4 n5 - location
     	;white pieces:
-        knight_w1 knight_w2 - knight_w
         pawn_w1 pawn_w2 pawn_w3 pawn_w4 pawn_w5 - pawn_w
-        king_w1 - king_w
-        rook_w1 rook_w2 - rook_w
+        knight_w1 knight_w2 - knight_w
         b_bishop_w1 w_bishop_w2 - bishop_w
+        rook_w1 rook_w2 - rook_w
         queen_w1 - queen_w
+        king_w1 - king_w
     	;black pieces:
-    	knight_b1 knight_b2 - knight_b
-        pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn_b
-    	king_b1 - king_b
-        rook_b1 rook_b2 - rook_b
+    	pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn_b
+        knight_b1 knight_b2 - knight_b
         b_bishop_b1 w_bishop_b2 - bishop_b
+        rook_b1 rook_b2 - rook_b
         queen_b1 - queen_b
+        king_b1 - king_b
     )
     (:init
-		(at pawn_b1 n1 n5)
-		(at b_bishop_w1 n5 n1)
+		(at pawn_b1 n4 n2)
+		(at rook_b1 n4 n5)
+		(at king_w1 n3 n1)
+		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
 		(empty_square n1 n2)
@@ -33,16 +35,14 @@
 		(empty_square n3 n4)
 		(empty_square n3 n3)
 		(empty_square n3 n2)
-		(empty_square n3 n1)
-		(empty_square n4 n5)
 		(empty_square n4 n4)
 		(empty_square n4 n3)
-		(empty_square n4 n2)
 		(empty_square n4 n1)
 		(empty_square n5 n5)
 		(empty_square n5 n4)
 		(empty_square n5 n3)
 		(empty_square n5 n2)
+		(empty_square n5 n1)
 
 		;Pawn double moves start for white:
 		(pawn_start_pos_white n1 n2)
@@ -94,6 +94,16 @@
 		(diff_by_Three n4 n1)
 		(diff_by_Three n5 n2)
 ;[:init_diffByN_hor_ver]
+		(last_pawn_line n1 n1)
+		(last_pawn_line n2 n1)
+		(last_pawn_line n3 n1)
+		(last_pawn_line n4 n1)
+		(last_pawn_line n5 n1)
+		(last_pawn_line n1 n5)
+		(last_pawn_line n2 n5)
+		(last_pawn_line n3 n5)
+		(last_pawn_line n4 n5)
+		(last_pawn_line n5 n5)
         
         (not_moved king_w1)
         (not_moved king_b1)
@@ -107,29 +117,33 @@
         (queenside_rook rook_b1)
 ;[:can_double_move]
         ;colors:
+		(is_black rook_b1)
+		(is_black rook_b2)
 		(is_black pawn_b1)
 		(is_black pawn_b2)
 		(is_black pawn_b3)
 		(is_black pawn_b4)
 		(is_black pawn_b5)
-		(is_white b_bishop_w1)
-		(is_white w_bishop_w2)
+		(is_white king_w1)
+		(is_rook rook_b1)
+		(is_rook rook_b2)
 		(is_pawn pawn_b1)
 		(is_pawn pawn_b2)
 		(is_pawn pawn_b3)
 		(is_pawn pawn_b4)
 		(is_pawn pawn_b5)
-		(is_bishop b_bishop_w1)
-		(is_bishop w_bishop_w2)
+		(is_king king_w1)
 
         (white_s_turn)
 
         (TRUE)
     )
     (:goal (and
-		(at b_bishop_w1 n1 n3)
+		(at rook_b1 n4 n5)
+		(at king_w1 n4 n2)
 		(empty_square n1 n5)
 		(empty_square n1 n4)
+		(empty_square n1 n3)
 		(empty_square n1 n2)
 		(empty_square n1 n1)
 		(empty_square n2 n5)
@@ -142,10 +156,8 @@
 		(empty_square n3 n3)
 		(empty_square n3 n2)
 		(empty_square n3 n1)
-		(empty_square n4 n5)
 		(empty_square n4 n4)
 		(empty_square n4 n3)
-		(empty_square n4 n2)
 		(empty_square n4 n1)
 		(empty_square n5 n5)
 		(empty_square n5 n4)

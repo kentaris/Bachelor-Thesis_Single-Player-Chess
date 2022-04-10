@@ -44,8 +44,9 @@ The roadblocks below build on on another so to see the relevant files for this p
 6. [ ] Rewrite the problem using **derived predicates** so I can make use of recursion and axioms to implment all rules below.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
    1. [x] normal moves
    2. [ ] capture moves
-      1. [ ] en passant
-      2. [x] all other captures
+      1. [x] en passant
+      2. [ ] pawn promotion
+      3. [x] all other captures
    3. [ ] check inhibited moves
       1. [ ] absolute pin
       2. [x] in check
