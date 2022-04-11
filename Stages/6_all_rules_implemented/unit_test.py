@@ -4,9 +4,9 @@ class units: #TODO: currently only positions where white starts are allowed. eas
     C=['5/2pp1/5/2P2/5','5/2p2/2p2/5/5'] #pawns column (2 black ones) by capture of a white pawn
     D=['5/R4/5/5/p4','5/5/5/5/R4'] #rook captures pawn horizontally
     E=['4r/5/4R/4P/5','4r/4P/4R/5/5'] #white pawn double move with white rook in front of it (rook has to move out of the way)
-    F=['3r1/5/5/3p1/2K2','3r1/5/5/3K1/5'] #white king captures pawn which is protected by a rook
+    F=['3r1/5/5/3p1/2K2','3r1/5/5/3K1/5'] #white king captures pawn which is protected by a rook !!!!!-->takes 108 minutes...
     G=['5/5/5/5/R3p','5/5/5/5/4R'] #rook capturing a pawn vertically
-    H=['2p2/3pK/5/5/5','5/2K2/5/5/5'] #white king captures pawn which is protected by a pawn
+    H=['2p2/3pK/5/5/5','5/2K2/5/5/5'] #white king captures pawn which is protected by a pawn <-------
     I=['5/1pppp/1R1N1/PPP2/5','5/Ppp2/RPpN1/4p/5']#['2ppp/1p1RB/P4/3PP/5','1P1p1/4B/3p1/3P1/5'] #crazy pawns
     J=['2br1/3PK/1N3/P1n2/5','3r1/1b1K1/1N3/P4/4n'] #some pieces with one king
     K=['2ppp/1p1RB/P4/3PP/5','1P1p1/4B/3p1/3P1/5']
@@ -19,6 +19,8 @@ class units: #TODO: currently only positions where white starts are allowed. eas
     Q=['3n1/1n3/2K2/5/5','3K1/5/5/5/5'] #king captures knight protected by a knight. TODO: here something strange happens... the king moves more than he needs to. I'm not sure if the problem is the planner itself or if I'm somehow preventing my piece from capturing. I tested a bit with unprotected knights in the same position and the same happens...
     R=['1b3/2r2/3K1/5/5','1K3/5/5/5/5'] #king captures rook protected by a bishop
     S=['q4/1r3/2K2/5/5','K4/5/5/5/5'] #king captures rook protected by a queen
+    T=['5/3p1/5/2P2/5','5/5/2p2/5/5'] #en-passant (to test white: ['5/3p1/5/1QP2/5','5/5/3P1/Q4/5'])
+    U=['5/1P3/5/5/5','1Q3/5/5/5/5'] #pawn promotion
 
 def get(N):
     return vars(units)[chr(N+65)]
