@@ -41,21 +41,22 @@ The roadblocks below build on on another so to see the relevant files for this p
 3. [x] Implement **Two Knight's Walk** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
 4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
 5. [x] Implement **black pieces** as well [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][5_white&black_limitated]
-6. [ ] Rewrite the problem using **derived predicates** so I can make use of recursion and axioms to implment all rules below.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
+6. [x] Rewrite the problem using **derived predicates** so I can make use of recursion and axioms to implment all rules below.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
    1. [x] normal moves
-   2. [ ] capture moves
+   2. [x] capture moves
       1. [x] en passant
-      2. [ ] pawn promotion
+      2. [x] pawn promotion
       3. [x] all other captures
    3. [x] check inhibited moves
       1. [x] absolute pin
       2. [x] in check
-   4. [ ] Game termination (only checkmate) --> given if opponent's king is under attack and can't escape
+   4. [x] Game termination (only checkmate) --> given if opponent's king is under attack and can't escape
    5. [x] other rules
       1. [x] double pawn move 
       2. [x] blocked movement (ex: bishop can't move trough a pawn)
       3. [x] castling
       4. [x] taking turns
+7. 
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.
@@ -64,6 +65,7 @@ Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_S
 ## Dependencies
 
 * Numpy (via: `sudo apt-get install python3-numpy`)
+* Fast downward: [Github](https://github.com/aibasel/downward), [Website](https://www.fast-downward.org/) 
 
 <!-- Authors -->
 ## Authors
@@ -77,6 +79,7 @@ Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_S
 
 * An Introduction to the Planning Domain Deﬁnition Language by Patrik Haslum and co. ([Book](https://www.morganclaypool.com/doi/abs/10.2200/S00900ED2V01Y201902AIM042))
 * planing.domains ([Online PDDL Editor Tool](http://planning.domains/))
+* [Fast Downward](https://github.com/aibasel/downward)
 * Chess Logo inspired by [Marko Ivanovic](https://dribbble.com/shots/14950766/attachments/6667952?mode=media)
 
 [AI Group]: https://ai.dmi.unibas.ch/

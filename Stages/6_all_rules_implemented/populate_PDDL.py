@@ -9,12 +9,12 @@ import validator
 import threading
 
 class Global():
-    
     path_to_downward='../../../downward/'
     full_path_to_output_folder = '/home/ken/Documents/Bachelor-Thesis_Single-Player-Chess/Stages/6_all_rules_implemented/output'
     s=''
     g=''
     t=[0,0]
+    cont=False
 
 def replace(txt_file,old_content,new_content):
     """takes f.readlines() (1D array of strings) as input and replaces the given 'old_content' string with the 'new_content' string"""
@@ -39,7 +39,7 @@ def write_pddl(txt_file,Type):
     f.close()
 
 def execute_planner():
-    '''executes the pddl planner which Augusto sent me'''
+    '''executes the ai basel pddl planner'''
     Global.t[0]=time.perf_counter_ns()
     print('\n\n >>> executing planner')
     call('./fast-downward.py chess-domain.pddl chess-problem.pddl --search "eager_greedy([ff])"',cwd=Global.path_to_downward,shell=True)
@@ -49,6 +49,7 @@ def execute_planner():
     else:
         print(' >>> \'sas_plan\' not fount')
         exit()
+    Global.cont=True
     #os.system('./fast-downward.py chess-domain.pddl chess-problem.pddl --search "eager_greedy([ff])"')
 
 def convert_plan():
@@ -180,9 +181,16 @@ def time_it(R=None):
 class Validation_Error(Exception):
     pass
 
+class Timeout_Error(Exception):
+    pass
+
+def after_timeout():
+    Global.cont=True
+    raise Timeout_Error
+
 def main():
-    start_FEN=start_FEN='1K3/5/5/5/r4'#'2p2/3pK/5/5/5'   #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
-    goal_FEN ='K3/5/5/5/r4'#'5/5/2K2/5/5'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+    start_FEN=start_FEN='5/5/1pp2/1Pp2/5'   #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN ='5/5/1pP2/5/2q2'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
     turn_start='white'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN,turn_start)
@@ -192,6 +200,8 @@ def main():
         plan=convert_plan()
         print_plan(plan)
         time_it()
+        if validator.validate(start_FEN,goal_FEN,plan):
+            print('     \u001b[32m--> This is a VALID plan!\033[0m')
     elif sys.argv[1]=='planner': #just execute the planner on the existing .pddl files (so I can edit them and test stuff quickly)
         execute_planner()
         Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,PG.board_size),True,True))
@@ -211,16 +221,26 @@ def main():
                 test=unit_test.get(i)
                 load_file('problem',test[0],test[1],turn_start)
                 load_file('domain',test[0])
-                execute_planner()
-                succ.append([i,test[0],test[1],time_it('return value')])
-                print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(unit_test.get(i,True),test[0],test[1]))
+                t=threading.Thread(target=execute_planner)
+                t.daemon=True
+                t.start()
+                threading.Timer(10, after_timeout).start() #abort planner if takes longer than 2 minutes...
+                while not Global.cont:
+                    time.sleep(1)
+                t.join()
+                Global.cont=False
                 plan=convert_plan()
                 print_plan(plan)
                 if not validator.validate(test[0],test[1],plan):
                     raise Validation_Error #TODO: this doesn't catch cases where the python-chess module crashes because of a move that is no valid...
+                print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(unit_test.get(i,True),test[0],test[1]))
+                succ.append([i,test[0],test[1],time_it('return value')])
             except Validation_Error:
                 fail.append([i,test[0],test[1],'\033[01;31mValidation error\033[0m'])
                 print('\033[01;31m \t\t>>> validation error\033[0m')
+            except Timeout_Error:
+                fail.append([i,test[0],test[1],'\033[01;31m<Timeout> error\033[0m'])
+                print('\033[01;31m \t\t>>> Timeout error\033[0m')
             except KeyboardInterrupt:
                 t=time_it('return value')
                 fail.append([i,test[0],test[1],'keyboard interrupt after: {}'.format(t)])

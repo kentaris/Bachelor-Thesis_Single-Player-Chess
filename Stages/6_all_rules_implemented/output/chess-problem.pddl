@@ -5,32 +5,26 @@
 		n1 n2 n3 n4 n5  - location
         
         ;object pieces:
-		 b_bishop_w1 w_bishop_w2 - bishop_w
-		 king_w1 - king_w
-		 knight_w1 knight_w2 - knight_w
-		 queen_w1 queen_w2 - queen_w
-		 rook_w1 rook_w2 - rook_w
-		 b_bishop_b1 w_bishop_b2 - bishop_b
-		 knight_b1 knight_b2 - knight_b
-		 queen_b1 queen_b2 - queen_b
-		 rook_b1 rook_b2 rook_b3 - rook_b
+		 pawn_w1 - pawn_w
+		 pawn_b1 pawn_b2 pawn_b3 - pawn_b
+		 queen_b1 - queen_b
     )
     (:init
         ;initial state s_0:
-		(at rook_b1 n1 n1)
-		(at king_w1 n2 n5)
+		(at pawn_b1 n2 n3)
+		(at pawn_b2 n3 n3)
+		(at pawn_b3 n3 n2)
+		(at pawn_w1 n2 n2)
 		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
 		(empty_square n1 n2)
+		(empty_square n1 n1)
+		(empty_square n2 n5)
 		(empty_square n2 n4)
-		(empty_square n2 n3)
-		(empty_square n2 n2)
 		(empty_square n2 n1)
 		(empty_square n3 n5)
 		(empty_square n3 n4)
-		(empty_square n3 n3)
-		(empty_square n3 n2)
 		(empty_square n3 n1)
 		(empty_square n4 n5)
 		(empty_square n4 n4)
@@ -108,44 +102,18 @@
         ;castling:
         
         ;colors:
-		(is_white b_bishop_w1)
-		(is_white w_bishop_w2)
-		(is_white king_w1)
-		(is_white knight_w1)
-		(is_white knight_w2)
-		(is_white queen_w1)
-		(is_white queen_w2)
-		(is_white rook_w1)
-		(is_white rook_w2)
-		(is_black b_bishop_b1)
-		(is_black w_bishop_b2)
-		(is_black knight_b1)
-		(is_black knight_b2)
+		(is_white pawn_w1)
+		(is_black pawn_b1)
+		(is_black pawn_b2)
+		(is_black pawn_b3)
 		(is_black queen_b1)
-		(is_black queen_b2)
-		(is_black rook_b1)
-		(is_black rook_b2)
-		(is_black rook_b3)
         
         ;piece types:
-		(is_bishop b_bishop_w1)
-		(is_bishop w_bishop_w2)
-		(is_king king_w1)
-		(is_knight knight_w1)
-		(is_knight knight_w2)
-		(is_queen queen_w1)
-		(is_queen queen_w2)
-		(is_rook rook_w1)
-		(is_rook rook_w2)
-		(is_bishop b_bishop_b1)
-		(is_bishop w_bishop_b2)
-		(is_knight knight_b1)
-		(is_knight knight_b2)
+		(is_pawn pawn_w1)
+		(is_pawn pawn_b1)
+		(is_pawn pawn_b2)
+		(is_pawn pawn_b3)
 		(is_queen queen_b1)
-		(is_queen queen_b2)
-		(is_rook rook_b1)
-		(is_rook rook_b2)
-		(is_rook rook_b3)
         
         ;turn:
 		(white_s_turn)
@@ -156,21 +124,21 @@
     (:goal (and
         ;goal state s_*:
             ;board:
-		(at rook_b1 n1 n1)
-		(at king_w1 n1 n5)
+		(black_pawn_at n2 n3)
+		(at queen_b1 n3 n1)
+		(white_pawn_at n3 n3)
+		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
 		(empty_square n1 n2)
+		(empty_square n1 n1)
 		(empty_square n2 n5)
 		(empty_square n2 n4)
-		(empty_square n2 n3)
 		(empty_square n2 n2)
 		(empty_square n2 n1)
 		(empty_square n3 n5)
 		(empty_square n3 n4)
-		(empty_square n3 n3)
 		(empty_square n3 n2)
-		(empty_square n3 n1)
 		(empty_square n4 n5)
 		(empty_square n4 n4)
 		(empty_square n4 n3)

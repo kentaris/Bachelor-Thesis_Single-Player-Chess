@@ -3,7 +3,7 @@ from tracemalloc import start #TODO: replace with .isnumeric() to remove this li
 import FEN
 
 board_size=5 #to change the board size
-extra_pieces=2 #to change the amount of extra pieces available for pawn promotion
+extra_pieces=0 #to change the amount of extra pieces available for pawn promotion
 
 def add_FEN_pos_to_PDDL(fen,type=None):
     '''returns the PDDL line format of the occupied board positions of a given FEN string'''
@@ -34,9 +34,9 @@ def add_FEN_pos_to_PDDL(fen,type=None):
                             R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         elif fig.lower() == 'p' and type=='goal':
                             if fig.isupper():
-                                R+='\t\t(white_pawn_at '+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                                R+='\t\t(white_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                             else:
-                                R+='\t\t(black_pawn_at '+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                                R+='\t\t(black_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         else:
                             R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         idx+=1

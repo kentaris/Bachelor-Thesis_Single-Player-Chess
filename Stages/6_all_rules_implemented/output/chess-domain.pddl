@@ -869,6 +869,7 @@
         :parameters (?pawn - pawn ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and 
                            ;(is_pawn ?pawn)
+                           (not(last_pawn_line ?to_file ?to_rank))
                            (at ?pawn ?from_file ?from_rank)
                            ;(not(at ?pawn ?to_file ?to_rank))
                            (not(= ?from_rank ?to_rank))
