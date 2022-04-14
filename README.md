@@ -47,8 +47,8 @@ The roadblocks below build on on another so to see the relevant files for this p
       1. [x] en passant
       2. [ ] pawn promotion
       3. [x] all other captures
-   3. [ ] check inhibited moves
-      1. [ ] absolute pin
+   3. [x] check inhibited moves
+      1. [x] absolute pin
       2. [x] in check
    4. [ ] Game termination (only checkmate) --> given if opponent's king is under attack and can't escape
    5. [x] other rules

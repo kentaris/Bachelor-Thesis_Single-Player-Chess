@@ -1,3 +1,5 @@
-(pawn_move_one pawn_w1 n2 n3 n2 n4)
-(pawn_move_one pawn_b1 n3 n3 n3 n2)
-; cost = 2 (unit cost)
+(king_move king_w1 n2 n5 n2 n4)
+(rook_move rook_b1 n1 n1 n5 n1)
+(king_move king_w1 n2 n4 n1 n5)
+(rook_move rook_b1 n5 n1 n1 n1)
+; cost = 4 (unit cost)

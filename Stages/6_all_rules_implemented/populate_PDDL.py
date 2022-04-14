@@ -6,6 +6,7 @@ from subprocess import call
 import time
 import unit_test
 import validator
+import threading
 
 class Global():
     
@@ -99,7 +100,7 @@ def compare_time(T):
         print('   | {}{}ms'.format(sign,int(diff)))
     f.close()
 
-def load_file(Type,start_FEN=None,goal_FEN=None):
+def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
     """loads the .pddl file in the template folder and changes it's content accordingly using the replace() function"""
     files=os.listdir('template/')
     for f in files:
@@ -110,21 +111,20 @@ def load_file(Type,start_FEN=None,goal_FEN=None):
     f.close()
     #Problem File content:
     if Type.lower()=='problem':
+        #objects:
+        txt_file=replace(txt_file,';[:locations]\n',PG.add_locations())
+        txt_file=replace(txt_file,';[:object_pieces]\n',PG.add_objects(start_FEN,goal_FEN))
         #init:
-        #start_FEN='5/4p/5/PPPPP/RQKNB'
-        #goal_FEN='B1P2/4Q/1PNPp/P3P/3RK'
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
-        #print('start:\n',PG.add_FEN_pos_to_PDDL(start_FEN))
-        #print('goal:\n',PG.add_FEN_pos_to_PDDL(goal_FEN))
         txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
-        #txt_file=replace(txt_file,';[:init_diffByN_hor_ver]\n',PG.add_diffByN_hor_ver(9))
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
-        #txt_file=replace(txt_file,';[:can_double_move]\n',PG.add_double_moves_pawn(PG.board_size))
 
-        txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN))
-        txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN))
+        txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN,goal_FEN))
+        txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN,goal_FEN))
         txt_file=replace(txt_file,';[:last_pawn_line]\n',PG.add_last_pawn_line())
+        txt_file=replace(txt_file,';[:castling]\n',PG.add_castling(start_FEN))
+        txt_file=replace(txt_file,';[:whos_turn]\n',PG.add_turn(turn_start))
 
         #goal:
         txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN,'goal'))
@@ -181,10 +181,11 @@ class Validation_Error(Exception):
     pass
 
 def main():
-    start_FEN=start_FEN='5/1P3/5/2p2/5'#'5/1pppp/1R1N1/PPP2/5'#'b4/5/2n2/5/4K'#'P4/5/5/5/4b'#'1r3/2r2/3K1/5/5'#'b4/1b3/2K2/5/5'#'3r1/5/5/3p1/2K2'
-    goal_FEN ='1P3/5/5/5/2p2'#'5/PpP2/R1pN1/4p/5'#'b4/5/5/5/1n2K'#'b4/5/5/5/5'#'1P3/5/5/5/5'#'2K2/5/5/5/5'#'K4/5/5/5/5'#'3r1/5/5/3K1/5'
+    start_FEN=start_FEN='1K3/5/5/5/r4'#'2p2/3pK/5/5/5'   #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN ='K3/5/5/5/r4'#'5/5/2K2/5/5'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+    turn_start='white'
     if len(sys.argv)==1: #do all
-        load_file('problem',start_FEN,goal_FEN)
+        load_file('problem',start_FEN,goal_FEN,turn_start)
         load_file('domain',start_FEN)
         execute_planner()
         FEN.print_neighbor(Global.s,Global.g)
@@ -200,7 +201,7 @@ def main():
         print_plan(plan)
         time_it()
     elif sys.argv[1]=='create': #just create .pddl files
-        load_file('problem',start_FEN,goal_FEN)
+        load_file('problem',start_FEN,goal_FEN,turn_start)
         load_file('domain',start_FEN)
     elif sys.argv[1]=='test': #perform all unit tests
         succ=[]
@@ -208,17 +209,17 @@ def main():
         for i in range(len(vars(unit_test.units))-4):
             try:
                 test=unit_test.get(i)
-                load_file('problem',test[0],test[1])
+                load_file('problem',test[0],test[1],turn_start)
                 load_file('domain',test[0])
                 execute_planner()
                 succ.append([i,test[0],test[1],time_it('return value')])
-                print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(chr(i+65),test[0],test[1]))
+                print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(unit_test.get(i,True),test[0],test[1]))
                 plan=convert_plan()
                 print_plan(plan)
                 if not validator.validate(test[0],test[1],plan):
                     raise Validation_Error #TODO: this doesn't catch cases where the python-chess module crashes because of a move that is no valid...
             except Validation_Error:
-                fail.append([i,'\033[01;31mvalidation error\033[0m'])
+                fail.append([i,test[0],test[1],'\033[01;31mValidation error\033[0m'])
                 print('\033[01;31m \t\t>>> validation error\033[0m')
             except KeyboardInterrupt:
                 t=time_it('return value')
@@ -228,17 +229,17 @@ def main():
             except:# Exception as e:
                 t=time_it('return value')
                 fail.append([i,test[0],test[1],'\'sas-plan\' not found after {}'.format(t)])
-                print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m after {}'.format(chr(i+65),test[0],test[1],t))
+                print('\033[93m >>> Test #{} failed (\'{}\',\'{}\')\033[0m after {}'.format(unit_test.get(i,True),test[0],test[1],t))
         print('\nsummary:\n========')
         txt=[]
         for i in range(len(succ)):
             s=succ[i]
-            txt.append('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),s[1],s[2],s[3]))
+            txt.append('\u001b[32m \u2705 #{} succeeded: (\'{}\',\'{}\' | {})\033[0m'.format(unit_test.get(s[0],True),s[1],s[2],s[3]))
             print(txt[i])
-        for i in range(len(fail)):
-            s=fail[i]
-            txt.append('\033[93m \u274c #{} failed:\t  (\'{}\',\'{}\' | {})\033[0m'.format(chr(int(s[0])+65),s[1],s[2],s[3]))
-            print(txt[i+len(succ)])
+        for j in range(len(fail)):
+            s=fail[j]
+            txt.append('\033[93m \u274c #{} failed:\t  (\'{}\',\'{}\' | {})\033[0m'.format(unit_test.get(s[0],True),s[1],s[2],s[3]))
+            print(txt[j+len(succ)])
         with open('test_results.txt', mode='w') as f:
             for line in txt:
                 l=line[(1+len(line.split()[0])):-4]+'\n'

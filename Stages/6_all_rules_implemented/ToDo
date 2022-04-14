@@ -1,0 +1,20 @@
+- finish pddl-modeling
+- run experiments
+  - cluster?
+- writing
+- implementing own solver (domain dependent solver)
+    - which language (java)
+    - Steps:   
+      - read fen encoding
+      - transform it to initial state
+      - search over that
+      - implement chess moves in java with gbfs
+      - come up with heuristics
+        - missing pieces
+        - mate
+        - pieces out of place
+        - pawns past position
+        - etc
+      - First steps:
+        - implement bfsand see if for simplmle cases it works
+        - change to gbfs & use priority queue

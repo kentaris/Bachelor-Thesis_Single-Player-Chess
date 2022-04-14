@@ -1,37 +1,36 @@
 (define (problem chess-problem)
     (:domain chess)
     (:objects
-        n1 n2 n3 n4 n5 - location
-    	;white pieces:
-        pawn_w1 pawn_w2 pawn_w3 pawn_w4 pawn_w5 - pawn_w
-        knight_w1 knight_w2 - knight_w
-        b_bishop_w1 w_bishop_w2 - bishop_w
-        rook_w1 rook_w2 - rook_w
-        queen_w1 - queen_w
-        king_w1 - king_w
-    	;black pieces:
-    	pawn_b1 pawn_b2 pawn_b3 pawn_b4 pawn_b5 - pawn_b
-        knight_b1 knight_b2 - knight_b
-        b_bishop_b1 w_bishop_b2 - bishop_b
-        rook_b1 rook_b2 - rook_b
-        queen_b1 - queen_b
-        king_b1 - king_b
+        ;locations:
+		n1 n2 n3 n4 n5  - location
+        
+        ;object pieces:
+		 b_bishop_w1 w_bishop_w2 - bishop_w
+		 king_w1 - king_w
+		 knight_w1 knight_w2 - knight_w
+		 queen_w1 queen_w2 - queen_w
+		 rook_w1 rook_w2 - rook_w
+		 b_bishop_b1 w_bishop_b2 - bishop_b
+		 knight_b1 knight_b2 - knight_b
+		 queen_b1 queen_b2 - queen_b
+		 rook_b1 rook_b2 rook_b3 - rook_b
     )
     (:init
-		(at pawn_b1 n3 n2)
-		(at pawn_w1 n2 n4)
+        ;initial state s_0:
+		(at rook_b1 n1 n1)
+		(at king_w1 n2 n5)
 		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
 		(empty_square n1 n2)
-		(empty_square n1 n1)
-		(empty_square n2 n5)
+		(empty_square n2 n4)
 		(empty_square n2 n3)
 		(empty_square n2 n2)
 		(empty_square n2 n1)
 		(empty_square n3 n5)
 		(empty_square n3 n4)
 		(empty_square n3 n3)
+		(empty_square n3 n2)
 		(empty_square n3 n1)
 		(empty_square n4 n5)
 		(empty_square n4 n4)
@@ -93,7 +92,8 @@
 		(diff_by_Three n2 n5)
 		(diff_by_Three n4 n1)
 		(diff_by_Three n5 n2)
-;[:init_diffByN_hor_ver]
+        
+        ;last pawn line:
 		(last_pawn_line n1 n1)
 		(last_pawn_line n2 n1)
 		(last_pawn_line n3 n1)
@@ -105,51 +105,63 @@
 		(last_pawn_line n4 n5)
 		(last_pawn_line n5 n5)
         
-        (not_moved king_w1)
-        (not_moved king_b1)
-        (not_moved rook_w1)
-        (not_moved rook_w2)
-        (not_moved rook_b1)
-        (not_moved rook_b2)
-        (kingside_rook rook_w2)
-        (queenside_rook rook_w1)
-        (kingside_rook rook_b2)
-        (queenside_rook rook_b1)
-;[:can_double_move]
+        ;castling:
+        
         ;colors:
-		(is_white pawn_w1)
-		(is_white pawn_w2)
-		(is_white pawn_w3)
-		(is_white pawn_w4)
-		(is_white pawn_w5)
-		(is_black pawn_b1)
-		(is_black pawn_b2)
-		(is_black pawn_b3)
-		(is_black pawn_b4)
-		(is_black pawn_b5)
-		(is_pawn pawn_w1)
-		(is_pawn pawn_w2)
-		(is_pawn pawn_w3)
-		(is_pawn pawn_w4)
-		(is_pawn pawn_w5)
-		(is_pawn pawn_b1)
-		(is_pawn pawn_b2)
-		(is_pawn pawn_b3)
-		(is_pawn pawn_b4)
-		(is_pawn pawn_b5)
-
-        (white_s_turn)
+		(is_white b_bishop_w1)
+		(is_white w_bishop_w2)
+		(is_white king_w1)
+		(is_white knight_w1)
+		(is_white knight_w2)
+		(is_white queen_w1)
+		(is_white queen_w2)
+		(is_white rook_w1)
+		(is_white rook_w2)
+		(is_black b_bishop_b1)
+		(is_black w_bishop_b2)
+		(is_black knight_b1)
+		(is_black knight_b2)
+		(is_black queen_b1)
+		(is_black queen_b2)
+		(is_black rook_b1)
+		(is_black rook_b2)
+		(is_black rook_b3)
+        
+        ;piece types:
+		(is_bishop b_bishop_w1)
+		(is_bishop w_bishop_w2)
+		(is_king king_w1)
+		(is_knight knight_w1)
+		(is_knight knight_w2)
+		(is_queen queen_w1)
+		(is_queen queen_w2)
+		(is_rook rook_w1)
+		(is_rook rook_w2)
+		(is_bishop b_bishop_b1)
+		(is_bishop w_bishop_b2)
+		(is_knight knight_b1)
+		(is_knight knight_b2)
+		(is_queen queen_b1)
+		(is_queen queen_b2)
+		(is_rook rook_b1)
+		(is_rook rook_b2)
+		(is_rook rook_b3)
+        
+        ;turn:
+		(white_s_turn)
+;[:pawn_promotion_extra_pieces]
 
         (TRUE)
     )
     (:goal (and
-		(black_pawn_at  n3 n1)
-		(white_pawn_at  n2 n5)
-		(empty_square n1 n5)
+        ;goal state s_*:
+            ;board:
+		(at rook_b1 n1 n1)
+		(at king_w1 n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
 		(empty_square n1 n2)
-		(empty_square n1 n1)
+		(empty_square n2 n5)
 		(empty_square n2 n4)
 		(empty_square n2 n3)
 		(empty_square n2 n2)
@@ -158,6 +170,7 @@
 		(empty_square n3 n4)
 		(empty_square n3 n3)
 		(empty_square n3 n2)
+		(empty_square n3 n1)
 		(empty_square n4 n5)
 		(empty_square n4 n4)
 		(empty_square n4 n3)
@@ -168,7 +181,7 @@
 		(empty_square n5 n3)
 		(empty_square n5 n2)
 		(empty_square n5 n1)
-;TODO: the removed predicate still has to be given the exact pawn that has been removed. If I do the same as with the white_pawn_at derived predicate I need to give it a location but I don't know that location. How can I fix this? For now I just leave away the removed predicates for pawns but this can lead to pawns being at locations I don't want them to be.
+            ;removed pieces:
            )
     )
 )

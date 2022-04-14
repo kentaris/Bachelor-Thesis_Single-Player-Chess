@@ -1,7 +1,9 @@
-from curses.ascii import isdigit #TODO: replace with .isnumeric() to remove this line
+from curses.ascii import isdigit
+from tracemalloc import start #TODO: replace with .isnumeric() to remove this line
 import FEN
 
 board_size=5 #to change the board size
+extra_pieces=2 #to change the amount of extra pieces available for pawn promotion
 
 def add_FEN_pos_to_PDDL(fen,type=None):
     '''returns the PDDL line format of the occupied board positions of a given FEN string'''
@@ -72,18 +74,6 @@ class figures:
     R=['rook_w1','rook_w2']
     Q=['queen_w1']
     K=['king_w1']
-
-def add_double_moves_pawn(board_size):
-    R=''
-    R+=';white pawns:\n'
-    for i in range(len(vars(figures)['P'])):
-        if i<board_size:
-            R+='\t\t(can_double_move {})\n'.format(vars(figures)['P'][i])
-    R+=';black pawns:\n'
-    for i in range(len(vars(figures)['p'])):
-        if i<board_size:
-            R+='\t\t(can_double_move {})\n'.format(vars(figures)['p'][i])
-    return R
 
 def add_double_pawn_moves():
     R=''
@@ -182,17 +172,6 @@ def add_diffByN(N):
         R+='\n\t\t;Difference by {}:\n'.format(word)+line
     return R
 
-def add_diffByN_hor_ver(N):
-    R=''
-    for diff in range(N):
-        diff+=1
-        R+='\n\t\t;Diff by {}:\n'.format(num2word(diff))
-        for n1 in range(N):
-            for n2 in range(N):
-                if abs((n1+1)-(n2+1))==diff:
-                    R+='\t\t(diff_by_N n{} n{})\n'.format((n1+1),(n2+1))
-    return R
-
 def board():
     '''returns the chess board as A1 up to An in a square format'''
     R=''
@@ -203,35 +182,55 @@ def board():
         R+='\t\t'+r+'\n'
     return R
 
-def add_color_predicates(start_FEN):
+def add_color_predicates(start_FEN,goal_FEN):
     R=''
-    elements=[i for i in list(start_FEN) if i!='/' and not isdigit(i)]
+    objs=sorted(get_individual_objects(start_FEN,goal_FEN))
+    elements=sorted([(i,objs.count(i)) for i in objs if i!='/' and not isdigit(i)])
     done=[]
     for e in elements:
-        if e.isupper():
-            for figure in vars(figures)[e]: #TODO: here I add all figures instead of only the ones I need. this is only a cosmetic issue I think
-                if int(figure[-1:])<=board_size and figure not in done:
-                    done.append(figure)
-                    R+='\t\t(is_white {})\n'.format(figure)
-        if e.islower():
-            for figure in vars(figures)[e]:
-                if int(figure[-1:])<=board_size and figure not in done:
-                    done.append(figure)
-                    R+='\t\t(is_black {})\n'.format(figure)
+        prefix='is_white'
+        if e[0].islower():
+            prefix='is_black'
+        Figures=vars(figures)[e[0]]
+        if len(vars(figures)[e[0]])>e[1]:
+            for i in range(len(vars(figures)[e[0]])-e[1]):
+                Figures.pop()
+        elif len(vars(figures)[e[0]])<e[1]:
+            root=vars(figures)[e[0]][-1][:-1]
+            length=len(vars(figures)[e[0]])
+            for i in range(e[1]-len(vars(figures)[e[0]])):
+                Figures.append(root+str(i+1+length))
+        for figure in Figures:
+            if int(figure[-1:])<=e[1] and figure not in done:
+                done.append(figure)
+                R+='\t\t({} {})\n'.format(prefix,figure)
     return R
 
-def add_piece_types(start_FEN):
+def add_piece_types(start_FEN,goal_FEN):
     R=''
     done=[]
-    elements=[i for i in list(start_FEN) if i!='/' and not isdigit(i)]
+    objs=sorted(get_individual_objects(start_FEN,goal_FEN))
+    elements=sorted([(i,objs.count(i)) for i in objs if i!='/' and not isdigit(i)])
     for e in elements:
-        for figure in vars(figures)[e]:
-            if int(figure[-1:])<=board_size and figure not in done:
+        Figures=vars(figures)[e[0]]
+        if len(vars(figures)[e[0]])>e[1]:
+            for i in range(len(vars(figures)[e[0]])-e[1]):
+                Figures.pop()
+        elif len(vars(figures)[e[0]])<e[1]:
+            root=vars(figures)[e[0]][-1][:-1]
+            length=len(vars(figures)[e[0]])
+            for i in range(e[1]-len(vars(figures)[e[0]])):
+                Figures.append(root+str(i+1+length))
+        for figure in Figures:
+            if int(figure[-1:])<=e[1] and figure not in done:
                 done.append(figure)
                 if 'bishop' in figure:
                     R+='\t\t(is_{} {})\n'.format('bishop',figure)
                 else:
-                    R+='\t\t(is_{} {})\n'.format(figure[:-3],figure)
+                    f=figure[:-3]
+                    if figure[:-3][-1]=='_':
+                        f=figure[:-4]
+                    R+='\t\t(is_{} {})\n'.format(f,figure)            
     return R
 
 def add_removed_pieces(start_FEN,goal_FEN):
@@ -246,6 +245,84 @@ def add_removed_pieces(start_FEN,goal_FEN):
             R+='\t\t(removed {})\n'.format(start[row])
     return R
 
+def get_individual_objects(start_FEN,goal_FEN):
+    '''this function looks at how many distinct objects are present within the whole statespace and also adds 2 additional pieces for pawn promotions'''
+    s=[e for e in list(start_FEN) if e!='/' and not e.isdigit()]
+    g=[e for e in list(goal_FEN) if e!='/' and not e.isdigit()]
+    r=[]
+    for fig in  ['p','n','b','r','q','k','P','N','B','R','Q','K']:
+        if s.count(fig)>=g.count(fig):
+            for i in range(s.count(fig)):
+                r.append(fig)
+        if s.count(fig)<g.count(fig):
+            for i in range(g.count(fig)):
+                r.append(fig)
+        if fig not in ['k','K','p','P']: #add pawn promotion pieces
+            for i in range(extra_pieces): 
+                r.append(fig)
+    return r
+
+def add_objects(start_FEN,goal_FEN):
+    R=''
+    done=[]
+    done2=[]
+    objs=sorted(get_individual_objects(start_FEN,goal_FEN))
+    elements=sorted([(i,objs.count(i)) for i in objs if i!='/' and not isdigit(i)])
+    for e in elements:
+        Figures=vars(figures)[e[0]]
+        if len(vars(figures)[e[0]])>e[1]:
+            for i in range(len(vars(figures)[e[0]])-e[1]):
+                Figures.pop()
+        elif len(vars(figures)[e[0]])<e[1]:
+            root=vars(figures)[e[0]][-1][:-1]
+            length=len(vars(figures)[e[0]])
+            for i in range(e[1]-len(vars(figures)[e[0]])):
+                Figures.append(root+str(i+1+length))
+        r='\t\t'
+        for figure in Figures:
+            f=figure[:-1]
+            if figure[:-1][-1]=='_':
+                f=figure[:-2]
+            if 'bishop' in figure:
+                f=f[2:]
+            r+=' {}'.format(figure)
+            if int(figure[-1:])<=e[1] and figure not in done:
+                done.append(figure)
+        line=''.join([i for i in r])+' - '+f+'\n'
+        if line not in done2:
+            R+=''.join([i for i in r])+' - '+f+'\n'
+            done2.append(line)
+    return R
+
+def add_castling(FEN):
+    R=''; b=''; w=''
+    black=FEN.split('/')[0]
+    white=FEN.split('/')[-1]
+    for i in range(len(black)):
+        if not black[i].isdigit():
+            b+=black[i]
+    for i in range(len(white)):
+        if not white[i].isdigit():
+            w+=white[i]
+    if b=='rkr': #TODO: add other combinations as well where only queenside rook or kingside rook but currently the rooks are not assigned correctly anyways so its of no use right now.
+        R+='\t\t(not_moved king_b1)\n\t\t(not_moved rook_b1)\n\t\t(not_moved rook_b2)\n\t\t(kingside_rook rook_b2)\n\t\t(queenside_rook rook_b1)'
+    if w=='RKR':
+        R+='\n\t\t(not_moved king_w1)\n\t\t(not_moved rook_w1)\n\t\t(not_moved rook_w2)\n\t\t(kingside_rook rook_w2)\n\t\t(queenside_rook rook_w1)'
+    return R
+
+def add_locations():
+    R='\t\t'
+    for i in range(board_size):
+        R+='n'+str(i+1)+' '
+    R+=' - location\n'
+    return R
+
+def add_turn(turn=None):
+    if turn.lower()=='b' or turn.lower()=='black':
+        return ''
+    else:
+        return '\t\t(white_s_turn)'
+
 #start_FEN='PPPPP/5/5/5/3bb'
 #goal_FEN ='b4/4P/5/5/5'
 #start=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
@@ -256,3 +333,11 @@ def add_removed_pieces(start_FEN,goal_FEN):
 #print(add_removed_pieces(start_FEN,goal_FEN))
 
 #print(add_FEN_pos_to_PDDL('PPPPP/5/5/5/3bb'))
+
+#print(add_color_predicates('PPPPP/PPPPP/PPPPP/PPPPP/PPPPP','QQK2/KKKKK/Q4/5/5'))
+#print(add_piece_types('PPPPP/PPPPP/PPPPP/PPPPP/PPPPP','QQK2/KKKKK/Q4/5/5'))
+#print(add_objects('5/5/K4/5/pQq2','5/5/PPPPP/ppppp/pKk2'))
+
+#start_FEN=start_FEN='1K3/5/5/5/r4'#'2p2/3pK/5/5/5'   #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+#goal_FEN ='K3/5/5/5/r4'
+#print(add_objects(start_FEN,goal_FEN))
