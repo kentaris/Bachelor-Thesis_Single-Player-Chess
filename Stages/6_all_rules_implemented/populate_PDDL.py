@@ -117,9 +117,10 @@ def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
         txt_file=replace(txt_file,';[:object_pieces]\n',PG.add_objects(start_FEN,goal_FEN))
         #init:
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
-        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))
+        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(PG.board_size-1))
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
+        #txt_file=replace(txt_file,';[:is_on_board]\n',PG.add_figures_on_board(start_FEN))
 
         txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN,goal_FEN))
         txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN,goal_FEN))
@@ -146,6 +147,8 @@ def print_plan(plan):
         elem =line.split()
         if 'castling' in elem[0]:
             print('castling:\t{}{} & {}{}'.format(chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
+        elif 'promotion' in elem[0]:
+            print('prom. {}:\t{}{}->{}{}'.format(elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
         else:
             print('{}:\t{}{}->{}{}'.format(elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
 
@@ -189,8 +192,8 @@ def after_timeout():
     raise Timeout_Error
 
 def main():
-    start_FEN=start_FEN='5/5/1pp2/1Pp2/5'   #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
-    goal_FEN ='5/5/1pP2/5/2q2'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+    start_FEN=start_FEN='2b2/3pK/5/5/5'        #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN ='5/5/2K2/5/5'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
     turn_start='white'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN,turn_start)
@@ -221,14 +224,14 @@ def main():
                 test=unit_test.get(i)
                 load_file('problem',test[0],test[1],turn_start)
                 load_file('domain',test[0])
-                t=threading.Thread(target=execute_planner)
-                t.daemon=True
-                t.start()
-                threading.Timer(10, after_timeout).start() #abort planner if takes longer than 2 minutes...
-                while not Global.cont:
-                    time.sleep(1)
-                t.join()
-                Global.cont=False
+                #t=threading.Thread(target=execute_planner)
+                #t.daemon=True
+                #t.start()
+                #threading.Timer(10, after_timeout).start() #abort planner if takes longer than 2 minutes...
+                #while not Global.cont:
+                #    time.sleep(1)
+                #t.join()
+                #Global.cont=False
                 plan=convert_plan()
                 print_plan(plan)
                 if not validator.validate(test[0],test[1],plan):

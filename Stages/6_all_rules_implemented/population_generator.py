@@ -262,8 +262,12 @@ def get_individual_objects(start_FEN,goal_FEN):
                 r.append(fig)
     return r
 
-def add_objects(start_FEN,goal_FEN):
+def add_objects(start_FEN,goal_FEN=None):
     R=''
+    l=None
+    if goal_FEN==None:
+        l=[]
+        goal_FEN=start_FEN
     done=[]
     done2=[]
     objs=sorted(get_individual_objects(start_FEN,goal_FEN))
@@ -288,10 +292,15 @@ def add_objects(start_FEN,goal_FEN):
             r+=' {}'.format(figure)
             if int(figure[-1:])<=e[1] and figure not in done:
                 done.append(figure)
-        line=''.join([i for i in r])+' - '+f+'\n'
-        if line not in done2:
-            R+=''.join([i for i in r])+' - '+f+'\n'
-            done2.append(line)
+        if l==None:
+            line=''.join([i for i in r])+' - '+f+'\n'
+            if line not in done2:
+                R+=''.join([i for i in r])+' - '+f+'\n'
+                done2.append(line)
+        else:
+            l.append(r.split())
+    if l!=None:
+        return l
     return R
 
 def add_castling(FEN):
@@ -323,6 +332,18 @@ def add_turn(turn=None):
     else:
         return '\t\t(white_s_turn)'
 
+def add_figures_on_board(FEN):
+    l=add_objects(FEN)
+    L=[]
+    R=''
+    for i in l:
+        for j in range(len(i)):
+            L.append(i[j])
+    L=set(L)
+    for i in L:
+        R+='\t\t(is_on_board {})\n'.format(i)
+    return R
+
 #start_FEN='PPPPP/5/5/5/3bb'
 #goal_FEN ='b4/4P/5/5/5'
 #start=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
@@ -341,3 +362,5 @@ def add_turn(turn=None):
 #start_FEN=start_FEN='1K3/5/5/5/r4'#'2p2/3pK/5/5/5'   #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
 #goal_FEN ='K3/5/5/5/r4'
 #print(add_objects(start_FEN,goal_FEN))
+
+print(add_figures_on_board('K3/5/r4/5/r4'))

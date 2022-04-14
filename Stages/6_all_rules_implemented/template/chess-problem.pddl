@@ -13,6 +13,9 @@
 ;[:init_pawn_start_pos]
 ;[:init_plusOne]
 ;[:init_diffByN]
+            
+        ;figures on the board:
+;[:is_on_board]
         
         ;last pawn line:
 ;[:last_pawn_line]

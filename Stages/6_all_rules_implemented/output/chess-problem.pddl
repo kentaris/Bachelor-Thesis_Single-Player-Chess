@@ -5,16 +5,15 @@
 		n1 n2 n3 n4 n5  - location
         
         ;object pieces:
-		 pawn_w1 - pawn_w
-		 pawn_b1 pawn_b2 pawn_b3 - pawn_b
-		 queen_b1 - queen_b
+		 king_w1 - king_w
+		 b_bishop_b1 - bishop_b
+		 pawn_b1 - pawn_b
     )
     (:init
         ;initial state s_0:
-		(at pawn_b1 n2 n3)
-		(at pawn_b2 n3 n3)
-		(at pawn_b3 n3 n2)
-		(at pawn_w1 n2 n2)
+		(at pawn_b1 n4 n4)
+		(at b_bishop_b1 n3 n5)
+		(at king_w1 n5 n4)
 		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
@@ -22,17 +21,18 @@
 		(empty_square n1 n1)
 		(empty_square n2 n5)
 		(empty_square n2 n4)
+		(empty_square n2 n3)
+		(empty_square n2 n2)
 		(empty_square n2 n1)
-		(empty_square n3 n5)
 		(empty_square n3 n4)
+		(empty_square n3 n3)
+		(empty_square n3 n2)
 		(empty_square n3 n1)
 		(empty_square n4 n5)
-		(empty_square n4 n4)
 		(empty_square n4 n3)
 		(empty_square n4 n2)
 		(empty_square n4 n1)
 		(empty_square n5 n5)
-		(empty_square n5 n4)
 		(empty_square n5 n3)
 		(empty_square n5 n2)
 		(empty_square n5 n1)
@@ -86,6 +86,13 @@
 		(diff_by_Three n2 n5)
 		(diff_by_Three n4 n1)
 		(diff_by_Three n5 n2)
+
+		;Difference by Four:
+		(diff_by_Four n1 n5)
+		(diff_by_Four n5 n1)
+            
+        ;figures on the board:
+;[:is_on_board]
         
         ;last pawn line:
 		(last_pawn_line n1 n1)
@@ -102,18 +109,14 @@
         ;castling:
         
         ;colors:
-		(is_white pawn_w1)
+		(is_white king_w1)
+		(is_black b_bishop_b1)
 		(is_black pawn_b1)
-		(is_black pawn_b2)
-		(is_black pawn_b3)
-		(is_black queen_b1)
         
         ;piece types:
-		(is_pawn pawn_w1)
+		(is_king king_w1)
+		(is_bishop b_bishop_b1)
 		(is_pawn pawn_b1)
-		(is_pawn pawn_b2)
-		(is_pawn pawn_b3)
-		(is_queen queen_b1)
         
         ;turn:
 		(white_s_turn)
@@ -124,9 +127,7 @@
     (:goal (and
         ;goal state s_*:
             ;board:
-		(black_pawn_at n2 n3)
-		(at queen_b1 n3 n1)
-		(white_pawn_at n3 n3)
+		(at king_w1 n3 n3)
 		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
@@ -134,11 +135,13 @@
 		(empty_square n1 n1)
 		(empty_square n2 n5)
 		(empty_square n2 n4)
+		(empty_square n2 n3)
 		(empty_square n2 n2)
 		(empty_square n2 n1)
 		(empty_square n3 n5)
 		(empty_square n3 n4)
 		(empty_square n3 n2)
+		(empty_square n3 n1)
 		(empty_square n4 n5)
 		(empty_square n4 n4)
 		(empty_square n4 n3)
@@ -150,6 +153,7 @@
 		(empty_square n5 n2)
 		(empty_square n5 n1)
             ;removed pieces:
+		(removed b_bishop_b1)
            )
     )
 )

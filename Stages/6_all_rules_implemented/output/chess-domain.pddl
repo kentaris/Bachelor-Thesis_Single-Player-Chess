@@ -28,11 +28,12 @@
         (is_white ?figure - figure)
         (is_black ?figure - figure)
         (is_pawn ?pawn - pawn)
-        (is_knight ?knight - knight)
-        (is_bishop ?bishop - bishop)
-        (is_rook ?rook - rook)
-        (is_queen ?queen - queen)
-        (is_king ?king - king)
+        ;(is_on_board ?figure - figure)
+        ;(is_knight ?knight - knight)
+        ;(is_bishop ?bishop - bishop)
+        ;(is_rook ?rook - rook)
+        ;(is_queen ?queen - queen)
+        ;(is_king ?king - king)
         (last_pawn_line ?to_file ?to_rank - location)
         (TRUE)
         (FALSE)
@@ -61,9 +62,7 @@
 
         (vert_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
         (horiz_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
-        (horiz_reachable2 ?from_file ?from_rank ?to_file ?to_rank - location)
         (diag_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
-        (diag_reachable2 ?from_file ?from_rank ?to_file ?to_rank - location)
         
         (vert_reachable_red ?file ?c_rank ?kt_rank - location)
         (horiz_reachable_red ?c_file ?rank ?kt_file - location)
@@ -236,7 +235,7 @@
             (exists(?next_rank - location)
                  (and 
                       (empty_square ?to_file ?next_rank)
-                      (not(= ?from_rank ?next_rank)) ;don't stay on same rank
+                      ;(not(= ?from_rank ?next_rank)) ;don't stay on same rank
                       (diff_by_One ?from_rank ?next_rank) ;one step
                       (= ?from_file ?to_file) ;same file
                       (between ?from_rank ?next_rank ?to_rank)
@@ -262,7 +261,7 @@
             (exists(?next_file - location)
                  (and 
                       (empty_square ?next_file ?to_rank)
-                      (not(= ?from_file ?to_file)) ;don't stay on same file
+                      ;(not(= ?from_file ?to_file)) ;don't stay on same file
                       (diff_by_One ?from_file ?next_file) ;one step at a time
                       (= ?from_rank ?to_rank) ;same rank
                       (between ?from_file ?next_file ?to_file)
@@ -288,8 +287,8 @@
             (exists(?next_file ?next_rank - location)
                 (and (not(= ?from_file ?to_file))
                      (not(= ?from_rank ?to_rank))
-                     (not(= ?from_file ?next_file)) ;don't stay on same file
-                     (not(= ?from_rank ?next_rank)) ;don't stay on same rank
+                     ;(not(= ?from_file ?next_file)) ;don't stay on same file
+                     ;(not(= ?from_rank ?next_rank)) ;don't stay on same rank
                      (diff_by_One ?from_file ?next_file) ;one step at a time
                      (diff_by_One ?from_rank ?next_rank) ;one step at a time
                      (empty_square ?next_file ?next_rank)
@@ -306,7 +305,7 @@
             )
             (exists(?next_rank - location)
                  (and 
-                      (not(= ?c_rank ?next_rank)) ;don't stay on same rank
+                      ;(not(= ?c_rank ?next_rank)) ;don't stay on same rank
                       (diff_by_One ?c_rank ?next_rank) ;one step
                       (between ?c_rank ?next_rank ?kt_rank)
                       (empty_square ?file ?next_rank) ;path not blocked
@@ -322,7 +321,7 @@
             )
             (exists(?next_file - location)
                  (and 
-                      (not(= ?c_file ?next_file)) ;don't stay on same rank
+                      ;(not(= ?c_file ?next_file)) ;don't stay on same rank
                       (diff_by_One ?c_file ?next_file) ;one step
                       (between ?c_file ?next_file ?kt_file)
                       (empty_square ?next_file ?rank) ;path not blocked
@@ -334,10 +333,8 @@
     (:derived (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank - location)
         (or (diag_adj ?c_file ?c_rank ?kt_file ?kt_rank)
             (exists(?next_file ?next_rank - location)
-                (and (not(= ?c_file ?kt_file))
-                     (not(= ?c_rank ?kt_rank))
-                     (not(= ?c_file ?next_file)) ;don't stay on same file
-                     (not(= ?c_rank ?next_rank)) ;don't stay on same rank
+                (and ;(not(= ?c_file ?next_file)) ;don't stay on same file
+                     ;(not(= ?c_rank ?next_rank)) ;don't stay on same rank
                      (diff_by_One ?c_file ?next_file) ;one step at a time
                      (diff_by_One ?c_rank ?next_rank) ;one step at a time
                      (empty_square ?next_file ?next_rank)
@@ -373,7 +370,7 @@
             (exists(?next_file - location)
                  (and 
                       (empty_square ?next_file ?rank)
-                      (not(= ?from_file_king ?to_file_king)) ;don't stay on same file
+                      ;(not(= ?from_file_king ?to_file_king)) ;don't stay on same file
                       (diff_by_One ?from_file_king ?next_file) ;one step at a time
                       (between ?from_file_king ?next_file ?to_file_king)
                       (horiz_reachable ?next_file ?rank ?to_file_king ?rank)
@@ -383,15 +380,16 @@
             )
         )
     )
-    (:derived (red_zone ?king - king ?kt_file ?kt_rank - location) ;for some figure (capturer) on the board: is there a king of opposite color it can move to?
+    (:derived (red_zone ?king - king ?kt_file ?kt_rank - location) ;for some figure (capturer) on the board: is there a king of opposite color it can move to?    
         (or 
             (exists(?pawn - pawn ?c_file ?c_rank - location)
                 (and;(is_pawn ?pawn)
+                    ;(is_on_board ?pawn)
                     (at ?pawn ?c_file ?c_rank)
                     (diag_adj ?c_file ?c_rank ?kt_file ?kt_rank)
                     (diff_by_One ?kt_file ?c_file) ;diagonal capure
-                    (not(= ?kt_file ?c_file))
-                    (not(= ?kt_rank ?c_rank))
+                    (not(= ?c_file ?kt_file))
+                    (not(= ?c_rank ?kt_rank))
                     (not(same_color ?king ?pawn))
                     (and
                         (or 
@@ -409,96 +407,101 @@
                     )              
                 )
             )
-            (exists(?knight - knight ?c_file ?c_rank - location)
-                (and;(is_knight ?knight)
-                    (at ?knight ?c_file ?c_rank)
-                    (not(= ?c_file ?kt_file)) ;kt_file & kt_rank should = landing position for the knight
-                    (not(= ?c_rank ?kt_rank))
-                    (not(same_color ?king ?knight));king cannot be checked by his own pieces:
-                    (or
-                        (and ;two files, one row:
-                            (diff_by_Two ?c_file ?kt_file) ; file +/- 2
-                            (diff_by_One ?c_rank ?kt_rank)) ; rank +/- 1
-                        (and ;two rows, one file:
-                            (diff_by_Two ?c_rank ?kt_rank) ; rank +/- 2
-                            (diff_by_One ?c_file ?kt_file) ; file +/- 1
-                        )
-                    )
-                )
-            )
-            (exists(?bishop - bishop ?c_file ?c_rank - location)
+            ;(exists(?knight - knight ?c_file ?c_rank - location)
+            ;    (and;(is_knight ?knight)
+            ;        ;(is_on_board ?knight)
+            ;        (at ?knight ?c_file ?c_rank)
+            ;        (not(= ?c_file ?kt_file)) ;kt_file & kt_rank should = landing position for the knight
+            ;        (not(= ?c_rank ?kt_rank))
+            ;        (not(same_color ?king ?knight));king cannot be checked by his own pieces:
+            ;        (or
+            ;            (and ;two files, one row:
+            ;                (diff_by_Two ?c_file ?kt_file) ; file +/- 2
+            ;                (diff_by_One ?c_rank ?kt_rank)) ; rank +/- 1
+            ;            (and ;two rows, one file:
+            ;                (diff_by_Two ?c_rank ?kt_rank) ; rank +/- 2
+            ;                (diff_by_One ?c_file ?kt_file) ; file +/- 1
+            ;            )
+            ;        )
+            ;    )
+            ;)
+            ;(exists(?king2 - king ?c_file ?c_rank - location) ;kings can't move near each other
+            ;    (and;(is_king ?king2)
+            ;        ;(is_on_board ?king2)
+            ;        (at ?king2 ?c_file ?c_rank)
+            ;        ;(not(myturn ?king2))
+            ;        (not(same_color ?king ?king2))
+            ;        (and
+            ;            (or 
+            ;                (and ;diagonal move
+            ;                    (diff_by_One ?c_file ?kt_file)
+            ;                    (diff_by_One ?c_rank ?kt_rank)
+            ;                )
+            ;                (and ;vertical move
+            ;                    (= ?c_rank ?kt_rank)
+            ;                    (diff_by_One ?c_file ?kt_file)
+            ;                )
+            ;                (and ;horizontal move
+            ;                    (= ?c_file ?kt_file)
+            ;                    (diff_by_One ?c_rank ?kt_rank)
+            ;                )
+            ;            )
+            ;        )
+            ;    )
+            ;)
+            ;(exists(?rook - rook ?c_file ?c_rank - location)
+            ;    (and;(is_rook ?rook)
+            ;        ;(is_on_board ?rook)
+            ;        (at ?rook ?c_file ?c_rank) ;valid starting location
+            ;        (not(same_color ?king ?rook));king cannot be checked by his own pieces:
+            ;        ;can the king be reached by the capturer:
+            ;        (or 
+            ;            (and
+            ;                (= ?kt_file ?c_file) ;vertical movement
+            ;                (vert_reachable_red ?c_file ?c_rank ?kt_rank)
+            ;            )
+            ;            (and
+            ;                (= ?kt_rank ?c_rank) ;horizontal movement
+            ;                (horiz_reachable_red ?c_file ?c_rank ?kt_file)
+            ;            )
+            ;        )
+            ;    )
+            ;)
+            (exists(?bishop - bishop ?c_file ?c_rank  - location)
                 (and;(is_bishop ?bishop)
+                    ;(is_on_board ?bishop)
                     (at ?bishop ?c_file ?c_rank)
                     (not(same_color ?king ?bishop));king cannot be checked by his own pieces:
-                    (not(= ?c_file ?kt_file))
-                    (not(= ?c_rank ?kt_rank))
+                    ;(not(= ?c_file ?kt_file))
+                    ;(not(= ?c_rank ?kt_rank))
                     (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank)
                 )
             )
-            (exists(?rook - rook ?c_file ?c_rank - location)
-                (and;(is_rook ?rook)
-                    (at ?rook ?c_file ?c_rank) ;valid starting location
-                    (not(same_color ?king ?rook));king cannot be checked by his own pieces:
-                    ;can the king be reached by the capturer:
-                    (or 
-                        (and
-                            (= ?kt_file ?c_file) ;vertical movement
-                            (vert_reachable_red ?c_file ?c_rank ?kt_rank)
-                        )
-                        (and
-                            (= ?kt_rank ?c_rank) ;horizontal movement
-                            (horiz_reachable_red ?c_file ?c_rank ?kt_file)
-                        )
-                    )
-                )
-            )
-            (exists(?queen - queen ?c_file ?c_rank - location)
-                (and;(is_queen ?queen)
-                    (at ?queen ?c_file ?c_rank)
-                    (not(same_color ?king ?queen));king cannot be checked by his own pieces:
-                    ;can the king be reached by the capturer:
-                    (or 
-                        (and
-                            (= ?kt_file ?c_file) ;vertical movement
-                            (not(= ?kt_rank ?c_rank))
-                            (vert_reachable_red ?c_file ?c_rank ?kt_rank)
-                        )
-                        (and
-                            (= ?kt_rank ?c_rank) ;horizontal movement
-                            (not(= ?kt_file ?c_file))
-                            (horiz_reachable_red ?c_file ?c_rank ?kt_file)
-                        )
-                        (and ;diagonal movement
-                            (not(= ?c_file ?kt_file))
-                            (not(= ?c_rank ?kt_rank))
-                            (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank)
-                        )
-                    )
-                )
-            )
-            (exists(?king2 - king ?c_file ?c_rank - location) ;kings can't move near each other
-                (and;(is_king ?king2)
-                    (at ?king2 ?c_file ?c_rank)
-                    ;(not(myturn ?king2))
-                    (not(same_color ?king ?king2))
-                    (and
-                        (or 
-                            (and ;diagonal move
-                                (diff_by_One ?c_file ?kt_file)
-                                (diff_by_One ?c_rank ?kt_rank)
-                            )
-                            (and ;vertical move
-                                (= ?c_rank ?kt_rank)
-                                (diff_by_One ?c_file ?kt_file)
-                            )
-                            (and ;horizontal move
-                                (= ?c_file ?kt_file)
-                                (diff_by_One ?c_rank ?kt_rank)
-                            )
-                        )
-                    )
-                )
-            )
+            ;(exists(?queen - queen ?c_file ?c_rank - location)
+            ;    (and;(is_queen ?queen)
+            ;        ;(is_on_board ?queen)
+            ;        (at ?queen ?c_file ?c_rank)
+            ;        (not(same_color ?king ?queen));king cannot be checked by his own pieces:
+            ;        ;can the king be reached by the capturer:
+            ;        (or 
+            ;            (and
+            ;                (= ?kt_file ?c_file) ;vertical movement
+            ;                (not(= ?kt_rank ?c_rank))
+            ;                (vert_reachable_red ?c_file ?c_rank ?kt_rank)
+            ;            )
+            ;            (and
+            ;                (= ?kt_rank ?c_rank) ;horizontal movement
+            ;                (not(= ?kt_file ?c_file))
+            ;                (horiz_reachable_red ?c_file ?c_rank ?kt_file)
+            ;            )
+            ;            (and ;diagonal movement
+            ;                (not(= ?c_file ?kt_file))
+            ;                (not(= ?c_rank ?kt_rank))
+            ;                (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank)
+            ;            )
+            ;        )
+            ;    )
+            ;)
         )
     )
 ;ACTIONS
@@ -509,6 +512,7 @@
         :precondition (and  
                           (exists(?pawn2 - pawn ?file ?rank - location)
                               (and
+                                  ;(is_on_board ?pawn2)
                                   (double_moved ?pawn2 ?file ?rank) ;we also need to check if the double move happend in ONLY the last turn. I do this by also saving the location of the pawn in the double_moved predicate and by saving the last piece that moved
                                   (last_piece_moved ?pawn2)
                                   (at ?pawn2 ?file ?rank)
@@ -569,6 +573,7 @@
                                 (not (at ?pawn2 ?file ?rank))
                                 (removed ?pawn2)
                                 (empty_square ?file ?rank)
+                                ;(not(is_on_board ?pawn2))
                             )
                         )
                      )
@@ -588,6 +593,7 @@
         :parameters (?queen - queen ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and
                           (myturn ?queen)
+                          ;(not(is_on_board ?queen))
                           (exists (?pawn - pawn)
                                 (and
                                     (last_pawn_line ?to_file ?to_rank)
@@ -641,12 +647,14 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?queen)
+                    ;(is_on_board ?queen)
                 )
     )
     (:action pawn_promotion_rook
         :parameters (?rook - rook ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and
                           (myturn ?rook)
+                          ;(not(is_on_board ?rook))
                           (exists (?pawn - pawn)
                                 (and
                                     (last_pawn_line ?to_file ?to_rank)
@@ -700,12 +708,14 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?rook)
+                    ;(is_on_board ?rook)
                 )
     )
     (:action pawn_promotion_knight
         :parameters (?knight - knight ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and
                           (myturn ?knight)
+                          ;(not(is_on_board ?knight))
                           (exists (?pawn - pawn)
                                 (and
                                     (last_pawn_line ?to_file ?to_rank)
@@ -759,12 +769,14 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?knight)
+                    ;(is_on_board ?knight)
                 )
     )
     (:action pawn_promotion_bishop
         :parameters (?bishop - bishop ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and
                           (myturn ?bishop)
+                          ;(not(is_on_board ?bishop))
                           (exists (?pawn - pawn)
                                 (and
                                     (last_pawn_line ?to_file ?to_rank)
@@ -818,6 +830,7 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?bishop)
+                    ;(is_on_board ?bishop)
                 )
     )
     (:action pawn_capture
@@ -825,6 +838,7 @@
         :precondition (and
                            ;(is_pawn ?pawn)
                            (at ?pawn ?from_file ?from_rank)
+                           ;(is_on_board ?pawn)
                            (diff_by_One ?from_file ?to_file)
                            (diff_by_One ?from_rank ?to_rank)
                            (not(= ?from_file ?to_file))
@@ -845,13 +859,20 @@
                       )
         :effect (and 
                      (not (at ?pawn ?from_file ?from_rank))
-                     (forall (?figure - figure)(and
-                        (when (and(at ?figure ?to_file ?to_rank) ;ADL conditional effect
-                                (not(same_color ?pawn ?figure))) ;capturable piece = opposite color
-                            (and(not (at ?figure ?to_file ?to_rank))
-                                (removed ?figure)
+                     (forall (?figure - figure)
+                       (and
+                        (when 
+                            (and
+                                (at ?figure ?to_file ?to_rank) ;ADL conditional effect
+                                (not(same_color ?pawn ?figure)) ;capturable piece = opposite color
                             )
-                        ))
+                            (and
+                                (not (at ?figure ?to_file ?to_rank))
+                                (removed ?figure)
+                                ;(not(is_on_board ?figure))
+                            )
+                        )
+                       )
                      )
                      (at ?pawn ?to_file ?to_rank)
                      (last_piece_moved ?pawn)
@@ -870,6 +891,7 @@
         :precondition (and 
                            ;(is_pawn ?pawn)
                            (not(last_pawn_line ?to_file ?to_rank))
+                           ;(is_on_board ?pawn)
                            (at ?pawn ?from_file ?from_rank)
                            ;(not(at ?pawn ?to_file ?to_rank))
                            (not(= ?from_rank ?to_rank))
@@ -907,6 +929,7 @@
         :parameters (?pawn - pawn ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and 
                            (not(double_moved ?pawn ?from_file ?from_rank))
+                           ;(is_on_board ?pawn)
                            ;(is_pawn ?pawn)
                            (at ?pawn ?from_file ?from_rank)
                            (not(= ?from_rank ?to_rank))
@@ -949,6 +972,7 @@
         :parameters (?knight - knight ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and ;(is_knight ?knight)
                            (at ?knight ?from_file ?from_rank)
+                           ;(is_on_board ?knight)
                            (not(= ?from_file ?to_file))
                            (not(= ?from_rank ?to_rank))
                            (myturn ?knight)
@@ -970,11 +994,16 @@
         :effect (and 
                      (not (at ?knight ?from_file ?from_rank))
                      (forall (?figure - figure)
-                        (when (and(at ?figure ?to_file ?to_rank)
-                                  (not(same_color ?knight ?figure)) ;capturable piece = opposite color
-                              )
-                            (and(not (at ?figure ?to_file ?to_rank))
-                                (removed ?figure))
+                        (when 
+                            (and
+                                (at ?figure ?to_file ?to_rank)
+                                (not(same_color ?knight ?figure)) ;capturable piece = opposite color
+                            )
+                            (and
+                                (not (at ?figure ?to_file ?to_rank))
+                                (removed ?figure)
+                                ;(not(is_on_board ?figure))
+                            )
                         )
                      )
                      (at ?knight ?to_file ?to_rank)
@@ -993,6 +1022,7 @@
         :parameters (?bishop - bishop ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and;(is_bishop ?bishop)
                           (at ?bishop ?from_file ?from_rank)
+                          ;(is_on_board ?bishop)
                           ;(not(at ?bishop ?to_file ?to_rank))
                           (not(= ?from_file ?to_file))
                           (not(= ?from_rank ?to_rank))
@@ -1011,14 +1041,16 @@
         :effect (and 
                      (not (at ?bishop ?from_file ?from_rank))
                      (forall (?figure - figure)
-                        (when(and
+                        (when
+                            (and
                                 (at ?figure ?to_file ?to_rank)
                                 (not(same_color ?bishop ?figure)) ;capturable piece = opposite color
-                             )
-                           (and
-                               (not (at ?figure ?to_file ?to_rank))
-                               (removed ?figure)
-                           )
+                            )
+                            (and
+                                (not (at ?figure ?to_file ?to_rank))
+                                (removed ?figure)
+                                ;(not(is_on_board ?figure))
+                            )
                         )
                      )
                      (at ?bishop ?to_file ?to_rank)
@@ -1037,6 +1069,7 @@
         :parameters (?rook - rook ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and;(is_rook ?rook)
                           (at ?rook ?from_file ?from_rank)
+                          ;(is_on_board ?rook)
                           (or ;no piece at destination:
                              (empty_square ?to_file ?to_rank)
                              ;capturable piece at destination:
@@ -1063,12 +1096,15 @@
         :effect (and 
                      (not(at ?rook ?from_file ?from_rank))
                      (forall (?figure - figure)
-                        (when (and
-                                  (at ?figure ?to_file ?to_rank)
-                                  (not(same_color ?rook ?figure)) ;capturable piece = opposite color
-                              )
-                            (and(not (at ?figure ?to_file ?to_rank))
+                        (when 
+                            (and
+                                (at ?figure ?to_file ?to_rank)
+                                (not(same_color ?rook ?figure)) ;capturable piece = opposite color
+                            )
+                            (and
+                                (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)
+                                ;(not(is_on_board ?figure))
                             )
                         )
                      )
@@ -1089,6 +1125,7 @@
         :parameters (?queen - queen ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and;(is_queen ?queen)
                           (at ?queen ?from_file ?from_rank)
+                          ;(is_on_board ?queen)
                           (or ;no piece at destination:
                              (empty_square ?to_file ?to_rank)
                              ;capturable piece at destination:
@@ -1120,12 +1157,15 @@
         :effect (and 
                      (not (at ?queen ?from_file ?from_rank))
                      (forall (?figure - figure)
-                        (when (and
-                                  (at ?figure ?to_file ?to_rank)
-                                  (not(same_color ?queen ?figure)) ;capturable piece = opposite color
-                              )
-                            (and(not (at ?figure ?to_file ?to_rank))
+                        (when 
+                            (and
+                                (at ?figure ?to_file ?to_rank)
+                                (not(same_color ?queen ?figure)) ;capturable piece = opposite color
+                            )
+                            (and
+                                (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)  
+                                ;(not(is_on_board ?figure))
                             )
                         )
                      )
@@ -1144,7 +1184,8 @@
     (:action king_move 
         :parameters (?king - king ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and ;(is_king ?king)
-                           (at ?king ?from_file ?from_rank)                           
+                           (at ?king ?from_file ?from_rank)  
+                           ;(is_on_board ?king)                       
                            (myturn ?king)
                            ;(not(and(= ?from_file ?to_file)
                            ;        (= ?from_rank ?to_rank)
@@ -1180,13 +1221,15 @@
                      (not (at ?king ?from_file ?from_rank))
                      (at ?king ?to_file ?to_rank)
                      (forall (?figure - figure)
-                        (when (and
-                                  (at ?figure ?to_file ?to_rank)
-                                  (not(same_color ?king ?figure)) ;capturable piece = opposite color
-                              )
+                        (when 
+                            (and
+                                (at ?figure ?to_file ?to_rank)
+                                (not(same_color ?king ?figure)) ;capturable piece = opposite color
+                            )
                             (and
                                 (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)
+                                ;(not(is_on_board ?figure))
                             )
                         )
                      )
@@ -1209,6 +1252,8 @@
         :precondition (and 
                            (not_moved ?king)
                            (not_moved ?rook)
+                           ;(is_on_board ?king)
+                           ;(is_on_board ?rook)
                            (myturn ?king)
                            (myturn ?rook)
                            (same_color ?rook ?king)
