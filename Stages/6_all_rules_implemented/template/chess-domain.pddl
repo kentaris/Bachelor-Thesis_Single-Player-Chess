@@ -28,7 +28,6 @@
         (is_white ?figure - figure)
         (is_black ?figure - figure)
         (is_pawn ?pawn - pawn)
-        ;(is_on_board ?figure - figure)
         ;(is_knight ?knight - knight)
         ;(is_bishop ?bishop - bishop)
         ;(is_rook ?rook - rook)
@@ -45,6 +44,7 @@
         (last_piece_moved ?figure - figure)
         (double_moved ?pawn - pawn ?file ?rank - location)
         (empty_square ?file ?rank - location)
+        ;(is_on_board ?figure - figure)
 
      ;derived predicates:
         (myturn ?figure - figure)
