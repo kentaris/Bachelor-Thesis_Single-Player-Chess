@@ -11,7 +11,6 @@ public class Bitboards {
         for (int i = 0; i < bitmaps.length; i++) {
             bitmaps[i] = Long.parseLong(stringMaps[i], 2);
         }
-        bitmaps_to_chessboard(bitmaps);
         return bitmaps;
     }
 
