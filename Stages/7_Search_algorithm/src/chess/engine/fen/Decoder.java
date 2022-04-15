@@ -17,7 +17,7 @@ public class Decoder {
         int file = 0;
         String board[][] = new String[length][length];
         for (String[] row : board) {
-            Arrays.fill(row, "0"); //populate the board
+            Arrays.fill(row, " "); //populate the board
         }
         for (int pos = 0; pos < FEN.length(); pos++) {
             if (FEN.charAt(pos) == '/') {
@@ -62,12 +62,16 @@ public class Decoder {
                 }
 
             }
+            //System.out.println(builder+" "+fig);
             if (builder.length() != (board_size * board_size)) {
                 System.out.println("Decoder: The String builder length is " + builder.length() + " but should be " + (board_size * board_size) + " (" + fig + '/' + builder + ")");
                 System.exit(2);
             }
-            maps[get_idx(fig) - 1] = builder.toString();
+            maps[get_idx(fig) - 1] = builder.reverse().toString(); //we need to reverse the string because bits are read starting from least significant bit (right side)
         }
+        /*for (int i = 0; i < 8; i++) {
+            System.out.println(maps[i].toString());
+        }*/
         return maps;
     }
 }

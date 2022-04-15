@@ -16,11 +16,13 @@ public class Bitboards {
     }
 
     public static void bitmaps_to_chessboard(long[] bitmaps) {
+
         String[][] board = new String[board_size][board_size];
         for (int pos = 0; pos < (board_size * board_size); pos++) {
             board[pos / board_size][pos % board_size] = " "; //initialize empty board with placeholder
         }
         for (int fig = 0; fig < 12; fig++) {
+            //System.out.println(fig+" "+get_key(fig).toString()+ " "+Long.toBinaryString((bitmaps[fig])));
             for (int i = 0; i < (board_size * board_size); i++) {
                 if (((bitmaps[fig] >> i) & 1) == 1) { //wherever we find 1's in the binary code of the current bitmap...
                     board[i / board_size][i % board_size] = get_key(fig).toString(); // ...place the character of the current bitmap to the board
