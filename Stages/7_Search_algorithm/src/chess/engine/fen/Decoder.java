@@ -2,7 +2,7 @@ package chess.engine.fen;
 
 import java.util.Arrays;
 
-import static chess.engine.figures.Figures.get_idx;
+import static chess.engine.figures.Figures.gtidx;
 
 public class Decoder {
 
@@ -67,7 +67,7 @@ public class Decoder {
                 System.out.println("Decoder: The String builder length is " + builder.length() + " but should be " + (board_size * board_size) + " (" + fig + '/' + builder + ")");
                 System.exit(2);
             }
-            maps[get_idx(fig) - 1] = builder.reverse().toString(); //we need to reverse the string because bits are read starting from least significant bit (right side)
+            maps[gtidx(fig) - 1] = builder.reverse().toString(); //we need to reverse the string because bits are read starting from least significant bit (right side)
         }
         /*for (int i = 0; i < 8; i++) {
             System.out.println(maps[i].toString());

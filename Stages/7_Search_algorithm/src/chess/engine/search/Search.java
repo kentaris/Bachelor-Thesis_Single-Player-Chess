@@ -1,22 +1,26 @@
 package chess.engine.search;
 
-import static chess.engine.board.Bitboards.bitmaps_to_chessboard;
-import static chess.engine.board.Bitboards.generate_bitboards;
-import static chess.engine.fen.Decoder.FEN_decodeTo_64String;
+import chess.engine.board.Bitboards;
 
 
 public class Search {
     public static final int board_size = 8;
 
     public static void main(String[] args) {
-        String FEN = "8/8/p7/4n3/3K4/2BbN1k1/4Q3/4R3";
+        long t1 = System.currentTimeMillis();
+        String FEN = "p7/p7/p7/4n3/3K4/2BbN1k1/4Q3/4R2p";
         System.out.println(FEN);
-        String[] board = FEN_decodeTo_64String(FEN, board_size);
-        System.out.println();
-        long[] bitmaps = generate_bitboards(board);
-        bitmaps_to_chessboard(bitmaps);
-        /*for (long map: bitmaps){
-            System.out.println(map);
-        }*/
+        initiate_boards(FEN);
+        long t2 = System.currentTimeMillis();
+        System.out.println(String.format("\n\u001B[33m[%sms execution time]\u001B[0m",t2-t1));
+    }
+
+    public static void initiate_boards(String FEN) {
+        Bitboards.map(FEN);
+        Bitboards.files();
+        Bitboards.ranks();
+        Bitboards.KQ_side();
+        Bitboards.colors();
+        Bitboards.empty();
     }
 }

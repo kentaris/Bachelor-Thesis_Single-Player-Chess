@@ -23,11 +23,11 @@ public class Figures {
         return cArray;
     }
 
-    public static final Character get_key(Integer idx) {
+    public static final Character gtfig(Integer idx) {
         return (Character) map.keySet().toArray()[idx];
     }
 
-    public static final int get_idx(Character fig) {
+    public static final int gtidx(Character fig) {
         return map.get(fig);
     }
 }
