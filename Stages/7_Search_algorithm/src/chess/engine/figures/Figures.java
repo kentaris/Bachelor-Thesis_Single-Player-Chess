@@ -5,18 +5,18 @@ import java.util.LinkedHashMap;
 public class Figures {
     private static final Character[] cArray = {'p', 'n', 'b', 'r', 'q', 'k', 'P', 'N', 'B', 'R', 'Q', 'K'};
     private static final LinkedHashMap<Character, Integer> map = new LinkedHashMap<Character, Integer>() {{
-        put('p', 1);
-        put('n', 2);
-        put('b', 3);
-        put('r', 4);
-        put('q', 5);
-        put('k', 6);
-        put('P', 7);
-        put('N', 8);
-        put('B', 9);
-        put('R', 10);
-        put('Q', 11);
-        put('K', 12);
+        put('p', 0);
+        put('n', 1);
+        put('b', 2);
+        put('r', 3);
+        put('q', 4);
+        put('k', 5);
+        put('P', 6);
+        put('N', 7);
+        put('B', 8);
+        put('R', 9);
+        put('Q', 10);
+        put('K', 11);
     }};
 
     public static final Character[] get_pieces() {

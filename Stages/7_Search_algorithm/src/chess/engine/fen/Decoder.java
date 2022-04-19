@@ -67,7 +67,7 @@ public class Decoder {
                 System.out.println("Decoder: The String builder length is " + builder.length() + " but should be " + (board_size * board_size) + " (" + fig + '/' + builder + ")");
                 System.exit(2);
             }
-            maps[gtidx(fig) - 1] = builder.reverse().toString(); //we need to reverse the string because bits are read starting from least significant bit (right side)
+            maps[gtidx(fig)] = builder.reverse().toString(); //we need to reverse the string because bits are read starting from least significant bit (right side)
         }
         /*for (int i = 0; i < 8; i++) {
             System.out.println(maps[i].toString());

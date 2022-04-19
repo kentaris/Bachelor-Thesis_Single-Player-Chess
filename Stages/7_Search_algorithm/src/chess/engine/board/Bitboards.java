@@ -4,18 +4,33 @@ import java.util.Arrays;
 
 import static chess.engine.fen.Decoder.FEN_decodeTo_64String;
 import static chess.engine.figures.Figures.gtfig;
+import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.search.Search.board_size;
 import static java.lang.Long.parseUnsignedLong;
 
 public class Bitboards {
-    static long[] bitmaps = new long[12]; //12 maps for 2*6 chess figures (black and white) -->long so board has 64bits available
-    static long[] FILES = new long[board_size];
-    static long[] RANKS = new long[board_size];
-    static long KINGSIDE;
-    static long QUEENSIDE;
-    static long WHITEPIECES; //remove king to avoid legal move?
-    static long BLACKPIECES; //remove king to avoid legal move?
-    static long EMPTY;
+    public static long[] bitmaps = new long[12]; //12 maps for 2*6 chess figures (black and white) -->long so board has 64bits available
+    public static long[] FILES = new long[board_size];
+    public static long[] RANKS = new long[board_size];
+    public static long KINGSIDE;
+    public static long QUEENSIDE;
+    public static long WHITEPIECES; //remove king to avoid legal move?
+    public static long BLACKPIECES; //remove king to avoid legal move?
+    public static long EMPTY;
+
+    public static long[] get_single_figure_boards(Character fig) {
+        /*returns single boards for the given figure. every board has exactly one figure on it, so we can select them easily.*/
+        long figures = bitmaps[gtidx(fig)];
+        int n = Long.bitCount(figures);
+        long[] boards = new long[n];
+        for (int i = 0; i < n; i++) {
+            long highestBit = Long.highestOneBit(figures);
+            figures -= highestBit;
+            //bitmap_to_chessboard(highestBit);
+            boards[i] = highestBit;
+        }
+        return boards;
+    }
 
     public static long[] generate_bitboards(String[] stringMaps) {
         for (int i = 0; i < bitmaps.length; i++) {
@@ -29,9 +44,6 @@ public class Bitboards {
         String[] board = FEN_decodeTo_64String(FEN, board_size);
         long[] bitmaps = generate_bitboards(board);
         bitmaps_to_chessboard(bitmaps);
-        /*for (long map: bitmaps){
-            System.out.println(map);
-        }*/
         //System.out.println(long_to_bitstring(bitmaps[gtidx('p')]));
     }
 
@@ -66,19 +78,20 @@ public class Bitboards {
                 board[i / board_size][i % board_size] = "1"; // ...place the character of the current bitmap to the board
             }
         }
+        System.out.println();
         for (int i = 0; i < board_size; i++) {
             System.out.println(Arrays.toString(board[i]));
         }
     }
 
-    public static String long_to_bitstring(long l) {
-        StringBuilder builder = new StringBuilder(board_size * board_size);
-        String str = Long.toBinaryString((long) l);
+    public static void long_to_bitstring(long l) {
+        String str = Long.toBinaryString(l);
         String mask = "0".repeat(board_size * board_size);
-        return (mask.substring(0, mask.length() - str.length()) + str);
+        System.out.println(mask.substring(0, mask.length() - str.length()) + str);
     }
-    public static void empty(){
-        EMPTY=~BLACKPIECES+~WHITEPIECES;
+
+    public static void empty() {
+        EMPTY = ~(BLACKPIECES+WHITEPIECES);
         //bitmap_to_chessboard(EMPTY);
     }
 
@@ -109,13 +122,9 @@ public class Bitboards {
             StringBuilder builder = new StringBuilder(board_size * board_size);
             for (int row = 0; row < board_size; row++) { //fill rows of the board...
                 //...with according 8 long bit string (to build 64 bit long string)
-                for (int space = 0; space < i; space++) { //spaces BEFORE we mark the place in the row to represent the file
-                    builder.append("0");
-                }
+                builder.append("0".repeat(i)); //spaces BEFORE we mark the place in the row to represent the file
                 builder.append("1");
-                for (int space = i + 1; space < board_size; space++) { // spaces AFTER we mark the place in the row to represent the file
-                    builder.append("0");
-                }
+                builder.append("0".repeat(board_size - (i + 1))); // spaces AFTER we mark the place in the row to represent the file
             }
             FILES[i] = parseUnsignedLong(builder.reverse().toString(), 2);
             //bitmap_to_chessboard(FILES[i]);
