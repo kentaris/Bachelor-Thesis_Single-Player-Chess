@@ -76,7 +76,6 @@
         (move_through_red_zone ?king ?from_file_king ?rank ?to_file_king)
 
         (my_king_in_check ?figure - figure)
-        (occupied_by_king ?file ?rank - location)
     )
 ;DERIVED PREDICATES:
  ;;;;;;;;;;;;;;;;;;;;
@@ -355,11 +354,6 @@
                 (red_zone ?king ?k_file ?k_rank) ;is the current king position a red zone?
             )
         )
-    )
-    (:derived (occupied_by_king ?file ?rank)
-        (exists (?king - king) 
-            (at ?king ?file ?rank)
-        )        
     )
     (:derived (move_through_red_zone ?king ?from_file_king ?rank ?to_file_king)
         (or ;TODO: TEST it  '5/5/5/5/RK2R','5/5/5/5/R1RK1'

@@ -28,7 +28,6 @@
         (is_white ?figure - figure)
         (is_black ?figure - figure)
         (is_pawn ?pawn - pawn)
-        ;(is_on_board ?figure - figure)
         ;(is_knight ?knight - knight)
         ;(is_bishop ?bishop - bishop)
         ;(is_rook ?rook - rook)
@@ -45,6 +44,7 @@
         (last_piece_moved ?figure - figure)
         (double_moved ?pawn - pawn ?file ?rank - location)
         (empty_square ?file ?rank - location)
+        ;(is_on_board ?figure - figure)
 
      ;derived predicates:
         (myturn ?figure - figure)
@@ -76,7 +76,6 @@
         (move_through_red_zone ?king ?from_file_king ?rank ?to_file_king)
 
         (my_king_in_check ?figure - figure)
-        (occupied_by_king ?file ?rank - location)
     )
 ;DERIVED PREDICATES:
  ;;;;;;;;;;;;;;;;;;;;
@@ -356,11 +355,6 @@
             )
         )
     )
-    (:derived (occupied_by_king ?file ?rank)
-        (exists (?king - king) 
-            (at ?king ?file ?rank)
-        )        
-    )
     (:derived (move_through_red_zone ?king ?from_file_king ?rank ?to_file_king)
         (or ;TODO: TEST it  '5/5/5/5/RK2R','5/5/5/5/R1RK1'
             (and
@@ -407,66 +401,66 @@
                     )              
                 )
             )
-            ;(exists(?knight - knight ?c_file ?c_rank - location)
-            ;    (and;(is_knight ?knight)
-            ;        ;(is_on_board ?knight)
-            ;        (at ?knight ?c_file ?c_rank)
-            ;        (not(= ?c_file ?kt_file)) ;kt_file & kt_rank should = landing position for the knight
-            ;        (not(= ?c_rank ?kt_rank))
-            ;        (not(same_color ?king ?knight));king cannot be checked by his own pieces:
-            ;        (or
-            ;            (and ;two files, one row:
-            ;                (diff_by_Two ?c_file ?kt_file) ; file +/- 2
-            ;                (diff_by_One ?c_rank ?kt_rank)) ; rank +/- 1
-            ;            (and ;two rows, one file:
-            ;                (diff_by_Two ?c_rank ?kt_rank) ; rank +/- 2
-            ;                (diff_by_One ?c_file ?kt_file) ; file +/- 1
-            ;            )
-            ;        )
-            ;    )
-            ;)
-            ;(exists(?king2 - king ?c_file ?c_rank - location) ;kings can't move near each other
-            ;    (and;(is_king ?king2)
-            ;        ;(is_on_board ?king2)
-            ;        (at ?king2 ?c_file ?c_rank)
-            ;        ;(not(myturn ?king2))
-            ;        (not(same_color ?king ?king2))
-            ;        (and
-            ;            (or 
-            ;                (and ;diagonal move
-            ;                    (diff_by_One ?c_file ?kt_file)
-            ;                    (diff_by_One ?c_rank ?kt_rank)
-            ;                )
-            ;                (and ;vertical move
-            ;                    (= ?c_rank ?kt_rank)
-            ;                    (diff_by_One ?c_file ?kt_file)
-            ;                )
-            ;                (and ;horizontal move
-            ;                    (= ?c_file ?kt_file)
-            ;                    (diff_by_One ?c_rank ?kt_rank)
-            ;                )
-            ;            )
-            ;        )
-            ;    )
-            ;)
-            ;(exists(?rook - rook ?c_file ?c_rank - location)
-            ;    (and;(is_rook ?rook)
-            ;        ;(is_on_board ?rook)
-            ;        (at ?rook ?c_file ?c_rank) ;valid starting location
-            ;        (not(same_color ?king ?rook));king cannot be checked by his own pieces:
-            ;        ;can the king be reached by the capturer:
-            ;        (or 
-            ;            (and
-            ;                (= ?kt_file ?c_file) ;vertical movement
-            ;                (vert_reachable_red ?c_file ?c_rank ?kt_rank)
-            ;            )
-            ;            (and
-            ;                (= ?kt_rank ?c_rank) ;horizontal movement
-            ;                (horiz_reachable_red ?c_file ?c_rank ?kt_file)
-            ;            )
-            ;        )
-            ;    )
-            ;)
+            (exists(?knight - knight ?c_file ?c_rank - location)
+                (and;(is_knight ?knight)
+                    ;(is_on_board ?knight)
+                    (at ?knight ?c_file ?c_rank)
+                    (not(= ?c_file ?kt_file)) ;kt_file & kt_rank should = landing position for the knight
+                    (not(= ?c_rank ?kt_rank))
+                    (not(same_color ?king ?knight));king cannot be checked by his own pieces:
+                    (or
+                        (and ;two files, one row:
+                            (diff_by_Two ?c_file ?kt_file) ; file +/- 2
+                            (diff_by_One ?c_rank ?kt_rank)) ; rank +/- 1
+                        (and ;two rows, one file:
+                            (diff_by_Two ?c_rank ?kt_rank) ; rank +/- 2
+                            (diff_by_One ?c_file ?kt_file) ; file +/- 1
+                        )
+                    )
+                )
+            )
+            (exists(?king2 - king ?c_file ?c_rank - location) ;kings can't move near each other
+                (and;(is_king ?king2)
+                    ;(is_on_board ?king2)
+                    (at ?king2 ?c_file ?c_rank)
+                    ;(not(myturn ?king2))
+                    (not(same_color ?king ?king2))
+                    (and
+                        (or 
+                            (and ;diagonal move
+                                (diff_by_One ?c_file ?kt_file)
+                                (diff_by_One ?c_rank ?kt_rank)
+                            )
+                            (and ;vertical move
+                                (= ?c_rank ?kt_rank)
+                                (diff_by_One ?c_file ?kt_file)
+                            )
+                            (and ;horizontal move
+                                (= ?c_file ?kt_file)
+                                (diff_by_One ?c_rank ?kt_rank)
+                            )
+                        )
+                    )
+                )
+            )
+            (exists(?rook - rook ?c_file ?c_rank - location)
+                (and;(is_rook ?rook)
+                    ;(is_on_board ?rook)
+                    (at ?rook ?c_file ?c_rank) ;valid starting location
+                    (not(same_color ?king ?rook));king cannot be checked by his own pieces:
+                    ;can the king be reached by the capturer:
+                    (or 
+                        (and
+                            (= ?kt_file ?c_file) ;vertical movement
+                            (vert_reachable_red ?c_file ?c_rank ?kt_rank)
+                        )
+                        (and
+                            (= ?kt_rank ?c_rank) ;horizontal movement
+                            (horiz_reachable_red ?c_file ?c_rank ?kt_file)
+                        )
+                    )
+                )
+            )
             (exists(?bishop - bishop ?c_file ?c_rank  - location)
                 (and;(is_bishop ?bishop)
                     ;(is_on_board ?bishop)
@@ -477,31 +471,31 @@
                     (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank)
                 )
             )
-            ;(exists(?queen - queen ?c_file ?c_rank - location)
-            ;    (and;(is_queen ?queen)
-            ;        ;(is_on_board ?queen)
-            ;        (at ?queen ?c_file ?c_rank)
-            ;        (not(same_color ?king ?queen));king cannot be checked by his own pieces:
-            ;        ;can the king be reached by the capturer:
-            ;        (or 
-            ;            (and
-            ;                (= ?kt_file ?c_file) ;vertical movement
-            ;                (not(= ?kt_rank ?c_rank))
-            ;                (vert_reachable_red ?c_file ?c_rank ?kt_rank)
-            ;            )
-            ;            (and
-            ;                (= ?kt_rank ?c_rank) ;horizontal movement
-            ;                (not(= ?kt_file ?c_file))
-            ;                (horiz_reachable_red ?c_file ?c_rank ?kt_file)
-            ;            )
-            ;            (and ;diagonal movement
-            ;                (not(= ?c_file ?kt_file))
-            ;                (not(= ?c_rank ?kt_rank))
-            ;                (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank)
-            ;            )
-            ;        )
-            ;    )
-            ;)
+            (exists(?queen - queen ?c_file ?c_rank - location)
+                (and;(is_queen ?queen)
+                    ;(is_on_board ?queen)
+                    (at ?queen ?c_file ?c_rank)
+                    (not(same_color ?king ?queen));king cannot be checked by his own pieces:
+                    ;can the king be reached by the capturer:
+                    (or 
+                        (and
+                            (= ?kt_file ?c_file) ;vertical movement
+                            (not(= ?kt_rank ?c_rank))
+                            (vert_reachable_red ?c_file ?c_rank ?kt_rank)
+                        )
+                        (and
+                            (= ?kt_rank ?c_rank) ;horizontal movement
+                            (not(= ?kt_file ?c_file))
+                            (horiz_reachable_red ?c_file ?c_rank ?kt_file)
+                        )
+                        (and ;diagonal movement
+                            (not(= ?c_file ?kt_file))
+                            (not(= ?c_rank ?kt_rank))
+                            (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank)
+                        )
+                    )
+                )
+            )
         )
     )
 ;ACTIONS

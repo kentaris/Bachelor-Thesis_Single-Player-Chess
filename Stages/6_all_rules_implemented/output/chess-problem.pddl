@@ -6,33 +6,32 @@
         
         ;object pieces:
 		 king_w1 - king_w
-		 b_bishop_b1 - bishop_b
 		 pawn_b1 - pawn_b
     )
     (:init
         ;initial state s_0:
-		(at pawn_b1 n4 n4)
-		(at b_bishop_b1 n3 n5)
-		(at king_w1 n5 n4)
+		(at pawn_b1 n1 n1)
+		(at king_w1 n2 n1)
 		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
 		(empty_square n1 n2)
-		(empty_square n1 n1)
 		(empty_square n2 n5)
 		(empty_square n2 n4)
 		(empty_square n2 n3)
 		(empty_square n2 n2)
-		(empty_square n2 n1)
+		(empty_square n3 n5)
 		(empty_square n3 n4)
 		(empty_square n3 n3)
 		(empty_square n3 n2)
 		(empty_square n3 n1)
 		(empty_square n4 n5)
+		(empty_square n4 n4)
 		(empty_square n4 n3)
 		(empty_square n4 n2)
 		(empty_square n4 n1)
 		(empty_square n5 n5)
+		(empty_square n5 n4)
 		(empty_square n5 n3)
 		(empty_square n5 n2)
 		(empty_square n5 n1)
@@ -110,12 +109,10 @@
         
         ;colors:
 		(is_white king_w1)
-		(is_black b_bishop_b1)
 		(is_black pawn_b1)
         
         ;piece types:
 		(is_king king_w1)
-		(is_bishop b_bishop_b1)
 		(is_pawn pawn_b1)
         
         ;turn:
@@ -127,19 +124,19 @@
     (:goal (and
         ;goal state s_*:
             ;board:
-		(at king_w1 n3 n3)
+		(black_pawn_at n1 n1)
+		(at king_w1 n2 n1)
 		(empty_square n1 n5)
 		(empty_square n1 n4)
 		(empty_square n1 n3)
 		(empty_square n1 n2)
-		(empty_square n1 n1)
 		(empty_square n2 n5)
 		(empty_square n2 n4)
 		(empty_square n2 n3)
 		(empty_square n2 n2)
-		(empty_square n2 n1)
 		(empty_square n3 n5)
 		(empty_square n3 n4)
+		(empty_square n3 n3)
 		(empty_square n3 n2)
 		(empty_square n3 n1)
 		(empty_square n4 n5)
@@ -153,7 +150,6 @@
 		(empty_square n5 n2)
 		(empty_square n5 n1)
             ;removed pieces:
-		(removed b_bishop_b1)
            )
     )
 )
