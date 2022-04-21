@@ -256,10 +256,8 @@ public class Bitboards {
             }
             for (int k = 1; k < board_size - rank; k++) {//down
                 if (((same_color >>> idx + (k * board_size)) & 1) == 1L) { //collision with own piece at current square
-                    System.out.println("test1 " + k + " " + idx);
                     break;
                 } else if (((opposite_color >>> idx + ((k - 1) * board_size)) & 1) == 1L) { //collision with opposite colored piece at next square
-                    System.out.println("test2 " + k + " " + idx);
                     break;
                 }
                 hor_ver |= figures[i] << k * board_size;
@@ -273,13 +271,13 @@ public class Bitboards {
         /*creates a bitboard from a given visual representaion*/
         /*This method is here for convenience only since it is somethimes timeconsuming and error prone to come up with the exact FEN code for a given chess position.*/
         Character board[][] = {
-                {' ', ' ', ' ', ' ', ' ', ' ', 'P', ' '}, //left: square 0 & 7,0
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square 0 & 7,0
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', 'P', ' ', 'p', ' ', ' ', ' '},
-                {' ', ' ', ' ', 'b', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', 'p', ' ', ' '},
-                {'p', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square 63 & 0,7
         arrayToBitboards(board);
         bitmaps_to_chessboard(bitmaps);
@@ -296,25 +294,37 @@ public class Bitboards {
             Integer file = file_row[1];
             Integer rank = file_row[0];
             for (int k = 1; k < file + 1; k++) {//left down
-                if (((same_color >>> idx + k* (board_size-1)) & 1) == 1L) { //collision with own piece at current square
+                if (((same_color >>> idx + k * (board_size - 1)) & 1) == 1L) { //collision with own piece at current square
+                    System.out.println("test1");
                     break;
-                } else if (((opposite_color >>> idx + (k - 1)* (board_size-1)) & 1) == 1L) { //collision with opposite colored piece at next square
+                } else if (((opposite_color >>> idx + (k - 1) * (board_size - 1)) & 1) == 1L) { //collision with opposite colored piece at next square
+                    System.out.println("test2");
                     break;
                 }
-                diag |= figures[i] << k * (board_size-1);
+                diag |= figures[i] << k * (board_size - 1);
             }
             for (int k = 1; k < board_size - file; k++) {//right up
-                if (((same_color >>> idx - k) & 1) == 1L) { //collision with own piece at current square
+                if (((same_color >>> (idx - (k * (board_size - 1)))) & 1) == 1L) { //collision with own piece at current square
                     break;
-                } else if (((opposite_color >>> idx - k + 1) & 1) == 1L) { //collision with opposite colored piece at next square
+                } else if (((opposite_color >>> (idx - ((k-1) * (board_size - 1)))) & 1) == 1L) { //collision with opposite colored piece at next square
                     break;
                 }
-                diag |= figures[i] >>> k * (board_size-1);
+                diag |= figures[i] >>> k * (board_size - 1);
             }
             for (int k = 1; (k < rank + 1) & (k < file + 1); k++) {//left up
+                if (((same_color >>> (idx - (k * (board_size + 1)))) & 1) == 1L) { //collision with own piece at current square
+                    break;
+                } else if (((opposite_color >>> (idx - ((k-1) * (board_size + 1)))) & 1) == 1L) { //collision with opposite colored piece at next square
+                    break;
+                }
                 diag |= figures[i] >>> k * (board_size + 1);
             }
             for (int k = 1; k < (board_size - rank) & (k < board_size - file); k++) {//right down
+                if (((same_color >>> (idx + (k * (board_size + 1)))) & 1) == 1L) { //collision with own piece at current square
+                    break;
+                } else if (((opposite_color >>> (idx + ((k-1) * (board_size + 1)))) & 1) == 1L) { //collision with opposite colored piece at next square
+                    break;
+                }
                 diag |= figures[i] << k * (board_size + 1);
             }
         }
