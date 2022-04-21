@@ -1,6 +1,7 @@
 package chess.engine.figures;
 
 import static chess.engine.board.Bitboards.*;
+import static chess.engine.board.Bitboards.bitmap_to_chessboard;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.search.Search.board_size;
 
@@ -20,7 +21,7 @@ public class Moves {
     static long REDZONE;
 
     public static void black_pawns() {
-        long pawn_to_moves = 0; //empty board
+        long pawn_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('p')];
         if (curr != 0) {
             //TODO: add myKingInCheck bit
@@ -39,7 +40,7 @@ public class Moves {
     }
 
     public static void white_pawns() {
-        long pawn_to_moves = 0; //empty board
+        long pawn_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('P')];
         if (curr != 0) {
             //TODO: add myKingInCheck bit
@@ -58,7 +59,7 @@ public class Moves {
     }
 
     public static void black_knights() {
-        long knight_to_moves = 0; //empty board
+        long knight_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('n')];
         if (curr != 0) {
             //TODO: add myKingInCheck bit
@@ -69,7 +70,7 @@ public class Moves {
     }
 
     public static void white_knights() {
-        long knight_to_moves = 0; //empty board
+        long knight_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('N')];
         if (curr != 0) {
             //TODO: add myKingInCheck bit
@@ -80,7 +81,7 @@ public class Moves {
     }
 
     public static void black_bishops() { //TODO
-        long bishop_to_moves = 0; //empty board
+        long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('b')];
         if (curr != 0) {
             long diag = diag_bitboard(curr);
@@ -90,7 +91,7 @@ public class Moves {
     }
 
     public static void white_bishops() { //TODO
-        long bishop_to_moves = 0; //empty board
+        long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('B')];
         if (curr != 0) {
             long diag = diag_bitboard(curr);
@@ -100,12 +101,11 @@ public class Moves {
     }
 
     public static void black_rooks() {
-        long rook_to_moves = 0; //empty board
+        long rook_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('r')];
         if (curr != 0) {
-            long hor_ver = hor_ver_bitboard(curr);
+            long hor_ver = hor_ver_bitboard(curr,WHITEPIECES,BLACKPIECES);
             bitmap_to_chessboard(hor_ver);
-
             //TODO: add myKingInCheck bit
             for (int i = 0; i < board_size; i++) {
                 rook_to_moves |= 1;
@@ -128,7 +128,7 @@ public class Moves {
     }
 
     public static void black_king() {
-        long king_to_moves = 0; //empty board
+        long king_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('k')];
         if (curr != 0) {
             //TODO: opposite colored king cannot reach position & not red zone
@@ -146,7 +146,7 @@ public class Moves {
     }
 
     public static void white_king() {
-        long king_to_moves = 0; //empty board
+        long king_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('K')];
         if (curr != 0) {
             //TODO: opposite colored king cannot reach position & not red zone

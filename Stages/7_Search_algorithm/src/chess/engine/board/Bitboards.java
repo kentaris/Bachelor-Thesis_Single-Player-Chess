@@ -1,5 +1,6 @@
 package chess.engine.board;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import static chess.engine.fen.Decoder.FEN_decodeTo_64String;
@@ -12,6 +13,8 @@ public class Bitboards {
     public static long[] bitmaps = new long[12]; //12 maps for 2*6 chess figures (black and white) -->long so board has 64bits available
     public static long[] FILES = new long[board_size];
     public static long[] RANKS = new long[board_size];
+    public static long[] DIAG = new long[board_size * 2 - 1];
+    public static long[] ANTIDIAG = new long[board_size * 2 - 1];
     public static long KINGSIDE;
     public static long QUEENSIDE;
     public static long WHITEPIECES; //remove king to avoid legal move?
@@ -34,25 +37,15 @@ public class Bitboards {
         //System.out.println(long_to_bitstring(bitmaps[gtidx('p')]));
     }
 
-    public static void initiate_custom_chessBoard() {
-        Character board[][] = {
-                {' ', ' ', ' ', ' ', 'p', ' ', ' ', ' '}, //left: square 0 & 7,0
-                {' ', ' ', ' ', ' ', 'P', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', 'b', ' ', ' ', 'r', 'P', 'R', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', 'P', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square 63 & 0,7
-        arrayToBitboards(board);
-        bitmaps_to_chessboard(bitmaps);
-    }
+
 
     public static void initiate_boards(String FEN) {
         //initiate_FEN_to_chessboard(FEN);
         initiate_custom_chessBoard();
         files();
         ranks();
+        diagonals();
+        antidiagonals();
         KQ_side();
         colors();
         empty();
@@ -199,6 +192,14 @@ public class Bitboards {
         }
     }
 
+    public static void diagonals() {
+
+    }
+
+    public static void antidiagonals() {
+
+    }
+
     public static Integer get_squareIndex_of_figure(long bitmap) {
         /*returns a number from 0 to 63 representing the square the given bitmap bit (with one figure on it) is on. The top left square is 0, the bottom right square is 63.*/
         int index = 0;
@@ -214,29 +215,65 @@ public class Bitboards {
         Integer[] file_row = {((idx / board_size)), ((idx % board_size))}; //this corresponds to the java matrix[x][y]-coordinates not the chessboard-square-coordinates.
         return file_row;
     }
+    public static void initiate_custom_chessBoard() {
+        Character board[][] = {
+                {'r', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square 0 & 7,0
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square 63 & 0,7
+        arrayToBitboards(board);
+        bitmaps_to_chessboard(bitmaps);
+    }
 
-    public static long hor_ver_bitboard(long bitboard) {
-        /*creates a bitmap mask which marks the row and file up and down to mark the spots where a rook (or queen) can go to possibly.*/
-        long hor_ver = 0;
+    public static long hor_ver_bitboard(long bitboard, long opposite_color, long same_color) {
+        /*creates a bitmap mask which marks the row and file up and down to mark the spots where a rook (or queen) can possibly go to.*/
+        /*the input is a bitmap of attacking pieces (rooks and or queens), opposite color bitmap where all opposite colored pieces are marked with a 1, and same colored bitmap. the bitmap is then separated such that every attacker piece is on its own isolated bitmap. We can then loop over those isolated pieces. The index of the current isolated attacker piece is calculated (0-63) by shifting the bit and counting how many times we had to shift to the right to get a 1.With that index we can now calculate what the represented row and columns would be on a chess board. To calculate the file we use the formula: index/board_size and cast it into an integer. To calculate the row we use the formula index%board_size. */
+        /*Now that we know the file and rank of an attacker piece we can do some more math to move the piece into every direction until it reaches the end of the board. We do this with another (very shot) loop for every direction like so: /insert pseudo code/. This is very efficient since the loops will in total only execute 2*(board_size-1) times (possibilities in both directions minus the square on which the attacker piece is currently on). We can make it even more efficient by checking for a collision with the same colored pieces at current square or else checking for a collision with opposite colored piece at next square. in both cases we can break the loop prematurely. Otherwise we can just continue shifting the attacker bitmap to the right and adding the resulting bitmap to the result bitmap (squares which can be attacked). This also saves us time since we don't need to do an additional removing of those unreachable squares.*/
+        /*The math to move in all directions is as follows: to move the attacker piece to the left, we have the following loop: for (int k = 1; k < file + 1; k++). We start at the next square (k=1) and move until we reach the end of the file (k<file). On a physically equivalent chessboard this logic seems a little bit off. The logic is still correct tough because in our bitmap representation, the top left square has index 0 and therefore is rank 0 and file 0, meaning the ranks are mirrored but the files are correct. This is because of the nature of the bitmap. We have a single 64bit long which has a beginning (right side) and an end (left side) where the beginning corresponds to the left upper square (A8) and the ending corresponds to the right lower square (H1) on the physically equivalent chessboard. Maybe it is also worth mentioning that therefore a left shift (<<) corresponds to movements to the right on the  physically equivalent chessboard and a right shift (>>>) a movement to the left. */
+        long hor_ver = 0L;
         long[] figures = get_single_figure_boards(bitboard);
         for (int i = 0; i < figures.length; i++) { //loop over single figures
             Integer idx = get_squareIndex_of_figure(figures[i]);
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
             Integer rank = file_row[0];
+            System.out.println(file+" "+rank+" "+idx);
             for (int k = 1; k < file + 1; k++) {//left
-                if (k==0){ //collision with piece //TODO
+                if (((same_color >>> idx - k)&1) == 1L) { //collision with own piece at current square
+                    break;
+                } else if (((opposite_color >>> idx - k+1)&1) == 1L) { //collision with opposite colored piece at next square
                     break;
                 }
                 hor_ver |= figures[i] >>> k;
             }
             for (int k = 1; k < board_size - file; k++) {//right
+                if (((same_color >>> idx + k)&1) == 1L) { //collision with own piece at current square
+                    break;
+                } else if (((opposite_color >>> idx + k-1)&1) == 1L) { //collision with opposite colored piece at next square
+                    break;
+                }
                 hor_ver |= figures[i] << k;
             }
             for (int k = 1; k < rank + 1; k++) {//up
+                if (((same_color >>> idx - (k*board_size))&1) == 1L) { //collision with own piece at current square
+                    break;
+                } else if ((((opposite_color >>> idx - (k-1)*board_size)&1)) == 1L) { //collision with opposite colored piece at next square
+                    break;
+                }
                 hor_ver |= figures[i] >>> k * board_size;
             }
             for (int k = 1; k < board_size - rank; k++) {//down
+                if (((same_color >>> idx + (k*board_size))&1) == 1L) { //collision with own piece at current square
+                    System.out.println("test1 " + k + " " + idx);
+                    break;
+                } else if (((opposite_color >>> idx + ((k-1)*board_size))&1) == 1L) { //collision with opposite colored piece at next square
+                    System.out.println("test2 " + k + " " + idx);
+                    break;
+                }
                 hor_ver |= figures[i] << k * board_size;
             }
         }
@@ -245,7 +282,7 @@ public class Bitboards {
     }
 
     public static long diag_bitboard(long bitboard) {
-        long diag = 0;
+        long diag = 0L;
         long[] figures = get_single_figure_boards(bitboard); //separate figures into separate boards
         for (int i = 0; i < figures.length; i++) { //loop over single figures
             Integer idx = get_squareIndex_of_figure(figures[i]);
@@ -268,8 +305,16 @@ public class Bitboards {
         //bitmap_to_chessboard(diag);
         return diag;
     }
-    public static long collisions(long bitboard){
 
-        return -1;
+    public static long setBit(int n) {
+        /*sets a bit at the given position. n=0 results in 000...0, n=1 in 000...1 and so on.*/
+        long bitmap = 1L;
+        for (int i = 0; i < n - 1; i++) {
+            bitmap <<= 1;
+        }
+        if (n == 0) {
+            bitmap = 0L;
+        }
+        return bitmap;
     }
 }
