@@ -84,8 +84,8 @@ public class Moves {
         long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('b')];
         if (curr != 0) {
-            long diag = diag_bitboard(curr);
-            //bitmap_to_chessboard(diag);
+            long diag = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            bitmap_to_chessboard(diag);
         }
         bPOS = bishop_to_moves;
     }
@@ -94,7 +94,7 @@ public class Moves {
         long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('B')];
         if (curr != 0) {
-            long diag = diag_bitboard(curr);
+            long diag = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
             //bitmap_to_chessboard(diag);
         }
         BPOS = bishop_to_moves;
@@ -104,8 +104,8 @@ public class Moves {
         long rook_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('r')];
         if (curr != 0) {
-            long hor_ver = hor_ver_bitboard(curr,WHITEPIECES,BLACKPIECES);
-            bitmap_to_chessboard(hor_ver);
+            long hor_ver = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            //bitmap_to_chessboard(hor_ver);
             //TODO: add myKingInCheck bit
             for (int i = 0; i < board_size; i++) {
                 rook_to_moves |= 1;
@@ -116,7 +116,18 @@ public class Moves {
     }
 
     public static void white_rooks() {
-
+        long rook_to_moves = 0L; //empty board
+        long curr = bitmaps[gtidx('R')];
+        if (curr != 0) {
+            long hor_ver = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            //bitmap_to_chessboard(hor_ver);
+            //TODO: add myKingInCheck bit
+            for (int i = 0; i < board_size; i++) {
+                rook_to_moves |= 1;
+            }
+            //bitmap_to_chessboard(rook_to_moves);
+        }
+        RPOS = rook_to_moves;
     }
 
     public static void black_queens() {
