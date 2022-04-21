@@ -1,9 +1,9 @@
 package chess.engine.figures;
 
 import static chess.engine.board.Bitboards.*;
-import static chess.engine.board.Bitboards.bitmap_to_chessboard;
 import static chess.engine.figures.Figures.gtidx;
-import static chess.engine.search.Search.board_size;
+import static chess.engine.figures.Moves_Helper.diag_bitboard;
+import static chess.engine.figures.Moves_Helper.hor_ver_bitboard;
 
 public class Moves {
     static long pPOS; //black pawn possibilities
@@ -19,43 +19,49 @@ public class Moves {
     static long QPOS;
     static long KPOS;
     static long REDZONE;
+    static long pPOSM; //black pawn possibilities for moving (not capturing)
+    static long PPOSM;
 
     public static void black_pawns() {
         long pawn_to_moves = 0L; //empty board
+        long pawn_to_captures = 0L;
         long curr = bitmaps[gtidx('p')];
         if (curr != 0) {
             //TODO: add myKingInCheck bit
             pawn_to_moves |= (curr << 8) & EMPTY & (~RANKS[0]); //move one forward
             pawn_to_moves |= (curr << 16) & EMPTY & (EMPTY << 8) & (RANKS[6] << 16); //move two forwards
-            pawn_to_moves |= (curr << 7) & (~EMPTY) & WHITEPIECES;//capture left //TODO: remove captured piece
-            pawn_to_moves |= (curr << 9) & (~EMPTY) & WHITEPIECES;//capture right //TODO: remove captured piece
+            pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES;//capture left //TODO: remove captured piece
+            pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES;//capture right //TODO: remove captured piece
             pawn_to_moves |= (curr << 8) & EMPTY & (RANKS[0]); //pawn promotion by move; //TODO: replace pawn with new figure
-            pawn_to_moves |= (curr << 7) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture left; //TODO: replace pawn with new figure
-            pawn_to_moves |= (curr << 9) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture right; //TODO: replace pawn with new figure
+            pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture left; //TODO: replace pawn with new figure
+            pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture right; //TODO: replace pawn with new figure
             //pawn_to_moves |= (curr << 7);//en-passant capture left // TODO: en-passant : piece must have moved in last turn
             //pawn_to_moves |= (curr << 9);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
             //bitmap_to_chessboard(pawn_to_moves);
         }
-        pPOS = pawn_to_moves;
+        pPOSM = pawn_to_moves;
+        pPOS = pawn_to_moves | pawn_to_captures;
     }
 
     public static void white_pawns() {
         long pawn_to_moves = 0L; //empty board
+        long pawn_to_captures = 0L;
         long curr = bitmaps[gtidx('P')];
         if (curr != 0) {
             //TODO: add myKingInCheck bit
             pawn_to_moves |= (curr >>> 8) & EMPTY & (~RANKS[7]); //move one forward
             pawn_to_moves |= (curr >>> 16) & EMPTY & (EMPTY >> 8) & (RANKS[1] >> 16); //move two forwards
-            pawn_to_moves |= (curr >>> 9) & (~EMPTY) & BLACKPIECES;//capture left //TODO: remove captured piece
-            pawn_to_moves |= (curr >>> 7) & (~EMPTY) & BLACKPIECES;//capture right //TODO: remove captured piece
+            pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES;//capture left //TODO: remove captured piece
+            pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES;//capture right //TODO: remove captured piece
             pawn_to_moves |= (curr >>> 8) & EMPTY & (RANKS[7]); //pawn promotion by move; //TODO: replace pawn with new figure
-            pawn_to_moves |= (curr >>> 9) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture left; //TODO: replace pawn with new figure
-            pawn_to_moves |= (curr >>> 7) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture right; //TODO: replace pawn with new figure
+            pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture left; //TODO: replace pawn with new figure
+            pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture right; //TODO: replace pawn with new figure
             //pawn_to_moves |= (curr >>> 9);//en-passant capture left // TODO: en-passant : piece must have moved in last turn
             //pawn_to_moves |= (curr >>> 7);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
             //bitmap_to_chessboard(pawn_to_moves);
         }
-        PPOS = pawn_to_moves;
+        PPOSM = pawn_to_moves;
+        PPOS = pawn_to_moves | pawn_to_captures;
     }
 
     public static void black_knights() {
@@ -75,7 +81,6 @@ public class Moves {
         if (curr != 0) {
             //TODO: add myKingInCheck bit
             knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17)) & (BLACKPIECES | EMPTY);
-            //bitmap_to_chessboard(knight_to_moves);
         }
         NPOS = knight_to_moves;
     }
@@ -84,8 +89,7 @@ public class Moves {
         long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('b')];
         if (curr != 0) {
-            long diag = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            bitmap_to_chessboard(diag);
+            bishop_to_moves = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
         }
         bPOS = bishop_to_moves;
     }
@@ -94,8 +98,7 @@ public class Moves {
         long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('B')];
         if (curr != 0) {
-            long diag = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            //bitmap_to_chessboard(diag);
+            bishop_to_moves = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
         }
         BPOS = bishop_to_moves;
     }
@@ -104,13 +107,8 @@ public class Moves {
         long rook_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('r')];
         if (curr != 0) {
-            long hor_ver = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            //bitmap_to_chessboard(hor_ver);
+            rook_to_moves = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
             //TODO: add myKingInCheck bit
-            for (int i = 0; i < board_size; i++) {
-                rook_to_moves |= 1;
-            }
-            //bitmap_to_chessboard(rook_to_moves);
         }
         rPOS = rook_to_moves;
     }
@@ -119,23 +117,32 @@ public class Moves {
         long rook_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('R')];
         if (curr != 0) {
-            long hor_ver = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            //bitmap_to_chessboard(hor_ver);
+            rook_to_moves = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
             //TODO: add myKingInCheck bit
-            for (int i = 0; i < board_size; i++) {
-                rook_to_moves |= 1;
-            }
-            //bitmap_to_chessboard(rook_to_moves);
         }
         RPOS = rook_to_moves;
     }
 
     public static void black_queens() {
-
+        long queen_to_moves = 0L; //empty board
+        long curr = bitmaps[gtidx('q')];
+        if (curr != 0) {
+            queen_to_moves |= hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            queen_to_moves |= diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            //TODO: add myKingInCheck bit
+        }
+        qPOS = queen_to_moves;
     }
 
     public static void white_queens() {
-
+        long queen_to_moves = 0L; //empty board
+        long curr = bitmaps[gtidx('Q')];
+        if (curr != 0) {
+            queen_to_moves |= hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            queen_to_moves |= diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            //TODO: add myKingInCheck bit
+        }
+        QPOS = queen_to_moves;
     }
 
     public static void black_king() {
@@ -174,7 +181,9 @@ public class Moves {
         KPOS = king_to_moves;
     }
 
-    public static void black_pieces() {
+    public static void initiate_next_black_movements() {
+        colors();
+        empty();
         black_pawns();
         black_knights();
         black_bishops();
@@ -183,7 +192,9 @@ public class Moves {
         black_king();
     }
 
-    public static void white_pieces() {
+    public static void initiate_next_white_movements() {
+        colors();
+        empty();
         white_pawns();
         white_knights();
         white_bishops();
@@ -192,8 +203,21 @@ public class Moves {
         white_king();
     }
 
-    public static void initiate_moves() { //initiates all moves
-        black_pieces();
-        white_pieces();
+    public static void initiate_next_moves() { //initiates all moves
+        initiate_next_black_movements();
+        initiate_next_white_movements();
+    }
+
+    public static void initiate_red_zone_white() {
+        /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
+        REDZONE = pPOS | nPOS | bPOS | rPOS | qPOS | kPOS;
+        REDZONE-=pPOSM; //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
+    }
+
+    public static void initiate_red_zone_black() {
+        /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
+        REDZONE = PPOS | NPOS | BPOS | RPOS | QPOS | KPOS;
+        REDZONE-=PPOSM; //remove regular pawn movements as they are not attacking
+        //bitmap_to_chessboard(REDZONE); //TODO: test with start pos fen
     }
 }
