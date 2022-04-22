@@ -47,10 +47,10 @@ public class Bitboards {
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {'P', ' ', ' ', 'r', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {'R', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square 63 & 0,7
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square 63 & 0,7
         arrayToBitboards(board);
         bitmaps_to_chessboard(bitmaps);
     }
@@ -221,5 +221,21 @@ public class Bitboards {
             bitmap = 0L;
         }
         return bitmap;
+    }
+
+    public static boolean isWhite(long bitboard) {
+        /*returns true if the given bitboard contains white pieces. It is thought to be given a bitboard with only one piece on it, but it works for multiple also.*/
+        /*For this method to work, WHITEPIECES & BLACKPIECES need to be initialized correctly.*/
+        if ((bitboard & WHITEPIECES)!=0L){
+            return true;
+        }
+        return false;
+    }
+    public static boolean isKing(long bitboard){
+        /*returns true if the given bitboard contains a king of some color*/
+        if ((bitboard & (bitmaps[gtidx('k')]|bitmaps[gtidx('K')]))!=0L){
+            return true;
+        }
+        return false;
     }
 }

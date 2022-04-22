@@ -1,10 +1,7 @@
 package chess.engine.search;
 
 import static chess.engine.board.Bitboards.*;
-import static chess.engine.figures.Figures.gtidx;
-import static chess.engine.figures.Moves.initiate_next_moves;
-import static chess.engine.figures.Moves.initiate_red_zone_black;
-
+import static chess.engine.figures.Moves.*;
 
 public class Search {
     public static final int board_size = 8;
@@ -15,6 +12,15 @@ public class Search {
         initiate_boards(FEN);
         initiate_next_moves();
         initiate_red_zone_black();
+        initiate_red_zone_white();
+        bitmap_to_chessboard(BATTACKED);
+        System.out.println("black attacked pieces ^");
+        bitmap_to_chessboard(WATTACKED);
+        System.out.println("white attacked pieces ^");
+        bitmap_to_chessboard(BPROTECTED);
+        System.out.println("black PROTECTED pieces ^");
+        bitmap_to_chessboard(WPROTECTED);
+        System.out.println("white PROTECTED pieces ^");
         long t2 = System.currentTimeMillis();
         System.out.println(String.format("\n\u001B[33m[%sms execution time]\u001B[0m", t2 - t1));
     }

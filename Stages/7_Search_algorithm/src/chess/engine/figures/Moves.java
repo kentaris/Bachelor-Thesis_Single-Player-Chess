@@ -18,9 +18,16 @@ public class Moves {
     static long RPOS;
     static long QPOS;
     static long KPOS;
-    static long REDZONE;
+    static long REDZONEB;
+    static long REDZONEW;
     static long pPOSM; //black pawn possibilities for moving (not capturing)
     static long PPOSM;
+    public static long BPROTECTED; //white pieces protected by other white pieces
+    public static long WPROTECTED; //black pieces protected by other black pieces
+    public static long BATTACKED; //attacked black pieces
+    public static long WATTACKED; //attacked white pieces
+    public static int nrOfbAttackers; //number of attackers which check the black king
+    public static int nrOfwAttackers; //number of attackers which check the white king
 
     public static void black_pawns() {
         long pawn_to_moves = 0L; //empty board
@@ -210,14 +217,17 @@ public class Moves {
 
     public static void initiate_red_zone_white() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONE = pPOS | nPOS | bPOS | rPOS | qPOS | kPOS;
-        REDZONE-=pPOSM; //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
+        REDZONEW = pPOS | nPOS | bPOS | rPOS | qPOS | kPOS;
+        REDZONEW-=pPOSM; //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
+        //System.out.println("white redzone:");
+        //bitmap_to_chessboard(REDZONEW); //TODO: test with start pos fen
     }
 
     public static void initiate_red_zone_black() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONE = PPOS | NPOS | BPOS | RPOS | QPOS | KPOS;
-        REDZONE-=PPOSM; //remove regular pawn movements as they are not attacking
-        //bitmap_to_chessboard(REDZONE); //TODO: test with start pos fen
+        REDZONEB = PPOS | NPOS | BPOS | RPOS | QPOS | KPOS;
+        REDZONEB-= PPOSM; //remove regular pawn movements as they are not attacking
+        //System.out.println("black redzone:");
+        //bitmap_to_chessboard(REDZONEB); //TODO: test with start pos fen
     }
 }
