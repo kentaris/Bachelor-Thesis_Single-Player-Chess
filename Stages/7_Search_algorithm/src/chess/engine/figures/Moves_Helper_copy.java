@@ -4,7 +4,7 @@ import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.search.Search.board_size;
 
-public class Moves_Helper {
+public class Moves_Helper_copy {
     public static long hor_ver_bitboard(long bitboard, long opposite_color, long same_color) {
         /*creates a bitmap mask which marks the row and file up and down to mark the spots where a rook (or queen) can possibly go to.*/
         /*the input is a bitmap of attacking pieces (rooks and or queens), opposite color bitmap where all opposite colored pieces are marked with a 1, and same colored bitmap. the bitmap is then separated such that every attacker piece is on its own isolated bitmap. We can then loop over those isolated pieces. The index of the current isolated attacker piece is calculated (0-63) by shifting the bit and counting how many times we had to shift to the right to get a 1.With that index we can now calculate what the represented row and columns would be on a chess board. To calculate the file we use the formula: index/board_size and cast it into an integer. To calculate the row we use the formula index%board_size. */
@@ -30,30 +30,25 @@ public class Moves_Helper {
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
             Integer rank = file_row[0];
-            for (int k = 0; k < file + 1; k++) { //move left
-                if ((((figures[i] >>> k) & same_color) != 0L) & k != 0) { //collision with OWN piece at current square. //What we do here is we are shifting the attacker piece bitmap to the position which we are currently checking. the resulting bitmap is combined  with the same_color bitmap with an '&'. if the resulting map is not equal to 0 then we know we have a matchup of attacker piece and attacked piece which means it is at the current location. //k needs to be bigger than 0 so we can ignore the attacker piece and don't see it as blocking itself.
+            for (int k = 1; k < file + 1; k++) {//left
+                if (((same_color >>> idx - k) & 1) == 1L) { //collision with own piece at current square
                     if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        WPROTECTED |= (figures[i] >>> k) & same_color; //currently looked at piece //TODO: exclude the king from protected pieces? I don't think it's neccesary.
-                    } else { //black attacker piece...
+                        WPROTECTED |= (figures[i] >>> k - 1) & same_color; //currently looked at piece //TODO: exclude the king from protected pieces? I don't think it's neccesary.
+                    } else { //black piece...
                         BPROTECTED |= (figures[i] >>> k) & same_color;
                     }
                     break;
-                }
-                if (k>0) { //we still need the if statement otherwise if we have an opposite color at the next square we also mark the origin spot.
-                    hor_ver |= figures[i] >>> k;
-                }
-                if (((figures[i] >>> (k + 1)) & opposite_color) != 0L) { //collision with OPPOSITE colored piece at next square
-                    if (isWhite(figures[i])) {
-                        BATTACKED |= (figures[i] >>> (k + 1)) & opposite_color; //add currently looked at piece
-                        //TODO: oly increase if king being attacked:
+                } else if (((opposite_color >>> idx - k + 1) & 1) == 1L) { //collision with opposite colored piece at previous square
+                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
+                        BATTACKED |= (figures[i] >>> k - 1) & opposite_color; //add currently looked at piece
                         nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
-                    } else {
-                        WATTACKED |= (figures[i] >>> (k + 1)) & opposite_color;
+                    } else { //black piece...
+                        WATTACKED |= (figures[i] >>> k-1) & opposite_color;
                         nrOfbAttackers++;
                     }
-                    hor_ver |= figures[i] >>> k+1;
-                    break; //TODO: add check here! ... if isKing(bitboard)*/
+                    break; //TODO: add check here! ... if isKing(bitboard)
                 }
+                hor_ver |= figures[i] >>> k;
             }
             for (int k = 1; k < board_size - file; k++) {//right
                 if (((same_color >>> idx + k) & 1) == 1L) { //collision with own piece at current square
