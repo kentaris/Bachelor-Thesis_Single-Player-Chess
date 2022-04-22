@@ -5,6 +5,29 @@ import static chess.engine.figures.Moves.*;
 import static chess.engine.search.Search.board_size;
 
 public class Moves_Helper {
+    public static void addprotected(long figure, long current) {
+        if (isWhite(figure)) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
+            WPROTECTED |= current; //currently looked at piece
+        } else { //black attacker piece...
+            BPROTECTED |= current;
+        }
+    }
+
+    public static void addattacked(long figure, long next) {
+        if (isWhite(figure)) {
+            BATTACKED |= next; //add currently looked at piece
+            //TODO: add squares behind king to red zone!
+            if (isKing(next)) {
+                nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
+            }
+        } else {
+            WATTACKED |= next;
+            if (isKing(next)) {
+                nrOfbAttackers++;
+            }
+        }
+    }
+
     public static long hor_ver_bitboard(long bitboard, long opposite_color, long same_color) {
         /*creates a bitmap mask which marks the row and file up and down to mark the spots where a rook (or queen) can possibly go to.*/
         /*the input is a bitmap of attacking pieces (rooks and or queens), opposite color bitmap where all opposite colored pieces are marked with a 1, and same colored bitmap. the bitmap is then separated such that every attacker piece is on its own isolated bitmap. We can then loop over those isolated pieces. The index of the current isolated attacker piece is calculated (0-63) by shifting the bit and counting how many times we had to shift to the right to get a 1.With that index we can now calculate what the represented row and columns would be on a chess board. To calculate the file we use the formula: index/board_size and cast it into an integer. To calculate the row we use the formula index%board_size. */
@@ -30,96 +53,69 @@ public class Moves_Helper {
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
             Integer rank = file_row[0];
-            for (int k = 0; k < file + 1; k++) { //move left
-                if ((((figures[i] >>> k) & same_color) != 0L) & k != 0) { //collision with OWN piece at current square. //What we do here is we are shifting the attacker piece bitmap to the position which we are currently checking. the resulting bitmap is combined  with the same_color bitmap with an '&'. if the resulting map is not equal to 0 then we know we have a matchup of attacker piece and attacked piece which means it is at the current location. //k needs to be bigger than 0 so we can ignore the attacker piece and don't see it as blocking itself.
-                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        WPROTECTED |= (figures[i] >>> k) & same_color; //currently looked at piece //TODO: exclude the king from protected pieces? I don't think it's neccesary.
-                    } else { //black attacker piece...
-                        BPROTECTED |= (figures[i] >>> k) & same_color;
-                    }
+            for (int k = 0; k < file + 1; k++) { //move left (right shift on bitboard)
+                long current = (figures[i] >>> k) & same_color;
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square. //What we do here is we are shifting the attacker piece bitmap to the position which we are currently checking. the resulting bitmap is combined  with the same_color bitmap with an '&'. if the resulting map is not equal to 0 then we know we have a matchup of attacker piece and attacked piece which means it is at the current location. //k needs to be bigger than 0 so we can ignore the attacker piece and don't see it as blocking itself.
+                    addprotected(figures[i], current); //TODO: exclude the king from protected pieces? I don't think it's neccesary.
                     break;
                 }
-                if (k>0) { //we still need the if statement otherwise if we have an opposite color at the next square we also mark the origin spot.
+                if (k > 0) { //we still need the if statement otherwise if we have an opposite color at the next square we also mark the origin spot.
                     hor_ver |= figures[i] >>> k;
                 }
-                if (((figures[i] >>> (k + 1)) & opposite_color) != 0L) { //collision with OPPOSITE colored piece at next square
-                    if (isWhite(figures[i])) {
-                        BATTACKED |= (figures[i] >>> (k + 1)) & opposite_color; //add currently looked at piece
-                        //TODO: oly increase if king being attacked:
-                        nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
-                    } else {
-                        WATTACKED |= (figures[i] >>> (k + 1)) & opposite_color;
-                        nrOfbAttackers++;
-                    }
-                    hor_ver |= figures[i] >>> k+1;
-                    break; //TODO: add check here! ... if isKing(bitboard)*/
+                long next = (figures[i] >>> (k + 1)) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addattacked(figures[i], next);
+                    hor_ver |= figures[i] >>> (k + 1);
+                    break; //TODO: add check here! ... if isKing(bitboard)
                 }
             }
-            for (int k = 1; k < board_size - file; k++) {//right
-                if (((same_color >>> idx + k) & 1) == 1L) { //collision with own piece at current square
-                    long curr = (figures[i] << k) & same_color; //currently looked at piece
-                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        WPROTECTED |= curr;
-                    } else { //black piece...
-                        BPROTECTED |= curr;
-                    }
-                    break;
-                } else if (((opposite_color >>> idx + k - 1) & 1) == 1L) { //collision with opposite colored piece at previous square
-                    long curr = (figures[i] << k) & same_color; //currently looked at piece
-                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        BATTACKED |= curr;
-                        nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
-                    } else { //black piece...
-                        WATTACKED |= curr;
-                        nrOfbAttackers++;
-                    }
+            for (int k = 0; k < board_size - file; k++) { //move right (left shift on bitboard)
+                long current = (figures[i] << k) & same_color;
+                if ((current != 0L) & k != 0) {
+                    addprotected(figures[i], current);
                     break;
                 }
-                hor_ver |= figures[i] << k;
+                if (k > 0) {
+                    hor_ver |= figures[i] << k;
+                }
+                long next = (figures[i] << (k + 1)) & opposite_color;
+                if (next != 0L) {
+                    addattacked(figures[i], next);
+                    hor_ver |= figures[i] << (k + 1);
+                    break;
+                }
             }
-            for (int k = 1; k < rank + 1; k++) {//up
-                if (((same_color >>> idx - (k * board_size)) & 1) == 1L) { //collision with own piece at current square
-                    long curr = (figures[i] >>> k * board_size) & same_color; //currently looked at piece
-                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        WPROTECTED |= curr;
-                    } else { //black piece...
-                        BPROTECTED |= curr;
-                    }
-                    break;
-                } else if ((((opposite_color >>> idx - (k - 1) * board_size) & 1)) == 1L) { //collision with opposite colored piece at previous square
-                    long curr = (figures[i] >>> k * board_size) & same_color; //currently looked at piece
-                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        BATTACKED |= curr;
-                        nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
-                    } else { //black piece...
-                        WATTACKED |= curr;
-                        nrOfbAttackers++;
-                    }
+            for (int k = 0; k < rank + 1; k++) {//move up
+                long current = (figures[i] >>> (k * board_size)) & same_color;
+                if ((current != 0L) & k != 0) {
+                    addprotected(figures[i], current);
                     break;
                 }
-                hor_ver |= figures[i] >>> k * board_size;
+                if (k > 0) {
+                    hor_ver |= figures[i] >>> (k * board_size);
+                }
+                long next = (figures[i] >>> ((k + 1) * board_size)) & opposite_color;
+                if (next != 0L) {
+                    addattacked(figures[i], next);
+                    hor_ver |= figures[i] >>> ((k + 1) * board_size);
+                    break;
+                }
             }
-            for (int k = 1; k < board_size - rank; k++) {//down
-                if (((same_color >>> idx + (k * board_size)) & 1) == 1L) { //collision with own piece at current square
-                    long curr = (figures[i] << k * board_size) & same_color; //currently looked at piece
-                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        WPROTECTED |= curr;
-                    } else { //black piece...
-                        BPROTECTED |= curr;
-                    }
-                    break;
-                } else if (((opposite_color >>> idx + ((k - 1) * board_size)) & 1) == 1L) { //collision with opposite colored piece at previous square
-                    long curr = (figures[i] << k * board_size) & same_color; //currently looked at piece
-                    if (isWhite(figures[i])) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
-                        BATTACKED |= curr;
-                        nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
-                    } else { //black piece...
-                        WATTACKED |= curr;
-                        nrOfbAttackers++;
-                    }
+            for (int k = 0; k < board_size - rank; k++) {//move down
+                long current = (figures[i] << (k * board_size)) & same_color;
+                if ((current != 0L) & k != 0) {
+                    addprotected(figures[i], current);
                     break;
                 }
-                hor_ver |= figures[i] << k * board_size;
+                if (k > 0) {
+                    hor_ver |= figures[i] << (k * board_size);
+                }
+                long next = (figures[i] << ((k + 1) * board_size)) & opposite_color;
+                if (next != 0L) { //collision with opposite colored piece at previous square
+                    addattacked(figures[i], next);
+                    hor_ver |= figures[i] << ((k + 1) * board_size);
+                    break;
+                }
             }
         }
         bitmap_to_chessboard(hor_ver);
