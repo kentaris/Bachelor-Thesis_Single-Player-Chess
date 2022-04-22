@@ -66,7 +66,7 @@ public class Moves_Helper {
                 if (next != 0L) { //collision with OPPOSITE colored piece at next square
                     addattacked(figures[i], next);
                     hor_ver |= figures[i] >>> (k + 1);
-                    break; //TODO: add check here! ... if isKing(bitboard)
+                    break; //TODO: add check here! ... if isKing(next)
                 }
             }
             for (int k = 0; k < board_size - file; k++) { //move right (left shift on bitboard)
@@ -197,7 +197,7 @@ public class Moves_Helper {
                 }
             }
         }
-        bitmap_to_chessboard(diag);
+        //bitmap_to_chessboard(diag);
         return diag;
     }
 }
