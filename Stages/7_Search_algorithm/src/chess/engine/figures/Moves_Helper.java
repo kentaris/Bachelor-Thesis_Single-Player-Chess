@@ -111,14 +111,14 @@ public class Moves_Helper {
                     hor_ver |= figures[i] << (k * board_size);
                 }
                 long next = (figures[i] << ((k + 1) * board_size)) & opposite_color;
-                if (next != 0L) { //collision with opposite colored piece at previous square
+                if (next != 0L) {
                     addattacked(figures[i], next);
                     hor_ver |= figures[i] << ((k + 1) * board_size);
                     break;
                 }
             }
         }
-        bitmap_to_chessboard(hor_ver);
+        //bitmap_to_chessboard(hor_ver);
         return hor_ver;
     }
 
@@ -132,40 +132,72 @@ public class Moves_Helper {
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
             Integer rank = file_row[0];
-            for (int k = 1; k < file + 1; k++) {//left down
-                if (((same_color >>> idx + k * (board_size - 1)) & 1) == 1L) { //collision with own piece at current square
-                    break;
-                } else if (((opposite_color >>> idx + (k - 1) * (board_size - 1)) & 1) == 1L) { //collision with opposite colored piece at previous square
+            for (int k = 0; k < file + 1; k++) {//move left down
+                long current = (figures[i] << (k * (board_size - 1))) & same_color;
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square
+                    addprotected(figures[i], current);
                     break;
                 }
-                diag |= figures[i] << k * (board_size - 1);
+                if (k > 0) {
+                    diag |= figures[i] << (k * (board_size - 1));
+                }
+                long next = (figures[i] << ((k + 1) * (board_size - 1))) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addattacked(figures[i], next);
+                    diag |= figures[i] << ((k + 1) * (board_size - 1));
+                    break;
+                }
             }
-            for (int k = 1; k < board_size - file; k++) {//right up
-                if (((same_color >>> (idx - (k * (board_size - 1)))) & 1) == 1L) { //collision with own piece at current square
-                    break;
-                } else if (((opposite_color >>> (idx - ((k - 1) * (board_size - 1)))) & 1) == 1L) { //collision with opposite colored piece at previous square
+            for (int k = 0; k < board_size - file; k++) {//move right up
+                long current = (figures[i] >>> (k * (board_size - 1))) & same_color;
+                if ((current != 0L) & k != 0) {
+                    addprotected(figures[i], current);
                     break;
                 }
-                diag |= figures[i] >>> k * (board_size - 1);
+                if (k > 0) {
+                    diag |= figures[i] >>> (k * (board_size - 1));
+                }
+                long next = (figures[i] >>> ((k + 1) * (board_size - 1))) & opposite_color;
+                if (next != 0L) {
+                    addattacked(figures[i], next);
+                    diag |= figures[i] >>> ((k + 1) * (board_size - 1));
+                    break;
+                }
             }
-            for (int k = 1; (k < rank + 1) & (k < file + 1); k++) {//left up
-                if (((same_color >>> (idx - (k * (board_size + 1)))) & 1) == 1L) { //collision with own piece at current square
-                    break;
-                } else if (((opposite_color >>> (idx - ((k - 1) * (board_size + 1)))) & 1) == 1L) { //collision with opposite colored piece at previous square
+            for (int k = 0; (k < rank + 1) & (k < file + 1); k++) {//move left up
+                long current = (figures[i] >>> (k * (board_size + 1))) & same_color;
+                if ((current != 0L) & k != 0) {
+                    addprotected(figures[i], current);
                     break;
                 }
-                diag |= figures[i] >>> k * (board_size + 1);
+                if (k > 0) {
+                    diag |= figures[i] >>> (k * (board_size + 1));
+                }
+                long next = (figures[i] >>> ((k + 1) * (board_size + 1))) & opposite_color;
+                if (next != 0L) {
+                    addattacked(figures[i], next);
+                    diag |= figures[i] >>> ((k + 1) * (board_size + 1));
+                    break;
+                }
             }
-            for (int k = 1; k < (board_size - rank) & (k < board_size - file); k++) {//right down
-                if (((same_color >>> (idx + (k * (board_size + 1)))) & 1) == 1L) { //collision with own piece at current square
-                    break;
-                } else if (((opposite_color >>> (idx + ((k - 1) * (board_size + 1)))) & 1) == 1L) { //collision with opposite colored piece at previous square
+            for (int k = 0; k < (board_size - rank) & (k < board_size - file); k++) {//move right down
+                long current = (figures[i] << (k * (board_size + 1))) & same_color;
+                if ((current != 0L) & k != 0) {
+                    addprotected(figures[i], current);
                     break;
                 }
-                diag |= figures[i] << k * (board_size + 1);
+                if (k > 0) {
+                    diag |= figures[i] << (k * (board_size + 1));
+                }
+                long next = (figures[i] << ((k + 1) * (board_size + 1))) & opposite_color;
+                if (next != 0L) {
+                    addattacked(figures[i], next);
+                    diag |= figures[i] << ((k + 1) * (board_size + 1));
+                    break;
+                }
             }
         }
-        //bitmap_to_chessboard(diag);
+        bitmap_to_chessboard(diag);
         return diag;
     }
 }
