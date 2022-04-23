@@ -1,6 +1,7 @@
 package chess.engine.figures;
 
 import static chess.engine.board.Bitboards.*;
+import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.search.Search.board_size;
 
@@ -14,6 +15,7 @@ public class Moves_Helper {
     }
 
     public static void addattacked(long figure, long next) {
+        //TODO: currently not working because we are removing the king at the begnning -->̣ only king moves are valid if doble check
         if (isWhite(figure)) {
             BATTACKED |= next; //add currently looked at piece
             //TODO: add squares behind king to red zone!
@@ -47,6 +49,15 @@ public class Moves_Helper {
         bitmap_to_chessboard(same_color);
         //System.exit(0);*/
         long hor_ver = 0L;
+        long king = 0L;
+        if(isWhite(bitboard)){ //if attacker piece is white
+            opposite_color-=bitmaps[gtidx('k')]; //we remove the opposite colored king from the map because otherwise the king's last position can protect himself from a check if he moves behind it.
+            king=bitmaps[gtidx('k')]; //we still need the king so we save it
+        }
+        else{
+            opposite_color-=bitmaps[gtidx('K')];
+            king=bitmaps[gtidx('K')];
+        }
         long[] figures = get_single_figure_boards(bitboard);
         for (int i = 0; i < figures.length; i++) { //loop over single figures
             Integer idx = get_squareIndex_of_figure(figures[i]);
@@ -56,7 +67,7 @@ public class Moves_Helper {
             for (int k = 0; k < file + 1; k++) { //move left (right shift on bitboard)
                 long current = (figures[i] >>> k) & same_color;
                 if ((current != 0L) & k != 0) { //collision with OWN piece at current square. //What we do here is we are shifting the attacker piece bitmap to the position which we are currently checking. the resulting bitmap is combined  with the same_color bitmap with an '&'. if the resulting map is not equal to 0 then we know we have a matchup of attacker piece and attacked piece which means it is at the current location. //k needs to be bigger than 0 so we can ignore the attacker piece and don't see it as blocking itself.
-                    addprotected(figures[i], current); //TODO: exclude the king from protected pieces? I don't think it's neccesary.
+                    addprotected(figures[i], current);
                     break;
                 }
                 if (k > 0) { //we still need the if statement otherwise if we have an opposite color at the next square we also mark the origin spot.
@@ -96,6 +107,13 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] >>> ((k + 1) * board_size)) & opposite_color;
                 if (next != 0L) {
+                    /*if (isKing(next)) {
+                        long cont = 0L;
+                        for (int rem=k;rem<(rank + 1);rem++){ //continue the movement down the path
+                            cont |= figures[i] >>> ((rem + 1) * board_size);
+                        }
+                        bitmap_to_chessboard(cont);
+                    }*/
                     addattacked(figures[i], next);
                     hor_ver |= figures[i] >>> ((k + 1) * board_size);
                     break;

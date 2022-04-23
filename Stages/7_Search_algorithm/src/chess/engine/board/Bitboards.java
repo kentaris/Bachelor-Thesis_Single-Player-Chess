@@ -44,13 +44,13 @@ public class Bitboards {
         /*This method is here for convenience only since it is somethimes timeconsuming and error prone to come up with the exact FEN code for a given chess position.*/
         Character board[][] = {
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
-                {' ', 'p', ' ', ' ', ' ', 'p', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', 'b', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', 'b', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', 'N', ' '},
+                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', 'p', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', 'p'}}; //right: square index 63  &  0,7 (file,row)
+                {' ', ' ', ' ', ' ', 'R', ' ', ' ', ' '}}; //right: square index 63  &  0,7 (file,row)
         arrayToBitboards(board);
         bitmaps_to_chessboard(bitmaps);
     }
@@ -223,17 +223,26 @@ public class Bitboards {
         return bitmap;
     }
 
-    public static boolean isWhite(long bitboard) {
-        /*returns true if the given bitboard contains white pieces. It is thought to be given a bitboard with only one piece on it, but it works for multiple also.*/
-        /*For this method to work, WHITEPIECES & BLACKPIECES need to be initialized correctly.*/
-        if ((bitboard & WHITEPIECES)!=0L){
+    public static boolean diffColor(long bitboard1, long bitboard2) {
+        /*returns true if the given bitboards have different colors.*/
+        if ((((bitboard1 & WHITEPIECES) != 0L) & ((bitboard2 & BLACKPIECES) != 0L)) | (((bitboard1 & BLACKPIECES) != 0L) & ((bitboard2 & WHITEPIECES) != 0L))) {
             return true;
         }
         return false;
     }
-    public static boolean isKing(long bitboard){
+
+    public static boolean isWhite(long bitboard) {
+        /*returns true if the given bitboard contains white pieces. It is thought to be given a bitboard with only one piece on it, but it works for multiple also.*/
+        /*For this method to work, WHITEPIECES & BLACKPIECES need to be initialized correctly.*/
+        if ((bitboard & WHITEPIECES) != 0L) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isKing(long bitboard) {
         /*returns true if the given bitboard contains a king of some color*/
-        if ((bitboard & (bitmaps[gtidx('k')]|bitmaps[gtidx('K')]))!=0L){
+        if ((bitboard & (bitmaps[gtidx('k')] | bitmaps[gtidx('K')])) != 0L) {
             return true;
         }
         return false;

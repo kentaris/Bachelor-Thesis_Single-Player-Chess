@@ -6,28 +6,22 @@ import static chess.engine.figures.Moves_Helper.diag_bitboard;
 import static chess.engine.figures.Moves_Helper.hor_ver_bitboard;
 
 public class Moves {
-    static long pPOS; //black pawn possibilities
-    static long nPOS;
-    static long bPOS;
-    static long rPOS;
-    static long qPOS;
-    static long kPOS;
-    static long PPOS; //white pawn possibilities
-    static long NPOS;
-    static long BPOS;
-    static long RPOS;
-    static long QPOS;
-    static long KPOS;
-    static long REDZONEB;
-    static long REDZONEW;
+    public static long[] movemaps = new long[12]; //movement maps of all pieces
+    public static long REDZONEB;
+    public static long REDZONEW;
     static long pPOSM; //black pawn possibilities for moving (not capturing)
     static long PPOSM;
     public static long BPROTECTED; //white pieces protected by other white pieces
     public static long WPROTECTED; //black pieces protected by other black pieces
     public static long BATTACKED; //attacked black pieces
-    public static long WATTACKED; //attacked white pieces
+    public static long WATTACKED;
     public static int nrOfbAttackers; //number of attackers which check the black king
-    public static int nrOfwAttackers; //number of attackers which check the white king
+    public static int nrOfwAttackers;
+    public static long locOfbAttackers; //location of attackers which check the black king
+    public static long locOfwAttackers;
+    public static boolean BINCHECK; //if black king is in check
+    public static boolean WINCHECK;
+
 
     public static void black_pawns() {
         long pawn_to_moves = 0L; //empty board
@@ -45,9 +39,14 @@ public class Moves {
             //pawn_to_moves |= (curr << 7);//en-passant capture left // TODO: en-passant : piece must have moved in last turn
             //pawn_to_moves |= (curr << 9);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
             //bitmap_to_chessboard(pawn_to_moves);
+            pawn_to_captures = clearOverflow(curr, pawn_to_captures);
+            if ((pawn_to_captures & bitmaps[gtidx('K')]) != 0L) { //if a black king is attacked
+                nrOfbAttackers++;
+                locOfbAttackers|=(((bitmaps[gtidx('K')]>>>7)&curr)|((bitmaps[gtidx('K')]>>>9)&curr)); //we shift the king position back to the desination where a pawn could have captured the king (both directions: >>>7 and >>>9) and then overlap it with the positions where pawns are located. The result is the pawn which is attacking the king. Ideally there is only one pawn attacking the king but this implementation allows for multiple pawns which attack the king if the start position is defining it so (we can't arrive there with legal moves).
+            }
         }
         pPOSM = pawn_to_moves;
-        pPOS = pawn_to_moves | pawn_to_captures;
+        movemaps[gtidx('p')] = pawn_to_moves | pawn_to_captures;
     }
 
     public static void white_pawns() {
@@ -66,9 +65,14 @@ public class Moves {
             //pawn_to_moves |= (curr >>> 9);//en-passant capture left // TODO: en-passant : piece must have moved in last turn
             //pawn_to_moves |= (curr >>> 7);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
             //bitmap_to_chessboard(pawn_to_moves);
+            pawn_to_captures = clearOverflow(curr, pawn_to_captures);
+            if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
+                nrOfwAttackers++;
+                locOfwAttackers|=(((bitmaps[gtidx('k')]<<7)&curr)|((bitmaps[gtidx('k')]<<9)&curr));
+            }
         }
         PPOSM = pawn_to_moves;
-        PPOS = pawn_to_moves | pawn_to_captures;
+        movemaps[gtidx('P')] = pawn_to_moves | pawn_to_captures;
     }
 
     public static void black_knights() {
@@ -77,9 +81,22 @@ public class Moves {
         if (curr != 0) {
             //TODO: add myKingInCheck bit
             knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17)) & (WHITEPIECES | EMPTY);
-            //bitmap_to_chessboard(knight_to_moves);
+            clearOverflow(curr, knight_to_moves);
+            int idx = gtidx('K');
+            if ((knight_to_moves & bitmaps[idx]) != 0L) { //if a white king is attacked
+                nrOfbAttackers++;
+                locOfbAttackers|=(((bitmaps[idx]<<6  )&curr)|
+                                  ((bitmaps[idx]<<10 )&curr)|
+                                  ((bitmaps[idx]<<15 )&curr)|
+                                  ((bitmaps[idx]<<17 )&curr)|
+                                  ((bitmaps[idx]>>>6 )&curr)|
+                                  ((bitmaps[idx]>>>10)&curr)|
+                                  ((bitmaps[idx]>>>15)&curr)|
+                                  ((bitmaps[idx]>>>17)&curr)
+                                 );
+            }
         }
-        nPOS = knight_to_moves;
+        movemaps[gtidx('n')] = knight_to_moves;
     }
 
     public static void white_knights() {
@@ -88,8 +105,22 @@ public class Moves {
         if (curr != 0) {
             //TODO: add myKingInCheck bit
             knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17)) & (BLACKPIECES | EMPTY);
+            knight_to_moves = clearOverflow(curr, knight_to_moves);
+            int idx = gtidx('k');
+            if ((knight_to_moves & bitmaps[idx]) != 0L) { //if a white king is attacked
+                nrOfwAttackers++;
+                locOfwAttackers|=(((bitmaps[idx]<<6  )&curr)|
+                                  ((bitmaps[idx]<<10 )&curr)|
+                                  ((bitmaps[idx]<<15 )&curr)|
+                                  ((bitmaps[idx]<<17 )&curr)|
+                                  ((bitmaps[idx]>>>6 )&curr)|
+                                  ((bitmaps[idx]>>>10)&curr)|
+                                  ((bitmaps[idx]>>>15)&curr)|
+                                  ((bitmaps[idx]>>>17)&curr)
+                                );
+            }
         }
-        NPOS = knight_to_moves;
+        movemaps[gtidx('N')] = knight_to_moves;
     }
 
     public static void black_bishops() { //TODO
@@ -98,7 +129,7 @@ public class Moves {
         if (curr != 0) {
             bishop_to_moves = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
         }
-        bPOS = bishop_to_moves;
+        movemaps[gtidx('b')] = bishop_to_moves;
     }
 
     public static void white_bishops() { //TODO
@@ -107,7 +138,7 @@ public class Moves {
         if (curr != 0) {
             bishop_to_moves = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
         }
-        BPOS = bishop_to_moves;
+        movemaps[gtidx('B')] = bishop_to_moves;
     }
 
     public static void black_rooks() {
@@ -117,7 +148,7 @@ public class Moves {
             rook_to_moves = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
             //TODO: add myKingInCheck bit
         }
-        rPOS = rook_to_moves;
+        movemaps[gtidx('r')] = rook_to_moves;
     }
 
     public static void white_rooks() {
@@ -127,7 +158,7 @@ public class Moves {
             rook_to_moves = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
             //TODO: add myKingInCheck bit
         }
-        RPOS = rook_to_moves;
+        movemaps[gtidx('R')] = rook_to_moves;
     }
 
     public static void black_queens() {
@@ -138,7 +169,7 @@ public class Moves {
             queen_to_moves |= diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
             //TODO: add myKingInCheck bit
         }
-        qPOS = queen_to_moves;
+        movemaps[gtidx('q')] = queen_to_moves;
     }
 
     public static void white_queens() {
@@ -149,7 +180,7 @@ public class Moves {
             queen_to_moves |= diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
             //TODO: add myKingInCheck bit
         }
-        QPOS = queen_to_moves;
+        movemaps[gtidx('Q')] = queen_to_moves;
     }
 
     public static void black_king() {
@@ -166,8 +197,9 @@ public class Moves {
             king_to_moves |= (curr << 7) & (EMPTY | WHITEPIECES); //move one left down
             king_to_moves |= (curr << 1) & (EMPTY | WHITEPIECES); //move one right
             //bitmap_to_chessboard(king_to_moves);
+            king_to_moves = clearOverflow(curr, king_to_moves);
         }
-        kPOS = king_to_moves;
+        movemaps[gtidx('k')] = king_to_moves;
     }
 
     public static void white_king() {
@@ -184,8 +216,9 @@ public class Moves {
             king_to_moves |= (curr << 7) & (EMPTY | BLACKPIECES); //move one left down
             king_to_moves |= (curr << 1) & (EMPTY | BLACKPIECES); //move one right
             //bitmap_to_chessboard(king_to_moves);
+            king_to_moves = clearOverflow(curr, king_to_moves);
         }
-        KPOS = king_to_moves;
+        movemaps[gtidx('K')] = king_to_moves;
     }
 
     public static void initiate_next_black_movements() {
@@ -215,19 +248,38 @@ public class Moves {
         initiate_next_white_movements();
     }
 
+    public static void initiate_inCheck() {
+        if ((REDZONEB & bitmaps[gtidx('k')]) != 0L) { //if the black king is on an attackable square
+            BINCHECK = true;
+        }
+        if ((REDZONEW & bitmaps[gtidx('K')]) != 0L) {
+            WINCHECK = true;
+        }
+    }
+
     public static void initiate_red_zone_white() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONEW = pPOS | nPOS | bPOS | rPOS | qPOS | kPOS;
-        REDZONEW-=pPOSM; //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
+        REDZONEW = movemaps[gtidx('p')] | movemaps[gtidx('n')] | movemaps[gtidx('b')] | movemaps[gtidx('r')] | movemaps[gtidx('q')] | movemaps[gtidx('k')];
+        REDZONEW -= pPOSM; //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
         //System.out.println("white redzone:");
         //bitmap_to_chessboard(REDZONEW); //TODO: test with start pos fen
     }
 
     public static void initiate_red_zone_black() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONEB = PPOS | NPOS | BPOS | RPOS | QPOS | KPOS;
-        REDZONEB-= PPOSM; //remove regular pawn movements as they are not attacking
+        REDZONEB = movemaps[gtidx('P')] | movemaps[gtidx('N')] | movemaps[gtidx('B')] | movemaps[gtidx('R')] | movemaps[gtidx('Q')] | movemaps[gtidx('K')];
+        REDZONEB -= PPOSM; //remove regular pawn movements as they are not attacking
         //System.out.println("black redzone:");
-        //bitmap_to_chessboard(REDZONEB); //TODO: test with start pos fen
+        bitmap_to_chessboard(REDZONEB); //TODO: test with start pos fen
+    }
+
+    public static long clearOverflow(long bitboard, long movesbitboard) {
+        //We don't need to worry about overflow to the top or bottom as those bits just disappear into nowhere. we do however need to clear the attack squares which overlap the file boarders and move to the other side of the board:
+        if ((bitboard & (FILES[0] | FILES[1])) != 0L) { //if we are too far to the left, we need to clear the right...
+            movesbitboard = (movesbitboard | (FILES[6] | FILES[7])) & (movesbitboard & ~(FILES[6] | FILES[7])); //clear the files on the right
+        } else if ((bitboard & (FILES[6] | FILES[7])) != 0L) { //if we are too far to the right, we need to clear the left...
+            movesbitboard = (movesbitboard | (FILES[0] | FILES[1])) & (movesbitboard & ~(FILES[0] | FILES[1])); //clear the files on the left
+        }
+        return movesbitboard;
     }
 }
