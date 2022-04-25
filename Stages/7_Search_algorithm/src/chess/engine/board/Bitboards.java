@@ -1,6 +1,5 @@
 package chess.engine.board;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 
 import static chess.engine.fen.Decoder.FEN_decodeTo_64String;
@@ -13,8 +12,8 @@ public class Bitboards {
     public static long[] bitmaps = new long[12]; //12 maps for 2*6 chess figures (black and white) -->long so board has 64bits available
     public static long[] FILES = new long[board_size];
     public static long[] RANKS = new long[board_size];
-    //public static long[] DIAG = new long[board_size * 2 - 1];
-    //public static long[] ANTIDIAG = new long[board_size * 2 - 1];
+    static long DIAGS[] = {1L, 102L, 10204L, 1020408L, 102040810L, 10204081020L, 1020408102040L, 102040810204080L, 204081020408000L, 408102040800000L, 810204080000000L, 1020408000000000L, 2040800000000000L, 4080000000000000L, 8000000000000000L};
+    static long ADIAGS[] = {80L, 8040L, 804020L, 80402010L, 8040201008L, 804020100804L, 80402010080402L, 8040201008040201L, 4020100804020100L, 2010080402010000L, 1008040201000000L, 804020100000000L, 402010000000000L, 201000000000000L, 100000000000000L};
     public static long KINGSIDE;
     public static long QUEENSIDE;
     public static long WHITEPIECES; //remove king to avoid legal move?
@@ -45,10 +44,10 @@ public class Bitboards {
         Character board[][] = {
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', 'b', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', 'N', ' '},
-                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', 'b', ' ', 'b', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', 'R', ' ', ' ', ' '}}; //right: square index 63  &  0,7 (file,row)
         arrayToBitboards(board);

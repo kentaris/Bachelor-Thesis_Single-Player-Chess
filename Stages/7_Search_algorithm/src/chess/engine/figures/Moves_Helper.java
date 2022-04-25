@@ -6,6 +6,7 @@ import static chess.engine.figures.Moves.*;
 import static chess.engine.search.Search.board_size;
 
 public class Moves_Helper {
+
     public static void addprotected(long figure, long current) {
         if (isWhite(figure)) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
             WPROTECTED |= current; //currently looked at piece
@@ -21,16 +22,34 @@ public class Moves_Helper {
             //TODO: add squares behind king to red zone!
             if (isKing(next)) {
                 nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
+                locOfwAttackers |= figure; //TODO: only works if the king is on the 'next' spot...
             }
         } else {
             WATTACKED |= next;
             if (isKing(next)) {
                 nrOfbAttackers++;
+                locOfbAttackers |= figure;
             }
         }
     }
 
-    public static long hor_ver_bitboard(long bitboard, long opposite_color, long same_color) {
+    public static void addPinned(long next) {
+        if (isWhite(next)) {
+            pinnedW |= next;
+        } else {
+            pinnedB |= next;
+        }
+    }
+
+    public static void addToBeBlocked(long attacker, long block_it) {
+        if (isWhite(attacker)) {
+            blockLocationsB |= block_it;
+        } else {
+            blockLocationsW |= block_it;
+        }
+    }
+
+    public static long[] hor_ver_bitboard(long bitboard, long opposite_color, long same_color) {
         /*creates a bitmap mask which marks the row and file up and down to mark the spots where a rook (or queen) can possibly go to.*/
         /*the input is a bitmap of attacking pieces (rooks and or queens), opposite color bitmap where all opposite colored pieces are marked with a 1, and same colored bitmap. the bitmap is then separated such that every attacker piece is on its own isolated bitmap. We can then loop over those isolated pieces. The index of the current isolated attacker piece is calculated (0-63) by shifting the bit and counting how many times we had to shift to the right to get a 1.With that index we can now calculate what the represented row and columns would be on a chess board. To calculate the file we use the formula: index/board_size and cast it into an integer. To calculate the row we use the formula index%board_size. */
         /*Now that we know the file and rank of an attacker piece we can do some more math to move the piece into every direction until it reaches the end of the board. We do this with another (very shot) loop for every direction like so: /insert pseudo code/. This is very efficient since the loops will in total only execute 2*(board_size-1) times (possibilities in both directions minus the square on which the attacker piece is currently on). We can make it even more efficient by checking for a collision with the same colored pieces at current square or else checking for a collision with opposite colored piece at previous square. in both cases we can break the loop prematurely because if we know that the current square to be checked has the same color, then I don't want to set the bit. Similarly, if I know the previous checked location (either k-1 or k+1 depending on the direction we move to) was a opposite colored piece, then we already set the bit and now know we must stop since we can't continue the piece movement. Otherwise we can just continue shifting the attacker bitmap to the right and adding the resulting bitmap to the result bitmap (squares which can be attacked). This also saves us time since we don't need to do an additional removing of those unreachable squares.*/
@@ -47,19 +66,19 @@ public class Moves_Helper {
         bitmap_to_chessboard(opposite_color);
         System.out.println("same color:");
         bitmap_to_chessboard(same_color);
-        //System.exit(0);*/
-        long hor_ver = 0L;
-        long king = 0L;
-        if(isWhite(bitboard)){ //if attacker piece is white
-            opposite_color-=bitmaps[gtidx('k')]; //we remove the opposite colored king from the map because otherwise the king's last position can protect himself from a check if he moves behind it.
-            king=bitmaps[gtidx('k')]; //we still need the king so we save it
-        }
-        else{
-            opposite_color-=bitmaps[gtidx('K')];
-            king=bitmaps[gtidx('K')];
-        }
-        long[] figures = get_single_figure_boards(bitboard);
+        //System.exit(0);*//*
+        long king = 0L; //TODO: the following code removes the king but it also disallows me to count number of sliding pieces that attack the king
+        if (isWhite(bitboard)) { //if attacker piece is white
+            opposite_color -= bitmaps[gtidx('k')]; //we remove the opposite colored king from the map because otherwise the king's last position can protect himself from a check if he moves behind it.
+            king = bitmaps[gtidx('k')]; //we still need the king so we save it
+        } else {
+            opposite_color -= bitmaps[gtidx('K')];
+            king = bitmaps[gtidx('K')];
+        }*/
+        long[] figures = get_single_figure_boards(bitboard); //here I split the board's figures into single figure bitboards for every piece (if there are multiple)
+        long movemap[] = new long[figures.length];
         for (int i = 0; i < figures.length; i++) { //loop over single figures
+            movemap[i] = 0L;
             Integer idx = get_squareIndex_of_figure(figures[i]);
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
@@ -71,12 +90,12 @@ public class Moves_Helper {
                     break;
                 }
                 if (k > 0) { //we still need the if statement otherwise if we have an opposite color at the next square we also mark the origin spot.
-                    hor_ver |= figures[i] >>> k;
+                    movemap[i] |= figures[i] >>> k;
                 }
                 long next = (figures[i] >>> (k + 1)) & opposite_color;
                 if (next != 0L) { //collision with OPPOSITE colored piece at next square
                     addattacked(figures[i], next);
-                    hor_ver |= figures[i] >>> (k + 1);
+                    movemap[i] |= figures[i] >>> (k + 1);
                     break; //TODO: add check here! ... if isKing(next)
                 }
             }
@@ -87,37 +106,44 @@ public class Moves_Helper {
                     break;
                 }
                 if (k > 0) {
-                    hor_ver |= figures[i] << k;
+                    movemap[i] |= figures[i] << k;
                 }
                 long next = (figures[i] << (k + 1)) & opposite_color;
                 if (next != 0L) {
                     addattacked(figures[i], next);
-                    hor_ver |= figures[i] << (k + 1);
+                    movemap[i] |= figures[i] << (k + 1);
                     break;
                 }
             }
             for (int k = 0; k < rank + 1; k++) {//move up
-                long current = (figures[i] >>> (k * board_size)) & same_color;
-                if ((current != 0L) & k != 0) {
-                    addprotected(figures[i], current);
-                    break;
+                long block_it = 0L; //squares which can be blocked to get out of chess will be saved here if there is a check
+                long current = (figures[i] >>> (k * board_size)) & same_color; //current square which is targeted by figures[i]
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current); //protected piece which opposite king can't capture because he will be in check
+                    break; //no further checking needed
                 }
-                if (k > 0) {
-                    hor_ver |= figures[i] >>> (k * board_size);
+                if (k > 0) { //we don't want to mark ourselves
+                    movemap[i] |= figures[i] >>> (k * board_size); //mark the current square which is targeted by figures[i]
                 }
-                long next = (figures[i] >>> ((k + 1) * board_size)) & opposite_color;
-                if (next != 0L) {
-                    /*if (isKing(next)) {
-                        long cont = 0L;
-                        for (int rem=k;rem<(rank + 1);rem++){ //continue the movement down the path
-                            cont |= figures[i] >>> ((rem + 1) * board_size);
-                        }
-                        bitmap_to_chessboard(cont);
-                    }*/
+                long next = (figures[i] >>> ((k + 1) * board_size)) & opposite_color; //next square which is being attacked
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
                     addattacked(figures[i], next);
-                    hor_ver |= figures[i] >>> ((k + 1) * board_size);
+                    movemap[i] |= figures[i] >>> ((k + 1) * board_size);
+                    //---------------------
+                    if (isKing(next) & (((figures[i] >>> (k + 1 * board_size)) & opposite_color) != 0L)) { //if next square is an opposite colored king...
+                        addToBeBlocked(figures[i], block_it);//...ad locations to block the check
+                        //break;
+                    }
+                    for (int rem = k + 2; rem < rank + 1; rem++) { //check if there is a king behind the piece (meaning piece is pinned)
+                        long next_next = figures[i] >>> (rem * board_size);
+                        if (isKing(next_next) & (((figures[i] >>> (rem * board_size)) & opposite_color) != 0L)) { //if the square we are currently checking is a king of oposite color
+                            addPinned(next);
+                        }
+                    }
+                    //---------------------
                     break;
                 }
+                block_it |= next; //we stop prematurely because of the break if we encounter an opposite king so the king spot itself will not be saved here.
             }
             for (int k = 0; k < board_size - rank; k++) {//move down
                 long current = (figures[i] << (k * board_size)) & same_color;
@@ -126,26 +152,27 @@ public class Moves_Helper {
                     break;
                 }
                 if (k > 0) {
-                    hor_ver |= figures[i] << (k * board_size);
+                    movemap[i] |= figures[i] << (k * board_size);
                 }
                 long next = (figures[i] << ((k + 1) * board_size)) & opposite_color;
                 if (next != 0L) {
                     addattacked(figures[i], next);
-                    hor_ver |= figures[i] << ((k + 1) * board_size);
+                    movemap[i] |= figures[i] << ((k + 1) * board_size);
                     break;
                 }
             }
         }
         //bitmap_to_chessboard(hor_ver);
-        return hor_ver;
+        return movemap;
     }
 
-    public static long diag_bitboard(long bitboard, long opposite_color, long same_color) {
+    public static long[] diag_bitboard(long bitboard, long opposite_color, long same_color) {
         /*creates a bitmap mask which marks the diagonals and anti-diagonals to mark the spots where a bishop (or queen) can possibly go to.*/
         /*For the diagonals and anti-diagonals I decided to reuse the logic I came up with previously (horizontals & verticals). The diagonals are horizontal and vertical lines that are rotated 45 degrees counterclockwise. this is why for example the left down anti-diagonal has the opposite shift operator as the left moving vertical line.*/
-        long diag = 0L;
         long[] figures = get_single_figure_boards(bitboard); //separate figures into separate boards
+        long movemap[] = new long[figures.length];
         for (int i = 0; i < figures.length; i++) { //loop over single figures
+            movemap[i] = 0L;
             Integer idx = get_squareIndex_of_figure(figures[i]);
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
@@ -157,12 +184,12 @@ public class Moves_Helper {
                     break;
                 }
                 if (k > 0) {
-                    diag |= figures[i] << (k * (board_size - 1));
+                    movemap[i] |= figures[i] << (k * (board_size - 1));
                 }
                 long next = (figures[i] << ((k + 1) * (board_size - 1))) & opposite_color;
                 if (next != 0L) { //collision with OPPOSITE colored piece at next square
                     addattacked(figures[i], next);
-                    diag |= figures[i] << ((k + 1) * (board_size - 1));
+                    movemap[i] |= figures[i] << ((k + 1) * (board_size - 1));
                     break;
                 }
             }
@@ -173,12 +200,12 @@ public class Moves_Helper {
                     break;
                 }
                 if (k > 0) {
-                    diag |= figures[i] >>> (k * (board_size - 1));
+                    movemap[i] |= figures[i] >>> (k * (board_size - 1));
                 }
                 long next = (figures[i] >>> ((k + 1) * (board_size - 1))) & opposite_color;
                 if (next != 0L) {
                     addattacked(figures[i], next);
-                    diag |= figures[i] >>> ((k + 1) * (board_size - 1));
+                    movemap[i] |= figures[i] >>> ((k + 1) * (board_size - 1));
                     break;
                 }
             }
@@ -189,12 +216,12 @@ public class Moves_Helper {
                     break;
                 }
                 if (k > 0) {
-                    diag |= figures[i] >>> (k * (board_size + 1));
+                    movemap[i] |= figures[i] >>> (k * (board_size + 1));
                 }
                 long next = (figures[i] >>> ((k + 1) * (board_size + 1))) & opposite_color;
                 if (next != 0L) {
                     addattacked(figures[i], next);
-                    diag |= figures[i] >>> ((k + 1) * (board_size + 1));
+                    movemap[i] |= figures[i] >>> ((k + 1) * (board_size + 1));
                     break;
                 }
             }
@@ -205,17 +232,191 @@ public class Moves_Helper {
                     break;
                 }
                 if (k > 0) {
-                    diag |= figures[i] << (k * (board_size + 1));
+                    movemap[i] |= figures[i] << (k * (board_size + 1));
                 }
                 long next = (figures[i] << ((k + 1) * (board_size + 1))) & opposite_color;
                 if (next != 0L) {
                     addattacked(figures[i], next);
-                    diag |= figures[i] << ((k + 1) * (board_size + 1));
+                    movemap[i] |= figures[i] << ((k + 1) * (board_size + 1));
                     break;
                 }
             }
         }
         //bitmap_to_chessboard(diag);
-        return diag;
+        return movemap;
+    }
+
+    public static void valid_black_moves() { //black figure moves:
+        movemaps[5] &= ~REDZONEB; //remove invalid king moves
+        movemapsk[0] &= ~REDZONEB;
+        if (nrOfwAttackers == 1) { //if we don't have more than one piece attacking the king...
+            // ...and we can capture the attacker piece...or block the attacker piece:
+            movemaps[0] &= (locOfwAttackers | blockLocationsB);
+            long[] figures = get_single_figure_boards(bitmaps[gtidx('p')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsp[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsp[i] &= (locOfwAttackers | blockLocationsB);
+                }
+            }
+            movemaps[1] &= (locOfwAttackers | blockLocationsB);
+            figures = get_single_figure_boards(bitmaps[gtidx('n')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsn[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsn[i] &= (locOfwAttackers | blockLocationsB);
+                }
+            }
+            movemaps[2] &= (locOfwAttackers | blockLocationsB);
+            figures = get_single_figure_boards(bitmaps[gtidx('b')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsb[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsb[i] &= (locOfwAttackers | blockLocationsB);
+                }
+            }
+            movemaps[3] &= (locOfwAttackers | blockLocationsB);
+            figures = get_single_figure_boards(bitmaps[gtidx('r')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsr[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsr[i] &= (locOfwAttackers | blockLocationsB);
+                }
+            }
+            movemaps[4] &= (locOfwAttackers | blockLocationsB);
+            figures = get_single_figure_boards(bitmaps[gtidx('q')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsq[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsq[i] &= (locOfwAttackers | blockLocationsB);
+                }
+            }
+        } else if (nrOfwAttackers >= 2) { //we don't allow any movements except the king moving out of chess.
+            //remove all possibilities that aren't king moves (only king moves possible):
+            movemaps[0] = 0L;
+            long[] figures = get_single_figure_boards(bitmaps[gtidx('p')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsp[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsp[i] = 0L;
+                }
+            }
+            movemaps[1] = 0L;
+            figures = get_single_figure_boards(bitmaps[gtidx('n')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsn[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsn[i] = 0L;
+                }
+            }
+            movemaps[2] = 0L;
+            figures = get_single_figure_boards(bitmaps[gtidx('b')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsb[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsb[i] = 0L;
+                }
+            }
+            movemaps[3] = 0L;
+            figures = get_single_figure_boards(bitmaps[gtidx('r')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsr[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsr[i] = 0L;
+                }
+            }
+            movemaps[4] = 0L;
+            figures = get_single_figure_boards(bitmaps[gtidx('q')]);
+            for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                if ((movemapsq[i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    movemapsq[i] = 0L;
+                }
+            }
+        } else { //if nrOfwAttackers==0
+            if (pinnedB != 0L) { //if we have pinned pieces //TODO: if we have two bishop and one is pinned, then the other one can move: currently not the case.
+                if ((bitmaps[0] & pinnedB) != 0) { //some pawn is among the pinned pieces...
+                    long[] figures = get_single_figure_boards(bitmaps[gtidx('p')]);
+                    for (int i = 0; i < figures.length; i++) { //...lets find out which one...
+                        if (((movemapsp[i] | figures[i]) & pinnedB) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                            movemapsp[i] = 0L;
+                        }
+                    }
+                }
+                if ((bitmaps[1] & pinnedB) != 0) {
+                    long[] figures = get_single_figure_boards(bitmaps[gtidx('n')]);
+                    for (int i = 0; i < figures.length; i++) {
+                        if (((movemapsn[i] | figures[i]) & pinnedB) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                            movemapsn[i] = 0L;
+                        }
+                    }
+                }
+                if ((bitmaps[2] & pinnedB) != 0) {
+                    long[] figures = get_single_figure_boards(bitmaps[gtidx('b')]);
+                    for (int i = 0; i < figures.length; i++) {
+                        if (((movemapsb[i] | figures[i]) & pinnedB) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                            movemapsb[i] = 0L;
+                        }
+                    }
+                }
+                if ((bitmaps[3] & pinnedB) != 0) {
+                    long[] figures = get_single_figure_boards(bitmaps[gtidx('r')]);
+                    for (int i = 0; i < figures.length; i++) {
+                        if (((movemapsr[i] | figures[i]) & pinnedB) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                            movemapsr[i] = 0L;
+                        }
+                    }
+                }
+                if ((bitmaps[4] & pinnedB) != 0) {
+                    long[] figures = get_single_figure_boards(bitmaps[gtidx('q')]);
+                    for (int i = 0; i < figures.length; i++) {
+                        if (((movemapsq[i] | figures[i]) & pinnedB) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                            movemapsq[i] = 0L;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void valid_white_moves() {
+
+    }
+
+    public static void initiate_inCheck() {
+        if ((REDZONEB & bitmaps[gtidx('k')]) != 0L) { //if the black king is on an attackable square
+            BINCHECK = true;
+        }
+        if ((REDZONEW & bitmaps[gtidx('K')]) != 0L) {
+            WINCHECK = true;
+        }
+    }
+
+    public static void initiate_red_zone_white() {
+        /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
+        REDZONEW = movemaps[gtidx('p')] | movemaps[gtidx('n')] | movemaps[gtidx('b')] | movemaps[gtidx('r')] | movemaps[gtidx('q')] | movemaps[gtidx('k')];
+        REDZONEW -= pPOSM; //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
+        //System.out.println("white redzone:");
+        //bitmap_to_chessboard(REDZONEW); //TODO: test with start pos fen
+    }
+
+    public static void initiate_red_zone_black() {
+        /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
+        REDZONEB = movemaps[gtidx('P')] | movemaps[gtidx('N')] | movemaps[gtidx('B')] | movemaps[gtidx('R')] | movemaps[gtidx('Q')] | movemaps[gtidx('K')];
+        REDZONEB -= PPOSM; //remove regular pawn movements as they are not attacking
+        //System.out.println("black redzone:");
+        //bitmap_to_chessboard(REDZONEB); //TODO: test with start pos fen
+    }
+
+    public static long clearOverflow(long bitboard, long movesbitboard) {
+        //We don't need to worry about overflow to the top or bottom as those bits just disappear into nowhere. we do however need to clear the attack squares which overlap the file boarders and move to the other side of the board:
+        if ((bitboard & (FILES[0] | FILES[1])) != 0L) { //if we are too far to the left, we need to clear the right...
+            movesbitboard = (movesbitboard | (FILES[6] | FILES[7])) & (movesbitboard & ~(FILES[6] | FILES[7])); //clear the files on the right
+        } else if ((bitboard & (FILES[6] | FILES[7])) != 0L) { //if we are too far to the right, we need to clear the left...
+            movesbitboard = (movesbitboard | (FILES[0] | FILES[1])) & (movesbitboard & ~(FILES[0] | FILES[1])); //clear the files on the left
+        }
+        return movesbitboard;
+    }
+
+    public static boolean same_color(long bitboard1, long bitboard2) {
+        if ((isWhite(bitboard1) & isWhite(bitboard2)) | (!isWhite(bitboard1) & !isWhite(bitboard2))) { //if both bitboards have the same color
+            return true;
+        }
+        return false;
+    }
+
+    public static void unite_movements(){
+        /*update movemaps to reflect updated individual movements.*/
+
     }
 }
