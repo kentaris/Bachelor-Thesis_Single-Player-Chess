@@ -18,3 +18,6 @@
       - First steps:
         - implement bfsand see if for simplmle cases it works
         - change to gbfs & use priority queue
+
+
+chapter 3 BreadthFS -->GBFS

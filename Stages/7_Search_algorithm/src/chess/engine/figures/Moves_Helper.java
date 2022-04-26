@@ -4,14 +4,17 @@ import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.search.Search.board_size;
+import static java.util.Objects.isNull;
 
 public class Moves_Helper {
 
     public static void addprotected(long figure, long current) {
         if (isWhite(figure)) { //if attacker is a white piece then the attacked piece can be categorized as a white piece being protected by a white piece
             WPROTECTED |= current; //currently looked at piece
+            REDZONEB |= current;
         } else { //black attacker piece...
             BPROTECTED |= current;
+            REDZONEW |= current;
         }
     }
 
@@ -38,6 +41,14 @@ public class Moves_Helper {
             pinnedW |= next;
         } else {
             pinnedB |= next;
+        }
+    }
+
+    public static void addRedZone(long attacker, long path) {
+        if (isWhite(attacker)) {
+            REDZONEB |= path;
+        } else {
+            REDZONEW |= path;
         }
     }
 
@@ -77,12 +88,15 @@ public class Moves_Helper {
         }*/
         long[] figures = get_single_figure_boards(bitboard); //here I split the board's figures into single figure bitboards for every piece (if there are multiple)
         long movemap[] = new long[figures.length];
-        for (int i = 0; i < figures.length; i++) { //loop over single figures
+        for (int i = 0; i < figures.length; i++) { //loop over single figures //TODO: replace with 'Long.bitCount(bitboard)' to be faster
             movemap[i] = 0L;
+            long path; //squares which can be blocked to get out of check will be saved here if there is a check
+            boolean set = false;
             Integer idx = get_squareIndex_of_figure(figures[i]);
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
             Integer rank = file_row[0];
+            path = 0L;
             for (int k = 0; k < file + 1; k++) { //move left (right shift on bitboard)
                 long current = (figures[i] >>> k) & same_color;
                 if ((current != 0L) & k != 0) { //collision with OWN piece at current square. //What we do here is we are shifting the attacker piece bitmap to the position which we are currently checking. the resulting bitmap is combined  with the same_color bitmap with an '&'. if the resulting map is not equal to 0 then we know we have a matchup of attacker piece and attacked piece which means it is at the current location. //k needs to be bigger than 0 so we can ignore the attacker piece and don't see it as blocking itself.
@@ -99,6 +113,7 @@ public class Moves_Helper {
                     break; //TODO: add check here! ... if isKing(next)
                 }
             }
+            path = 0L;
             for (int k = 0; k < board_size - file; k++) { //move right (left shift on bitboard)
                 long current = (figures[i] << k) & same_color;
                 if ((current != 0L) & k != 0) {
@@ -115,9 +130,10 @@ public class Moves_Helper {
                     break;
                 }
             }
+            path = 0L;
             for (int k = 0; k < rank + 1; k++) {//move up
-                long block_it = 0L; //squares which can be blocked to get out of chess will be saved here if there is a check
                 long current = (figures[i] >>> (k * board_size)) & same_color; //current square which is targeted by figures[i]
+                path |= (figures[i] >>> ((k + 1) * board_size)); //we stop prematurely because of the break if we encounter an opposite king so the king spot itself will not be saved here.
                 if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
                     addprotected(figures[i], current); //protected piece which opposite king can't capture because he will be in check
                     break; //no further checking needed
@@ -129,22 +145,28 @@ public class Moves_Helper {
                 if (next != 0L) { //collision with OPPOSITE colored piece at next square
                     addattacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * board_size);
+
                     //---------------------
-                    if (isKing(next) & (((figures[i] >>> (k + 1 * board_size)) & opposite_color) != 0L)) { //if next square is an opposite colored king...
-                        addToBeBlocked(figures[i], block_it);//...ad locations to block the check
-                        //break;
+                    set = false;
+                    if (isKing(next)) { //if next square is an opposite colored king...
+                        addToBeBlocked(figures[i], path);//...ad locations to block the check
+                        set = true; //we only want to add the red zone if there was a king on the path. this is what we are marking here
                     }
+
+                    long next_next;
                     for (int rem = k + 2; rem < rank + 1; rem++) { //check if there is a king behind the piece (meaning piece is pinned)
-                        long next_next = figures[i] >>> (rem * board_size);
-                        if (isKing(next_next) & (((figures[i] >>> (rem * board_size)) & opposite_color) != 0L)) { //if the square we are currently checking is a king of oposite color
+                        next_next = figures[i] >>> (rem * board_size);
+                        path |= next_next;
+                        if (set & rem==rank) { //if we saw a king on th path and we are at the end of the path
                             addPinned(next);
+                            addRedZone(figures[i], path);
                         }
                     }
                     //---------------------
                     break;
                 }
-                block_it |= next; //we stop prematurely because of the break if we encounter an opposite king so the king spot itself will not be saved here.
             }
+            path = 0L;
             for (int k = 0; k < board_size - rank; k++) {//move down
                 long current = (figures[i] << (k * board_size)) & same_color;
                 if ((current != 0L) & k != 0) {
@@ -384,16 +406,18 @@ public class Moves_Helper {
 
     public static void initiate_red_zone_white() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONEW = movemaps[gtidx('p')] | movemaps[gtidx('n')] | movemaps[gtidx('b')] | movemaps[gtidx('r')] | movemaps[gtidx('q')] | movemaps[gtidx('k')];
-        REDZONEW -= pPOSM; //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
+        REDZONEW |= movemaps[gtidx('p')] | movemaps[gtidx('n')] | movemaps[gtidx('b')] | movemaps[gtidx('r')] | movemaps[gtidx('q')] | movemaps[gtidx('k')];
+        REDZONEW &= ~pPOSM; //TODO: doesn't work!!!!   //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
+        //REDZONEW &= ~WPROTECTED;
         //System.out.println("white redzone:");
         //bitmap_to_chessboard(REDZONEW); //TODO: test with start pos fen
     }
 
     public static void initiate_red_zone_black() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONEB = movemaps[gtidx('P')] | movemaps[gtidx('N')] | movemaps[gtidx('B')] | movemaps[gtidx('R')] | movemaps[gtidx('Q')] | movemaps[gtidx('K')];
-        REDZONEB -= PPOSM; //remove regular pawn movements as they are not attacking
+        REDZONEB |= movemaps[gtidx('P')] | movemaps[gtidx('N')] | movemaps[gtidx('B')] | movemaps[gtidx('R')] | movemaps[gtidx('Q')] | movemaps[gtidx('K')];
+        REDZONEB &= ~PPOSM; //remove regular pawn movements as they are not attacking
+        //REDZONEB &= ~BPROTECTED; //TODO: not working somehow
         //System.out.println("black redzone:");
         //bitmap_to_chessboard(REDZONEB); //TODO: test with start pos fen
     }
@@ -415,8 +439,79 @@ public class Moves_Helper {
         return false;
     }
 
-    public static void unite_movements(){
+    public static void unite_movements() {
         /*update movemaps to reflect updated individual movements.*/
-
+        if (!isNull(movemapsp)) {
+            movemaps[0] = 0L; //reset
+            for (long map : movemapsp) {
+                movemaps[0] |= map; //update
+            }
+        }
+        if (!isNull(movemapsn)) {
+            movemaps[1] = 0L;
+            for (long map : movemapsn) {
+                movemaps[1] |= map;
+            }
+        }
+        if (!isNull(movemapsb)) {
+            movemaps[2] = 0L;
+            for (long map : movemapsb) {
+                movemaps[2] |= map;
+            }
+        }
+        if (!isNull(movemapsr)) {
+            movemaps[3] = 0L;
+            for (long map : movemapsr) {
+                movemaps[3] |= map;
+            }
+        }
+        if (!isNull(movemapsq)) {
+            movemaps[4] = 0L;
+            for (long map : movemapsq) {
+                movemaps[4] |= map;
+            }
+        }
+        if (!isNull(movemapsk)) {
+            movemaps[5] = 0L;
+            for (long map : movemapsk) {
+                movemaps[5] |= map;
+            }
+        }
+        if (!isNull(movemaps[6])) {
+            movemaps[6] = 0L;
+            for (long map : movemapsP) {
+                movemaps[6] |= map;
+            }
+        }
+        if (!isNull(movemapsN)) {
+            movemaps[7] = 0L;
+            for (long map : movemapsN) {
+                movemaps[7] |= map;
+            }
+        }
+        if (!isNull(movemapsB)) {
+            movemaps[8] = 0L;
+            for (long map : movemapsB) {
+                movemaps[8] |= map;
+            }
+        }
+        if (!isNull(movemapsR)) {
+            movemaps[9] = 0L;
+            for (long map : movemapsR) {
+                movemaps[9] |= map;
+            }
+        }
+        if (!isNull(movemapsQ)) {
+            movemaps[10] = 0L;
+            for (long map : movemapsQ) {
+                movemaps[10] |= map;
+            }
+        }
+        if (!isNull(movemapsK)) {
+            movemaps[11] = 0L;
+            for (long map : movemapsK) {
+                movemaps[11] |= map;
+            }
+        }
     }
 }

@@ -137,17 +137,17 @@
         )
     )
  ;adjacent:
-    (:derived (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location)
+    (:derived (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location) ;TODO: precompute it
         (and(= ?from_file ?to_file) ;file +/-0
             (diff_by_One ?from_rank ?to_rank) ;rank +/-1
         )
     )
-    (:derived (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location)
+    (:derived (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
         (and(= ?from_rank ?to_rank) ;rank +/-0
             (diff_by_One ?from_file ?to_file) ;file +/-1
         )
     )
-    (:derived (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location)
+    (:derived (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
         (and(diff_by_One ?from_rank ?to_rank) ;rank +/-1
             (diff_by_One ?from_file ?to_file) ;file +/-1
         )
@@ -221,7 +221,7 @@
         (or (and(or
                    (empty_square ?to_file ?to_rank)
                    (and 
-                        (not(empty_square ?to_file ?to_rank))
+                        ;(not(empty_square ?to_file ?to_rank))
                         (exists(?figure - figure)
                             (and(at ?figure ?to_file ?to_rank)
                                 (not(occupied_by_same_color ?figure ?from_file ?from_rank))
@@ -247,7 +247,7 @@
         (or (and(or
                    (empty_square ?to_file ?to_rank)
                    (and
-                       (not(empty_square ?to_file ?to_rank))
+                       ;(not(empty_square ?to_file ?to_rank))
                        (exists(?figure - figure)
                            (and(at ?figure ?to_file ?to_rank)
                                (not(occupied_by_same_color ?figure ?from_file ?from_rank))
@@ -265,6 +265,7 @@
                       (= ?from_rank ?to_rank) ;same rank
                       (between ?from_file ?next_file ?to_file)
                       (horiz_reachable ?next_file ?from_rank ?to_file ?to_rank)
+                      ;(horiz_reachable ?from_file ?from_rank ?next_file ?to_rank)
                  )
             )
         )

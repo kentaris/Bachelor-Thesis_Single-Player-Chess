@@ -192,9 +192,9 @@ def after_timeout():
     raise Timeout_Error
 
 def main():
-    start_FEN=start_FEN='2b2/3pK/5/5/5'        #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
-    goal_FEN ='5/5/2K2/5/5'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
-    turn_start='white'
+    start_FEN=start_FEN='5/r4/5/5/5'        #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN ='5/3r1/5/5/5'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+    turn_start='black'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN,turn_start)
         load_file('domain',start_FEN)

@@ -40,6 +40,7 @@ public class Moves {
 
 
     public static void black_pawns() {
+        movemaps[gtidx('p')] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[gtidx('p')]);
         movemapsp = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
@@ -60,7 +61,12 @@ public class Moves {
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
                 if ((pawn_to_captures & bitmaps[gtidx('K')]) != 0L) { //if a black king is attacked
                     nrOfbAttackers++;
-                    locOfbAttackers |= (((bitmaps[gtidx('K')] >>> 7) & curr) | ((bitmaps[gtidx('K')] >>> 9) & curr)); //we shift the king position back to the desination where a pawn could have captured the king (both directions: >>>7 and >>>9) and then overlap it with the positions where pawns are located. The result is the pawn which is attacking the king. Ideally there is only one pawn attacking the king but this implementation allows for multiple pawns which attack the king if the start position is defining it so (we can't arrive there with legal moves).
+                    locOfbAttackers |= curr;
+                }
+                long protecting = ((((curr >>> 9)) & BLACKPIECES) | (((curr >>> 7)) & BLACKPIECES));
+                if (protecting != 0L) { //if a opposite colored piece is reachable it is protected
+                    BPROTECTED |= protecting;
+                    REDZONEW |= protecting;
                 }
             }
             pPOSM = pawn_to_moves;
@@ -70,6 +76,7 @@ public class Moves {
     }
 
     public static void white_pawns() {
+        movemaps[gtidx('P')] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[gtidx('P')]);
         movemapsP = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
@@ -90,7 +97,12 @@ public class Moves {
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
                 if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
                     nrOfwAttackers++;
-                    locOfwAttackers |= (((bitmaps[gtidx('k')] << 7) & curr) | ((bitmaps[gtidx('k')] << 9) & curr));
+                    locOfwAttackers |= curr;
+                }
+                long protecting = ((((curr >>> 9)) & WHITEPIECES) | (((curr >>> 7)) & WHITEPIECES));
+                if (protecting != 0L) { //if a opposite colored piece is reachable it is protected
+                    WPROTECTED |= protecting;
+                    REDZONEB |= protecting;
                 }
             }
             PPOSM = pawn_to_moves;
@@ -100,27 +112,26 @@ public class Moves {
     }
 
     public static void black_knights() {
+        movemaps[gtidx('n')] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[gtidx('n')]);
         movemapsn = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long knight_to_moves = 0L; //empty board
-            if (curr != 0) {
-                knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17)) & (WHITEPIECES | EMPTY);
+            if (curr != 0L) {
+                knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17));
                 clearOverflow(curr, knight_to_moves);
                 int idx = gtidx('K');
                 if ((knight_to_moves & bitmaps[idx]) != 0L) { //if a white king is attacked
                     nrOfbAttackers++;
-                    locOfbAttackers |= (((bitmaps[idx] << 6) & curr) |
-                            ((bitmaps[idx] << 10) & curr) |
-                            ((bitmaps[idx] << 15) & curr) |
-                            ((bitmaps[idx] << 17) & curr) |
-                            ((bitmaps[idx] >>> 6) & curr) |
-                            ((bitmaps[idx] >>> 10) & curr) |
-                            ((bitmaps[idx] >>> 15) & curr) |
-                            ((bitmaps[idx] >>> 17) & curr)
-                    );
+                    locOfbAttackers |= curr;
                 }
+                long protecting = knight_to_moves & BLACKPIECES;
+                if (protecting != 0L) { //if a opposite colored piece is reachable it is protected
+                    BPROTECTED |= protecting;
+                    REDZONEW |= protecting;
+                }
+                knight_to_moves &= ~WHITEPIECES;
                 movemaps[gtidx('n')] |= knight_to_moves;
                 movemapsn[i] = knight_to_moves;
             }
@@ -128,78 +139,82 @@ public class Moves {
     }
 
     public static void white_knights() {
+        movemaps[gtidx('N')] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[gtidx('N')]);
         movemapsN = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long knight_to_moves = 0L; //empty board
             if (curr != 0) {
-                knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17)) & (BLACKPIECES | EMPTY);
+                knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17));
                 knight_to_moves = clearOverflow(curr, knight_to_moves);
                 int idx = gtidx('k');
                 if ((knight_to_moves & bitmaps[idx]) != 0L) { //if a white king is attacked
                     nrOfwAttackers++;
-                    locOfwAttackers |= (((bitmaps[idx] << 6) & curr) |
-                            ((bitmaps[idx] << 10) & curr) |
-                            ((bitmaps[idx] << 15) & curr) |
-                            ((bitmaps[idx] << 17) & curr) |
-                            ((bitmaps[idx] >>> 6) & curr) |
-                            ((bitmaps[idx] >>> 10) & curr) |
-                            ((bitmaps[idx] >>> 15) & curr) |
-                            ((bitmaps[idx] >>> 17) & curr)
-                    );
+                    locOfwAttackers |= curr;
+                }
+                long protecting = knight_to_moves & WHITEPIECES;
+                if (protecting != 0L) { //if a opposite colored piece is reachable it is protected
+                    WPROTECTED |= protecting;
+                    REDZONEB |= protecting;
                 }
             }
+            knight_to_moves &= ~BLACKPIECES;
             movemaps[gtidx('N')] |= knight_to_moves;
             movemapsN[i] = knight_to_moves;
         }
     }
 
     public static void black_bishops() {
+        movemaps[gtidx('b')] = 0L;
         //long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('b')];
         if (curr != 0) {
             movemapsb = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            for (long f: movemapsb) {
+            for (long f : movemapsb) {
                 movemaps[gtidx('b')] |= f;
             }
         }
     }
 
     public static void white_bishops() {
+        movemaps[gtidx('B')] = 0L;
         //long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('B')];
         if (curr != 0) {
             movemapsB = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            for (long f: movemapsB) {
+            for (long f : movemapsB) {
                 movemaps[gtidx('B')] |= f;
             }
         }
     }
 
     public static void black_rooks() {
+        movemaps[gtidx('r')] = 0L;
         //long rook_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('r')];
         if (curr != 0) {
             movemapsr = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            for (long f: movemapsr) {
+            for (long f : movemapsr) {
                 movemaps[gtidx('r')] |= f;
             }
         }
     }
 
     public static void white_rooks() {
+        movemaps[gtidx('R')] = 0L;
         //long rook_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('R')];
         if (curr != 0) {
             movemapsR = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            for (long f: movemapsR) {
+            for (long f : movemapsR) {
                 movemaps[gtidx('R')] |= f;
             }
         }
     }
 
     public static void black_queens() {
+        movemaps[gtidx('q')] = 0L;
         //long queen_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('q')];
         if (curr != 0) {
@@ -212,6 +227,7 @@ public class Moves {
     }
 
     public static void white_queens() {
+        movemaps[gtidx('Q')] = 0L;
         //long queen_to_moves = 0L; //empty board
         long curr = bitmaps[gtidx('Q')];
         if (curr != 0) {
@@ -229,17 +245,23 @@ public class Moves {
         movemapsk = new long[1]; //there is only one king!
         if (curr != 0) {
             //TODO: opposite colored king cannot reach position & not red zone
-            king_to_moves |= (curr >>> 8) & (EMPTY | WHITEPIECES); //move one up
-            king_to_moves |= (curr >>> 9) & (EMPTY | WHITEPIECES); //move one left up
-            king_to_moves |= (curr >>> 7) & (EMPTY | WHITEPIECES); //move one right up
-            king_to_moves |= (curr >>> 1) & (EMPTY | WHITEPIECES); //move one left
-            king_to_moves |= (curr << 8) & (EMPTY | WHITEPIECES); //move one down
-            king_to_moves |= (curr << 9) & (EMPTY | WHITEPIECES); //move one right down
-            king_to_moves |= (curr << 7) & (EMPTY | WHITEPIECES); //move one left down
-            king_to_moves |= (curr << 1) & (EMPTY | WHITEPIECES); //move one right
+            king_to_moves |= (curr >>> 8); //move one up
+            king_to_moves |= (curr >>> 9); //move one left up
+            king_to_moves |= (curr >>> 7); //move one right up
+            king_to_moves |= (curr >>> 1); //move one left
+            king_to_moves |= (curr << 8); //move one down
+            king_to_moves |= (curr << 9); //move one right down
+            king_to_moves |= (curr << 7); //move one left down
+            king_to_moves |= (curr << 1); //move one right
             //bitmap_to_chessboard(king_to_moves);
             king_to_moves = clearOverflow(curr, king_to_moves);
+            long protecting = king_to_moves & BLACKPIECES;
+            if (protecting != 0L) { //if a opposite colored piece is reachable it is protected
+                BPROTECTED |= protecting;
+                REDZONEW |= protecting;
+            }
         }
+        king_to_moves &= ~BLACKPIECES;
         movemaps[gtidx('k')] |= king_to_moves;
         movemapsk[0] |= king_to_moves; //there is only one king!
     }
@@ -250,17 +272,22 @@ public class Moves {
         movemapsK = new long[1]; //there is only one king!
         if (curr != 0) {
             //TODO: opposite colored king cannot reach position & not red zone
-            king_to_moves |= (curr >>> 8) & (EMPTY | BLACKPIECES); //move one up
-            king_to_moves |= (curr >>> 9) & (EMPTY | BLACKPIECES); //move one left up
-            king_to_moves |= (curr >>> 7) & (EMPTY | BLACKPIECES); //move one right up
-            king_to_moves |= (curr >>> 1) & (EMPTY | BLACKPIECES); //move one left
-            king_to_moves |= (curr << 8) & (EMPTY | BLACKPIECES); //move one down
-            king_to_moves |= (curr << 9) & (EMPTY | BLACKPIECES); //move one right down
-            king_to_moves |= (curr << 7) & (EMPTY | BLACKPIECES); //move one left down
-            king_to_moves |= (curr << 1) & (EMPTY | BLACKPIECES); //move one right
-            //bitmap_to_chessboard(king_to_moves);
+            king_to_moves |= (curr >>> 8); //move one up
+            king_to_moves |= (curr >>> 9); //move one left up
+            king_to_moves |= (curr >>> 7); //move one right up
+            king_to_moves |= (curr >>> 1); //move one left
+            king_to_moves |= (curr << 8); //move one down
+            king_to_moves |= (curr << 9); //move one right down
+            king_to_moves |= (curr << 7); //move one left down
+            king_to_moves |= (curr << 1); //move one right
             king_to_moves = clearOverflow(curr, king_to_moves);
+            long protecting = king_to_moves & WHITEPIECES;
+            if (protecting != 0L) { //if a opposite colored piece is reachable it is protected
+                WPROTECTED |= protecting;
+                REDZONEB |= protecting;
+            }
         }
+        king_to_moves &= ~WHITEPIECES;
         movemaps[gtidx('K')] |= king_to_moves;
         movemapsK[0] |= king_to_moves;
     }

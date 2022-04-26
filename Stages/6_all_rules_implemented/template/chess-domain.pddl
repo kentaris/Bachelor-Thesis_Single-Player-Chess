@@ -111,7 +111,7 @@
         )
     )
  ;Square info:
-    (:derived (same_color ?figure1 ?figure2 - figure)
+    (:derived (same_color ?figure1 ?figure2 - figure) ;TODO: precompute
         (or (and(is_white ?figure1)
                 (is_white ?figure2)
             )
@@ -125,7 +125,7 @@
             (not(empty_square ?file ?rank))
             (exists(?fig - figure)
                 (and(at ?fig ?file ?rank)
-                    (or (and(is_white ?fig)
+                    (or (and(is_white ?fig)  ;TODO: precompute: same_color
                             (is_white ?figure)
                         )
                         (and(is_black ?fig)
@@ -137,22 +137,22 @@
         )
     )
  ;adjacent:
-    (:derived (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location)
+    (:derived (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location) ;TODO: precompute it
         (and(= ?from_file ?to_file) ;file +/-0
             (diff_by_One ?from_rank ?to_rank) ;rank +/-1
         )
     )
-    (:derived (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location)
+    (:derived (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
         (and(= ?from_rank ?to_rank) ;rank +/-0
             (diff_by_One ?from_file ?to_file) ;file +/-1
         )
     )
-    (:derived (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location)
+    (:derived (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
         (and(diff_by_One ?from_rank ?to_rank) ;rank +/-1
             (diff_by_One ?from_file ?to_file) ;file +/-1
         )
     )
-    (:derived (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank - location)
+    (:derived (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank - location)  ;TODO: precompute
         (and
             (not(= ?from_file ?next_file))
             (not(= ?next_file ?to_file))
@@ -182,7 +182,7 @@
             )
         )
     )
-    (:derived (between ?from ?next ?to - location)
+    (:derived (between ?from ?next ?to - location) ;TODO: precompute
         (and
             (not(= ?from ?next))
             (not(= ?next ?to))
@@ -198,7 +198,7 @@
             )
         )
     )
-    (:derived (plusOne_nTimes ?x ?y - location)
+    (:derived (plusOne_nTimes ?x ?y - location) ;TODO: precompute
         (or (plusOne ?x ?y)
             (exists(?next - location)
                 (and(plusOne ?x ?next)
@@ -207,7 +207,7 @@
             )
         )
     )
-    (:derived (minusOne_nTimes ?x ?y - location)
+    (:derived (minusOne_nTimes ?x ?y - location) ;TODO: precompute
         (or (minusOne ?x ?y)
             (exists(?next - location)
                 (and(minusOne ?x ?next)
@@ -221,7 +221,7 @@
         (or (and(or
                    (empty_square ?to_file ?to_rank)
                    (and 
-                        (not(empty_square ?to_file ?to_rank))
+                        ;(not(empty_square ?to_file ?to_rank))
                         (exists(?figure - figure)
                             (and(at ?figure ?to_file ?to_rank)
                                 (not(occupied_by_same_color ?figure ?from_file ?from_rank))
@@ -247,7 +247,7 @@
         (or (and(or
                    (empty_square ?to_file ?to_rank)
                    (and
-                       (not(empty_square ?to_file ?to_rank))
+                       ;(not(empty_square ?to_file ?to_rank))
                        (exists(?figure - figure)
                            (and(at ?figure ?to_file ?to_rank)
                                (not(occupied_by_same_color ?figure ?from_file ?from_rank))
