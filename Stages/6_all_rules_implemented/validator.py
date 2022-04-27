@@ -1,3 +1,4 @@
+import time
 import chess
 import FEN
 
@@ -34,5 +35,22 @@ def validate(start_FEN, goal_FEN, plan, color=None):
         #print('next:',move,line)
         #print(board)
     return True
-
 #validate('5/1pppp/1R1N1/PPP2/5', '5/Ppp2/RPpN1/4p/5',['(rook_move rook_w1 n2 n3 n1 n3)\n','(pawn_move_one pawn_w2 n2 n2 n2 n3)\n','(pawn_move_two pawn_b4 n5 n4 n5 n2)\n','(pawn_move_one pawn_w3 n3 n2 n3 n3)\n','(pawn_capture pawn_b3 n4 n4 n3 n3)\n','(rook_move rook_w1 n1 n3 n1 n5)\n','(rook_move rook_w1 n1 n5 n4 n5)\n','(pawn_move_two pawn_w1 n1 n2 n1 n4)\n','(knight_move knight_w1 n4 n3 n3 n1)\n','(rook_move rook_w1 n4 n5 n4 n2)\n','(rook_move rook_w1 n4 n2 n1 n2)\n','(rook_move rook_w1 n1 n2 n1 n3)\n','(knight_move knight_w1 n3 n1 n4 n3)\n','; cost = 13 (unit cost)\n'])
+FEN='4k3/8/4r3/P7/8/4R3/8/8'
+t1=time.perf_counter_ns()
+board=chess.Board(FEN)
+board.legal_moves
+valid_moves=[str(m) for m in list(board.legal_moves)]
+for i in valid_moves:
+    print(i)
+t2=time.perf_counter_ns()
+T=t2-t1
+s=T/(1000*1000*1000)
+s_int=int(s)
+ms=(s-s_int)*1000
+ms_int=int(ms)
+µs=(ms-ms_int)*1000
+µs_int=int(µs)
+ns=(µs-µs_int)*1000
+ns_int=int(ns)
+print('{}s {}ms {}µs {}ns'.format(s_int,ms_int,µs_int,ns_int))

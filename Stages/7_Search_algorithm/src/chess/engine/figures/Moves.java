@@ -5,19 +5,11 @@ import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves_Helper.*;
 
 public class Moves {
+    public static boolean whitesTurn;
     public static long[] movemaps = new long[12];
-    public static long[] movemapsp; //indicidual movement sets of the pieces
-    public static long[] movemapsP;
-    public static long[] movemapsn;
-    public static long[] movemapsN;
-    public static long[] movemapsb;
-    public static long[] movemapsB;
-    public static long[] movemapsr;
-    public static long[] movemapsR;
-    public static long[] movemapsq;
-    public static long[] movemapsQ;
-    public static long[] movemapsk;
-    public static long[] movemapsK;
+    public static long[][] movemapsIndividual = new long[12][];
+    public static long[] pinnedMovementB = new long [8]; //in the extreme case, the king has 8 pieces around him who are all pinned.
+    public static long[] pinnedMovementW = new long [8]; //in the extreme case, the king has 8 pieces around him who are all pinned.
     public static long REDZONEB;
     public static long REDZONEW;
     static long pPOSM; //black pawn possibilities for moving (not capturing)
@@ -40,9 +32,10 @@ public class Moves {
 
 
     public static void black_pawns() {
-        movemaps[gtidx('p')] = 0L;
-        long[] Figures = get_single_figure_boards(bitmaps[gtidx('p')]);
-        movemapsp = new long[Figures.length];
+        int idx = gtidx('p');
+        movemaps[idx] = 0L;
+        long[] Figures = get_single_figure_boards(bitmaps[idx]);
+        movemapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long pawn_to_moves = 0L; //empty board
@@ -59,7 +52,7 @@ public class Moves {
                 //pawn_to_moves |= (curr << 9);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
                 //bitmap_to_chessboard(pawn_to_moves);
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
-                if ((pawn_to_captures & bitmaps[gtidx('K')]) != 0L) { //if a black king is attacked
+                if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
                     nrOfbAttackers++;
                     locOfbAttackers |= curr;
                 }
@@ -70,15 +63,16 @@ public class Moves {
                 }
             }
             pPOSM = pawn_to_moves;
-            movemaps[gtidx('p')] |= pawn_to_moves | pawn_to_captures; //TODO: needed?
-            movemapsp[i] = pawn_to_moves | pawn_to_captures;
+            movemaps[idx] |= pawn_to_moves | pawn_to_captures; //TODO: needed?
+            movemapsIndividual[idx][i] = pawn_to_moves | pawn_to_captures;
         }
     }
 
     public static void white_pawns() {
-        movemaps[gtidx('P')] = 0L;
-        long[] Figures = get_single_figure_boards(bitmaps[gtidx('P')]);
-        movemapsP = new long[Figures.length];
+        int idx = gtidx('P');
+        movemaps[idx] = 0L;
+        long[] Figures = get_single_figure_boards(bitmaps[idx]);
+        movemapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long pawn_to_moves = 0L; //empty board
@@ -107,22 +101,22 @@ public class Moves {
             }
             PPOSM = pawn_to_moves;
             movemaps[gtidx('P')] |= pawn_to_moves | pawn_to_captures; //TODO: needed?
-            movemapsP[i] = pawn_to_moves | pawn_to_captures;
+            movemapsIndividual[idx][i] = pawn_to_moves | pawn_to_captures;
         }
     }
 
     public static void black_knights() {
-        movemaps[gtidx('n')] = 0L;
-        long[] Figures = get_single_figure_boards(bitmaps[gtidx('n')]);
-        movemapsn = new long[Figures.length];
+        int idx= gtidx('n');
+        movemaps[idx] = 0L;
+        long[] Figures = get_single_figure_boards(bitmaps[idx]);
+        movemapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long knight_to_moves = 0L; //empty board
             if (curr != 0L) {
                 knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17));
                 clearOverflow(curr, knight_to_moves);
-                int idx = gtidx('K');
-                if ((knight_to_moves & bitmaps[idx]) != 0L) { //if a white king is attacked
+                if ((knight_to_moves & bitmaps[gtidx('K')]) != 0L) { //if a white king is attacked
                     nrOfbAttackers++;
                     locOfbAttackers |= curr;
                 }
@@ -132,24 +126,24 @@ public class Moves {
                     REDZONEW |= protecting;
                 }
                 knight_to_moves &= ~WHITEPIECES;
-                movemaps[gtidx('n')] |= knight_to_moves;
-                movemapsn[i] = knight_to_moves;
+                movemaps[idx] |= knight_to_moves;
+                movemapsIndividual[idx][i] = knight_to_moves;
             }
         }
     }
 
     public static void white_knights() {
-        movemaps[gtidx('N')] = 0L;
-        long[] Figures = get_single_figure_boards(bitmaps[gtidx('N')]);
-        movemapsN = new long[Figures.length];
+        int idx = gtidx('N');
+        movemaps[idx] = 0L;
+        long[] Figures = get_single_figure_boards(bitmaps[idx]);
+        movemapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long knight_to_moves = 0L; //empty board
             if (curr != 0) {
                 knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17));
                 knight_to_moves = clearOverflow(curr, knight_to_moves);
-                int idx = gtidx('k');
-                if ((knight_to_moves & bitmaps[idx]) != 0L) { //if a white king is attacked
+                if ((knight_to_moves & bitmaps[gtidx('k')]) != 0L) { //if a white king is attacked
                     nrOfwAttackers++;
                     locOfwAttackers |= curr;
                 }
@@ -160,89 +154,96 @@ public class Moves {
                 }
             }
             knight_to_moves &= ~BLACKPIECES;
-            movemaps[gtidx('N')] |= knight_to_moves;
-            movemapsN[i] = knight_to_moves;
+            movemaps[idx] |= knight_to_moves;
+            movemapsIndividual[idx][i] = knight_to_moves;
         }
     }
 
     public static void black_bishops() {
-        movemaps[gtidx('b')] = 0L;
+        int idx = gtidx('b');
+        movemaps[idx] = 0L;
         //long bishop_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('b')];
+        long curr = bitmaps[idx];
         if (curr != 0) {
-            movemapsb = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            for (long f : movemapsb) {
-                movemaps[gtidx('b')] |= f;
+            movemapsIndividual[idx] = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            for (long f : movemapsIndividual[idx]) {
+                movemaps[idx] |= f;
             }
         }
     }
 
     public static void white_bishops() {
-        movemaps[gtidx('B')] = 0L;
+        int idx = gtidx('B');
+        movemaps[idx] = 0L;
         //long bishop_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('B')];
+        long curr = bitmaps[idx];
         if (curr != 0) {
-            movemapsB = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            for (long f : movemapsB) {
-                movemaps[gtidx('B')] |= f;
+            movemapsIndividual[idx] = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            for (long f : movemapsIndividual[idx]) {
+                movemaps[idx] |= f;
             }
         }
     }
 
     public static void black_rooks() {
-        movemaps[gtidx('r')] = 0L;
+        int idx = gtidx('r');
+        movemaps[idx] = 0L;
         //long rook_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('r')];
+        long curr = bitmaps[idx];
         if (curr != 0) {
-            movemapsr = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            for (long f : movemapsr) {
-                movemaps[gtidx('r')] |= f;
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            for (long f : movemapsIndividual[idx]) {
+                movemaps[idx] |= f;
             }
         }
     }
 
     public static void white_rooks() {
-        movemaps[gtidx('R')] = 0L;
+        int idx = gtidx('R');
+        movemaps[idx] = 0L;
         //long rook_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('R')];
+        long curr = bitmaps[idx];
         if (curr != 0) {
-            movemapsR = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            for (long f : movemapsR) {
-                movemaps[gtidx('R')] |= f;
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            for (long f : movemapsIndividual[idx]) {
+                movemaps[idx] |= f;
             }
         }
     }
 
     public static void black_queens() {
-        movemaps[gtidx('q')] = 0L;
+        int idx = gtidx('q');
+        movemaps[idx] = 0L;
         //long queen_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('q')];
+        long curr = bitmaps[idx];
         if (curr != 0) {
-            //movemapsq |= hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            //movemapsq |= diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            /*for (long f: movemapsq) {
-                movemaps[gtidx('q')] |= f;
-            }*/
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            //movemapsTEST[idx] |= diag_bitboard(curr, WHITEPIECES, BLACKPIECES); //TODO: doesn't work for some reason...
+            for (long f: movemapsIndividual[idx]) {
+                movemaps[idx] |= f;
+            }
         }
     }
 
     public static void white_queens() {
-        movemaps[gtidx('Q')] = 0L;
+        int idx = gtidx('Q');
+        movemaps[idx] = 0L;
         //long queen_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('Q')];
+        long curr = bitmaps[idx];
         if (curr != 0) {
-            //movemapsQ |= hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
             //movemapsQ |= diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            /*for (long f: movemapsQ) {
-                movemaps[gtidx('Q')] |= f;
-            }*/
+            for (long f: movemapsIndividual[idx]) {
+                movemaps[idx] |= f;
+            }
         }
     }
 
     public static void black_king() {
+        int idx = gtidx('k');
         long king_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('k')];
-        movemapsk = new long[1]; //there is only one king!
+        long curr = bitmaps[idx];
+        movemapsIndividual[idx] = new long[1]; //there is only one king!
         if (curr != 0) {
             //TODO: opposite colored king cannot reach position & not red zone
             king_to_moves |= (curr >>> 8); //move one up
@@ -262,14 +263,15 @@ public class Moves {
             }
         }
         king_to_moves &= ~BLACKPIECES;
-        movemaps[gtidx('k')] |= king_to_moves;
-        movemapsk[0] |= king_to_moves; //there is only one king!
+        movemaps[idx] |= king_to_moves;
+        movemapsIndividual[idx][0] |= king_to_moves; //there is only one king!
     }
 
     public static void white_king() {
+        int idx = gtidx('K');
         long king_to_moves = 0L; //empty board
-        long curr = bitmaps[gtidx('K')];
-        movemapsK = new long[1]; //there is only one king!
+        long curr = bitmaps[idx];
+        movemapsIndividual[idx] = new long[1]; //there is only one king!
         if (curr != 0) {
             //TODO: opposite colored king cannot reach position & not red zone
             king_to_moves |= (curr >>> 8); //move one up
@@ -288,8 +290,8 @@ public class Moves {
             }
         }
         king_to_moves &= ~WHITEPIECES;
-        movemaps[gtidx('K')] |= king_to_moves;
-        movemapsK[0] |= king_to_moves;
+        movemaps[idx] |= king_to_moves;
+        movemapsIndividual[idx][0] |= king_to_moves;
     }
 
     public static void initiate_next_black_movements() {
@@ -314,8 +316,12 @@ public class Moves {
         white_king();
     }
 
-    public static void initiate_next_moves() { //initiates all moves
+    public static void initiate_next_moves(boolean turn) { //initiates all moves
+        whitesTurn=turn;
         initiate_next_black_movements();
         initiate_next_white_movements();
+        initiate_redzone();
+        initiate_inCheck();
+        valid_moves();
     }
 }

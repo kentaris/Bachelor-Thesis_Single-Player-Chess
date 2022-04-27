@@ -42,12 +42,12 @@ public class Bitboards {
         /*creates a bitboard from a given visual representaion*/
         /*This method is here for convenience only since it is somethimes timeconsuming and error prone to come up with the exact FEN code for a given chess position.*/
         Character board[][] = {
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
+                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', 'r', ' ', ' ', ' '},
+                {'P', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', 'K', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', 'R', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square index 63  &  0,7 (file,row)
         arrayToBitboards(board);
