@@ -246,4 +246,20 @@ public class Bitboards {
         }
         return false;
     }
+
+    public static long unite(long[] bitmaps){
+        long united = bitmaps[0];
+        united |= bitmaps[1];
+        united |= bitmaps[2];
+        united |= bitmaps[3];
+        united |= bitmaps[4];
+        united |= bitmaps[5];
+        united |= bitmaps[6];
+        united |= bitmaps[7];
+        united |= bitmaps[8];
+        united |= bitmaps[9];
+        united |= bitmaps[10];
+        united |= bitmaps[11];
+        return united;
+    }
 }

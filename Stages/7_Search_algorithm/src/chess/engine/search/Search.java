@@ -4,18 +4,26 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 import static chess.engine.board.Bitboards.*;
+import static chess.engine.board.Bitboards.get_single_figure_boards;
 import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves.*;
+import static chess.engine.figures.Moves.whitesTurn;
 import static chess.engine.figures.Moves_Helper.*;
 import static java.lang.Math.round;
 import static java.util.Objects.isNull;
 
 public class Search {
     public static final int board_size = 8;
+
+    private class State { //Search node which contains the bitboards
+        long[] bitboard;
+
+    }
 
     public static void main(String[] args) {
         String FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
@@ -26,18 +34,20 @@ public class Search {
         long t1 = System.nanoTime();
         boolean whitesTurn = false;
         initiate_next_moves(whitesTurn);
+        Stack<long[]> successors = generate_successors();
+
 
         //System.out.println("# white attackers: "+nrOfwAttackers);
         //bitmap_to_chessboard(REDZONEW); //TODO: now working!
         //System.out.println("red-zone black ^");
         //System.out.println(BINCHECK);
+
         /*int[][] test = getMoves();
-        int cnt=1;
-        for (int[] i:test){
-            System.out.println(cnt+": "+convertMove(i));
-            cnt++;
+
+        for (int i=0;i< test.length;i++){
+            String s = (i+1)+": "+convertMove(test[i]);
         }*/
-        long valid_moves = 0L;
+        /*long valid_moves = 0L;
         for (int i = 0; i < 6; i++) {
             if (!isNull(movemapsIndividual[i])) {
                 for (long m : movemapsIndividual[i]) {
@@ -46,7 +56,7 @@ public class Search {
             }
         }
         bitmap_to_chessboard(valid_moves);
-        System.out.println("black valid moves ^");
+        System.out.println("black valid moves ^");*/
         //TODO: if there are no more black movements available and it's black's turn, then generate no more children
         //bitmap_to_chessboard(valid_moves);
         //System.out.println("white ^");

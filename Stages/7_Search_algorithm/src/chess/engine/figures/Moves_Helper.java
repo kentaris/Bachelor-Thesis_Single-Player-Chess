@@ -1,5 +1,7 @@
 package chess.engine.figures;
 
+import java.util.Stack;
+
 import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Moves.*;
@@ -295,18 +297,32 @@ public class Moves_Helper {
     }
 
     public static int[][] getMoves() {
+        int start = 0;
+        if (whitesTurn){
+            start=6;
+        }
+        int end=6;
+        if (whitesTurn){
+            end=12;
+        }
         int n = 0;
-        for (int i = 0; i < 12; i++) {
-            n += Long.bitCount(movemaps[i]);
+        for (int i = start; i < end; i++) {
+            if (!isNull(movemapsIndividual[i])) {
+                for (int j = 0; j < movemapsIndividual[i].length; j++) {
+                    n+=Long.bitCount(movemapsIndividual[i][j]);
+                }
+            }
         }
         int[][] coordinate = new int[n][7]; //a3h3 movement for example -->̣ [3, 1,3,8,3, 0,0] the first number represents the piece (here a black rook). The second last number represents movemens (0) vs captures (1). The last number represents promotions (0-4), castling (5-6), double pawn moves (7).
         for (int i = 0; i < 12; i++) { //for all figures
             for (int j = 0; j < Long.bitCount(movemaps[i]); j++) { //for all possible movements for that figure
-                //get_squareIndex_of_figure();
+                if (!isNull(movemapsIndividual[i][j])) {
+                    int idx = get_squareIndex_of_figure(movemapsIndividual[i][j]);
+                    int file = idx / board_size;
+                    int rank = idx % board_size;
+                }
             }
         }
-        //get_squareIndex_of_figure();
-        //[i / board_size][i % board_size]
         return coordinate;
     }
 
@@ -433,5 +449,39 @@ public class Moves_Helper {
             return true;
         }
         return false;
+    }
+    public static Stack<long[]> generate_successors(){
+        int start = 0;
+        if (whitesTurn) {
+            start = 6;
+        }
+        int end = 6;
+        if (whitesTurn) {
+            end = 12;
+        }
+        Stack<long[]> successors = new Stack<>();
+        for (int type = start; type < end; type++) { //forall types (black pawns, white rooks, etc.
+            long[] figures = get_single_figure_boards(bitmaps[type]);
+            for (int i = 0; i < figures.length; i++) { //for all pieces of the same type (w_pawn_1, w_pawn_2, etc.)
+                //bitmap_to_chessboard(figures[i]);
+                long[] movements = get_single_figure_boards(movemapsIndividual[type][i]);
+                for (int m = 0; m < movements.length; m++) {//for all possible individual movements
+                    long[] newState = bitmaps.clone();
+                    //remove captured piece:
+                    if ((movements[m] & (BLACKPIECES | WHITEPIECES)) != 0L) { //we are capturing a piece
+                        for (int k = 0; k < 12; k++) {
+                            if ((movements[m]&newState[k])!=0L){
+                                newState[k]=0L;
+                            }
+                        }
+                    }
+                    //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
+                    newState[type] = movements.clone()[m];
+                    //bitmaps_to_chessboard(newState);
+                    successors.push(newState);
+                }
+            }
+        }
+        return successors;
     }
 }
