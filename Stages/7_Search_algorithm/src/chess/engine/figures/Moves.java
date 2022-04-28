@@ -1,15 +1,15 @@
 package chess.engine.figures;
 
 import static chess.engine.board.Bitboards.*;
+import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves_Helper.*;
 
 public class Moves {
     public static boolean whitesTurn;
-    public static long[] movemaps = new long[12];
+    public static long[] movemaps = new long[12]; //TODO: needed only for the red zone, can we change that to make it faster?
     public static long[][] movemapsIndividual = new long[12][];
-    public static long[] pinnedMovementB = new long [8]; //in the extreme case, the king has 8 pieces around him who are all pinned.
-    public static long[] pinnedMovementW = new long [8]; //in the extreme case, the king has 8 pieces around him who are all pinned.
+    public static long pinnedMovement = 0L;
     public static long REDZONEB;
     public static long REDZONEW;
     static long pPOSM; //black pawn possibilities for moving (not capturing)
@@ -43,8 +43,8 @@ public class Moves {
             if (curr != 0) {
                 pawn_to_moves |= (curr << 8) & EMPTY & (~RANKS[0]); //move one forward
                 pawn_to_moves |= (curr << 16) & EMPTY & (EMPTY << 8) & (RANKS[6] << 16); //move two forwards
-                pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES;//capture left //TODO: remove captured piece
-                pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES;//capture right //TODO: remove captured piece
+                pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES;//capture left
+                pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES;//capture right
                 pawn_to_moves |= (curr << 8) & EMPTY & (RANKS[0]); //pawn promotion by move; //TODO: replace pawn with new figure
                 pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture left; //TODO: replace pawn with new figure
                 pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture right; //TODO: replace pawn with new figure
@@ -63,7 +63,7 @@ public class Moves {
                 }
             }
             pPOSM = pawn_to_moves;
-            movemaps[idx] |= pawn_to_moves | pawn_to_captures; //TODO: needed?
+            movemaps[idx] |= pawn_to_moves | pawn_to_captures;
             movemapsIndividual[idx][i] = pawn_to_moves | pawn_to_captures;
         }
     }
@@ -87,6 +87,7 @@ public class Moves {
                 pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture right; //TODO: replace pawn with new figure
                 //pawn_to_moves |= (curr >>> 9);//en-passant capture left // TODO: en-passant : piece must have moved in last turn
                 //pawn_to_moves |= (curr >>> 7);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
+                //TODO: for the en-passant I give the search call a "history" of the last move that has been played. I can give it a bitmap of the NEW position of the pawn that moved IFF it did a dobble move. otherwise the history is empty.
                 //bitmap_to_chessboard(pawn_to_moves);
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
                 if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
@@ -100,7 +101,7 @@ public class Moves {
                 }
             }
             PPOSM = pawn_to_moves;
-            movemaps[gtidx('P')] |= pawn_to_moves | pawn_to_captures; //TODO: needed?
+            movemaps[gtidx('P')] |= pawn_to_moves | pawn_to_captures;
             movemapsIndividual[idx][i] = pawn_to_moves | pawn_to_captures;
         }
     }
@@ -190,7 +191,7 @@ public class Moves {
         movemaps[idx] = 0L;
         //long rook_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
-        if (curr != 0) {
+        if (curr != 0L) {
             movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
@@ -218,7 +219,10 @@ public class Moves {
         long curr = bitmaps[idx];
         if (curr != 0) {
             movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            //movemapsTEST[idx] |= diag_bitboard(curr, WHITEPIECES, BLACKPIECES); //TODO: doesn't work for some reason...
+            long[] diag = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            for (int m=0;m<movemapsIndividual[idx].length;m++) {
+                movemapsIndividual[idx][m] |=diag[m];
+            }
             for (long f: movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
@@ -232,7 +236,10 @@ public class Moves {
         long curr = bitmaps[idx];
         if (curr != 0) {
             movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            //movemapsQ |= diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            long[] diag = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            for (int m=0;m<movemapsIndividual[idx].length;m++) {
+                movemapsIndividual[idx][m] |=diag[m];
+            }
             for (long f: movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
@@ -245,7 +252,6 @@ public class Moves {
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
         if (curr != 0) {
-            //TODO: opposite colored king cannot reach position & not red zone
             king_to_moves |= (curr >>> 8); //move one up
             king_to_moves |= (curr >>> 9); //move one left up
             king_to_moves |= (curr >>> 7); //move one right up
@@ -273,7 +279,6 @@ public class Moves {
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
         if (curr != 0) {
-            //TODO: opposite colored king cannot reach position & not red zone
             king_to_moves |= (curr >>> 8); //move one up
             king_to_moves |= (curr >>> 9); //move one left up
             king_to_moves |= (curr >>> 7); //move one right up
@@ -320,6 +325,7 @@ public class Moves {
         whitesTurn=turn;
         initiate_next_black_movements();
         initiate_next_white_movements();
+
         initiate_redzone();
         initiate_inCheck();
         valid_moves();

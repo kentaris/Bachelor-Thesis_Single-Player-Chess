@@ -20,14 +20,12 @@ public class Moves_Helper {
         }
     }
 
-    public static void addattacked(long figure, long next) {
-        //TODO: currently not working because we are removing the king at the begnning -->̣ only king moves are valid if doble check
+    public static void addAttacked(long figure, long next) {
         if (isWhite(figure)) {
             BATTACKED |= next; //add currently looked at piece
-            //TODO: add squares behind king to red zone!
             if (isKing(next)) {
                 nrOfwAttackers++; //we need to keep track of how many pieces attack the king since if it is only one piece it can be captured to eliminate the check but if there are more than one we can't eliminate the check by capturing but must move the king.
-                locOfwAttackers |= figure; //TODO: only works if the king is on the 'next' spot...
+                locOfwAttackers |= figure;
             }
         } else {
             WATTACKED |= next;
@@ -39,23 +37,8 @@ public class Moves_Helper {
     }
 
     public static void addPinnedMovement(long attacker, long path) {
-        if (isWhite(attacker)) {
-            int n = 0; //pick unfilled array spot
-            for (int i = 0; i < pinnedMovementB.length; i++) {
-                if (isNull(pinnedMovementB[i])) {
-                    n++;
-                }
-            }
-            pinnedMovementB[n] = path + attacker;
-        } else {
-            int n = 0;
-            for (int i = 0; i < pinnedMovementW.length; i++) {
-                if (isNull(pinnedMovementW[i])) {
-                    n++;
-                }
-            }
-            pinnedMovementW[n] = path + attacker;
-        }
+
+        pinnedMovement |= path + attacker;
     }
 
     public static void addPinned(long next) {
@@ -93,21 +76,7 @@ public class Moves_Helper {
         /*https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating*/
         /*https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks*/
         /*https://core.ac.uk/download/pdf/33500946.pdf*/
-        /*System.out.println("bitboard:");
-        bitmap_to_chessboard(bitboard);
-        System.out.println("opposite color:");
-        bitmap_to_chessboard(opposite_color);
-        System.out.println("same color:");
-        bitmap_to_chessboard(same_color);
-        //System.exit(0);*//*
-        long king = 0L; //TODO: the following code removes the king but it also disallows me to count number of sliding pieces that attack the king
-        if (isWhite(bitboard)) { //if attacker piece is white
-            opposite_color -= bitmaps[gtidx('k')]; //we remove the opposite colored king from the map because otherwise the king's last position can protect himself from a check if he moves behind it.
-            king = bitmaps[gtidx('k')]; //we still need the king so we save it
-        } else {
-            opposite_color -= bitmaps[gtidx('K')];
-            king = bitmaps[gtidx('K')];
-        }*/
+
         long[] figures = get_single_figure_boards(bitboard); //here I split the board's figures into single figure bitboards for every piece (if there are multiple)
         long movemap[] = new long[figures.length];
         for (int i = 0; i < figures.length; i++) { //loop over single figures //TODO: replace with 'Long.bitCount(bitboard)' to be faster
@@ -130,9 +99,9 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] >>> (k + 1)) & opposite_color;
                 if (next != 0L) { //collision with OPPOSITE colored piece at next square
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> (k + 1);
-                    break; //TODO: add check here! ... if isKing(next)
+                    break;
                 }
             }
             path = 0L;
@@ -147,7 +116,7 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] << (k + 1)) & opposite_color;
                 if (next != 0L) {
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << (k + 1);
                     break;
                 }
@@ -165,7 +134,7 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] >>> ((k + 1) * board_size)) & opposite_color; //next square which is being attacked
                 if (next != 0L) { //collision with OPPOSITE colored piece at next square
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * board_size);
 
                     //---------------------
@@ -206,7 +175,7 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] << ((k + 1) * board_size)) & opposite_color;
                 if (next != 0L) {
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * board_size);
                     break;
                 }
@@ -238,7 +207,7 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] << ((k + 1) * (board_size - 1))) & opposite_color;
                 if (next != 0L) { //collision with OPPOSITE colored piece at next square
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * (board_size - 1));
                     break;
                 }
@@ -254,7 +223,7 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] >>> ((k + 1) * (board_size - 1))) & opposite_color;
                 if (next != 0L) {
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * (board_size - 1));
                     break;
                 }
@@ -270,7 +239,7 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] >>> ((k + 1) * (board_size + 1))) & opposite_color;
                 if (next != 0L) {
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * (board_size + 1));
                     break;
                 }
@@ -286,7 +255,7 @@ public class Moves_Helper {
                 }
                 long next = (figures[i] << ((k + 1) * (board_size + 1))) & opposite_color;
                 if (next != 0L) {
-                    addattacked(figures[i], next);
+                    addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * (board_size + 1));
                     break;
                 }
@@ -298,18 +267,18 @@ public class Moves_Helper {
 
     public static int[][] getMoves() {
         int start = 0;
-        if (whitesTurn){
-            start=6;
+        if (whitesTurn) {
+            start = 6;
         }
-        int end=6;
-        if (whitesTurn){
-            end=12;
+        int end = 6;
+        if (whitesTurn) {
+            end = 12;
         }
         int n = 0;
         for (int i = start; i < end; i++) {
             if (!isNull(movemapsIndividual[i])) {
                 for (int j = 0; j < movemapsIndividual[i].length; j++) {
-                    n+=Long.bitCount(movemapsIndividual[i][j]);
+                    n += Long.bitCount(movemapsIndividual[i][j]);
                 }
             }
         }
@@ -337,14 +306,11 @@ public class Moves_Helper {
     }
 
     public static void valid_moves() {
-        valid_black_moves();
-        valid_white_moves();
-        /*
         if (whitesTurn) { //TODO: not sure if I can do this. Is there a scenario where we need to initiate valid moves of the opposite color to
             valid_white_moves();
         } else {
-            valid_black_moves(); //TODO: currently the valid moves are only printed, not returned and converted to valid moves
-        }*/
+            valid_black_moves();
+        }
     }
 
     public static void valid_black_moves() { //black figure moves:
@@ -352,11 +318,11 @@ public class Moves_Helper {
         movemapsIndividual[5][0] &= ~REDZONEB; //get black king
         if (nrOfwAttackers == 1) { //if we don't have more than one piece attacking the king...
             // ...and we can capture the attacker piece...or block the attacker piece:
-            for (int fig = 0; fig < 6; fig++) {
-                movemaps[0] &= (locOfwAttackers | blockLocationsB);
+            for (int fig = 0; fig < 5; fig++) { //we exclude the king from this calculation because he can't be pinned nor block his own check
+                movemaps[fig] &= (locOfwAttackers | blockLocationsB);
                 long[] figures = get_single_figure_boards(bitmaps[fig]);
                 for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
-                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
                         movemapsIndividual[fig][i] &= (locOfwAttackers | blockLocationsB);
                     }
                 }
@@ -367,7 +333,7 @@ public class Moves_Helper {
                 movemaps[0] = 0L;
                 long[] figures = get_single_figure_boards(bitmaps[fig]);
                 for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
-                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) { //TODO: make sure (movemapsp[i]|figures[i]) is combining the correct two maps!
+                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
                         movemapsIndividual[fig][i] = 0L;
                     }
                 }
@@ -379,11 +345,7 @@ public class Moves_Helper {
                         for (int i = 0; i < movemapsIndividual[fig].length; i++) { //...lets find out which one...
                             if (((movemapsIndividual[fig][i] | bitmaps[fig]) & pinnedB) != 0L) { //combine movemap with figure position to find out which movemap is the pinned one
                                 /*Instead of limiting the pinned piece to 'movemapsq[i] = 0L;' where it can only stay at the same spot, we are finding the 'ray pins' between the king and a attacking piece which pins the piece in between. This can be quite an expensive calculation and the suggested approach here is that we calculate in all directions the moves from the opponent's sliding pieces, the sliding piece moves from the king in the opposite direction and the overlap of these two rays (https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/). I do this differently and less expensive. I already gathered all information I need and prepared it. I only need to access the right ray and substract my own pieces. Thats the movement the pinned piece can make. thats it.*/
-                                for (int j = 0; j < pinnedMovementB.length; j++) { //TODO: make sure this implementation with a 2d array works properly if multiple pieces are pinned
-                                    if ((bitmaps[fig] & pinnedMovementB[j]) != 0L) {
-                                        movemapsIndividual[fig][i] = pinnedMovementB[j] - BLACKPIECES;
-                                    }
-                                }
+                                movemapsIndividual[fig][i] = (movemapsIndividual[fig][i] & pinnedMovement); //here we combine the movement map of the individual piece with the pinned rays map of all pieces. The result of the &-operation of the 2 maps is the path on which the pinned piece is allowed to move. this works only because we have only one king on the board of each color. If there were multiple then this logic would fall apart as soon as both kings have pinned pieces and the pinned movement map of one piece extends the movement of the other piece.
                             }
                         }
                     }
@@ -444,13 +406,7 @@ public class Moves_Helper {
         return movesbitboard;
     }
 
-    public static boolean same_color(long bitboard1, long bitboard2) {
-        if ((isWhite(bitboard1) & isWhite(bitboard2)) | (!isWhite(bitboard1) & !isWhite(bitboard2))) { //if both bitboards have the same color
-            return true;
-        }
-        return false;
-    }
-    public static Stack<long[]> generate_successors(){
+    public static Stack<long[]> generate_successors() {
         int start = 0;
         if (whitesTurn) {
             start = 6;
@@ -470,12 +426,13 @@ public class Moves_Helper {
                     //remove captured piece:
                     if ((movements[m] & (BLACKPIECES | WHITEPIECES)) != 0L) { //we are capturing a piece
                         for (int k = 0; k < 12; k++) {
-                            if ((movements[m]&newState[k])!=0L){
-                                newState[k]=0L;
+                            if ((movements[m] & newState[k]) != 0L) {
+                                newState[k] = 0L;
                             }
                         }
                     }
                     //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
+                    //TODO: IFF pawn promotion: generate states here!
                     newState[type] = movements.clone()[m];
                     //bitmaps_to_chessboard(newState);
                     successors.push(newState);

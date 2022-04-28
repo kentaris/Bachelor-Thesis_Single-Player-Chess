@@ -42,10 +42,10 @@ public class Bitboards {
         /*creates a bitboard from a given visual representaion*/
         /*This method is here for convenience only since it is somethimes timeconsuming and error prone to come up with the exact FEN code for a given chess position.*/
         Character board[][] = {
-                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
+                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', 'R', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', 'r', ' ', ' ', ' '},
-                {'P', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', 'R', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -68,6 +68,14 @@ public class Bitboards {
         /*initiates the board variables*/
         //initiate_FEN_to_chessboard(FEN); //toggle this....
         initiate_custom_chessBoard(); //and this line to switch between FEN-code input and manual array input (initiate_custom_chessBoard())
+        if (Long.bitCount(bitmaps[gtidx('k')]) > 1 | Long.bitCount(bitmaps[gtidx('K')]) > 1) {
+            System.out.println("\u001B[31mThere are multiple kings of the same color present on the board. this is an illegal chess position!\u001B[0m");
+            System.exit(2);
+        }/* //TODO: uncomment this at the end
+        else if (Long.bitCount(bitmaps[gtidx('k')]) < 1 | Long.bitCount(bitmaps[gtidx('K')]) < 1) {
+            System.out.println("\u001B[31mIllegal chess position given: one or more king is missing!\u001B[0m");
+            System.exit(0);
+        }*/
         files();
         ranks();
         KQ_side();
@@ -247,7 +255,7 @@ public class Bitboards {
         return false;
     }
 
-    public static long unite(long[] bitmaps){
+    public static long unite(long[] bitmaps) {
         long united = bitmaps[0];
         united |= bitmaps[1];
         united |= bitmaps[2];
