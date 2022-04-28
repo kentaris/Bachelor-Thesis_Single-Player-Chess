@@ -78,7 +78,7 @@ public class Moves_Helper {
         /*https://core.ac.uk/download/pdf/33500946.pdf*/
 
         long[] figures = get_single_figure_boards(bitboard); //here I split the board's figures into single figure bitboards for every piece (if there are multiple)
-        long movemap[] = new long[figures.length];
+        long[] movemap = new long[figures.length];
         for (int i = 0; i < figures.length; i++) { //loop over single figures //TODO: replace with 'Long.bitCount(bitboard)' to be faster
             movemap[i] = 0L;
             long path; //squares which can be blocked to get out of check will be saved here if there is a check
@@ -88,8 +88,41 @@ public class Moves_Helper {
             Integer file = file_row[1];
             Integer rank = file_row[0];
             path = 0L;
-            for (int k = 0; k < file + 1; k++) { //move left (right shift on bitboard)
+            for (int k = 0; k < (file + 1); k++) { //move left (right shift on bitboard)
                 long current = (figures[i] >>> k) & same_color;
+                path |= figures[i] >>> (k + 1);
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current);
+                    break;
+                }
+                if (k > 0) {
+                    movemap[i] |= figures[i] >>> k;
+                }
+                long next = (figures[i] >>> (k + 1)) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addAttacked(figures[i], next);
+                    movemap[i] |= figures[i] >>> (k + 1);
+                    set = false;
+                    if (isKing(next)) {
+                        addToBeBlocked(figures[i], path);
+                        set = true;
+                    }
+
+                    long next_next;
+                    for (int rem = k + 2; rem < file + 1; rem++) {
+                        next_next = figures[i] >>> (rem);
+                        path |= next_next;
+                        if (set & rem == file) {
+                            addRedZone(figures[i], path);
+                        }
+                        if (rem == file) {
+                            addPinned(next);
+                            addPinnedMovement(figures[i], path);
+                        }
+                    }
+                    break;
+                }
+                /*long current = (figures[i] >>> k) & same_color;
                 if ((current != 0L) & k != 0) { //collision with OWN piece at current square. //What we do here is we are shifting the attacker piece bitmap to the position which we are currently checking. the resulting bitmap is combined  with the same_color bitmap with an '&'. if the resulting map is not equal to 0 then we know we have a matchup of attacker piece and attacked piece which means it is at the current location. //k needs to be bigger than 0 so we can ignore the attacker piece and don't see it as blocking itself.
                     addprotected(figures[i], current);
                     break;
@@ -102,11 +135,45 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> (k + 1);
                     break;
-                }
+                }*/
             }
             path = 0L;
             for (int k = 0; k < board_size - file; k++) { //move right (left shift on bitboard)
                 long current = (figures[i] << k) & same_color;
+                path |= figures[i] << (k + 1);
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current);
+                    break;
+                }
+                if (k > 0) {
+                    movemap[i] |= figures[i] << k;
+                }
+                long next = (figures[i] << (k + 1)) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addAttacked(figures[i], next);
+                    movemap[i] |= figures[i] << (k + 1);
+                    set = false;
+                    if (isKing(next)) {
+                        addToBeBlocked(figures[i], path);
+                        set = true;
+                    }
+
+                    long next_next;
+                    for (int rem = k + 2; rem < board_size - file; rem++) {
+                        next_next = figures[i] << (rem);
+                        path |= next_next;
+                        if (set & rem == board_size - file - 1) {
+                            addRedZone(figures[i], path);
+                        }
+                        if (rem == board_size - file - 1) {
+                            addPinned(next);
+                            addPinnedMovement(figures[i], path);
+                        }
+                    }
+
+                    break;
+                }
+                /*long current = (figures[i] << k) & same_color;
                 if ((current != 0L) & k != 0) {
                     addprotected(figures[i], current);
                     break;
@@ -119,11 +186,12 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << (k + 1);
                     break;
-                }
+                }*/
             }
             path = 0L;
             for (int k = 0; k < rank + 1; k++) {//move up
                 long current = (figures[i] >>> (k * board_size)) & same_color; //current square which is targeted by figures[i]
+                //TODO: down here I use (k+1) and in all other spots I only use "k"... which is correct? test! also in diagonal....
                 path |= (figures[i] >>> ((k + 1) * board_size)); //we stop prematurely because of the break if we encounter an opposite king so the king spot itself will not be saved here.
                 if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
                     addprotected(figures[i], current); //protected piece which opposite king can't capture because he will be in check
@@ -166,6 +234,40 @@ public class Moves_Helper {
             path = 0L;
             for (int k = 0; k < board_size - rank; k++) {//move down
                 long current = (figures[i] << (k * board_size)) & same_color;
+                path |= (figures[i] << ((k + 1) * board_size));
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current);
+                    break;
+                }
+                if (k > 0) {
+                    movemap[i] |= figures[i] << (k * board_size);
+                }
+                long next = (figures[i] << ((k + 1) * board_size)) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addAttacked(figures[i], next);
+                    movemap[i] |= figures[i] << ((k + 1) * board_size);
+                    set = false;
+                    if (isKing(next)) {
+                        addToBeBlocked(figures[i], path);
+                        set = true;
+                    }
+
+                    long next_next;
+                    for (int rem = k + 2; rem < board_size - rank; rem++) {
+                        next_next = figures[i] << (rem * board_size);
+                        path |= next_next;
+                        if (set & rem == board_size - rank - 1) {
+                            addRedZone(figures[i], path);
+                        }
+                        if (rem == board_size - rank - 1) {
+                            addPinned(next);
+                            addPinnedMovement(figures[i], path);
+                        }
+                    }
+
+                    break;
+                }
+                /*long current = (figures[i] << (k * board_size)) & same_color;
                 if ((current != 0L) & k != 0) {
                     addprotected(figures[i], current);
                     break;
@@ -178,7 +280,7 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * board_size);
                     break;
-                }
+                }*/
             }
         }
         //bitmap_to_chessboard(hor_ver);
@@ -189,15 +291,51 @@ public class Moves_Helper {
         /*creates a bitmap mask which marks the diagonals and anti-diagonals to mark the spots where a bishop (or queen) can possibly go to.*/
         /*For the diagonals and anti-diagonals I decided to reuse the logic I came up with previously (horizontals & verticals). The diagonals are horizontal and vertical lines that are rotated 45 degrees counterclockwise. this is why for example the left down anti-diagonal has the opposite shift operator as the left moving vertical line.*/
         long[] figures = get_single_figure_boards(bitboard); //separate figures into separate boards
-        long movemap[] = new long[figures.length];
+        long[] movemap = new long[figures.length];
         for (int i = 0; i < figures.length; i++) { //loop over single figures
             movemap[i] = 0L;
+            long path; //squares which can be blocked to get out of check will be saved here if there is a check
+            boolean set = false;
             Integer idx = get_squareIndex_of_figure(figures[i]);
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
             Integer rank = file_row[0];
+            path = 0L;
             for (int k = 0; k < file + 1; k++) {//move left down
                 long current = (figures[i] << (k * (board_size - 1))) & same_color;
+                path |= figures[i] << ((k + 1) * (board_size - 1));
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current);
+                    break;
+                }
+                if (k > 0) {
+                    movemap[i] |= figures[i] << (k * (board_size - 1));
+                }
+                long next = (figures[i] << ((k + 1) * (board_size - 1))) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addAttacked(figures[i], next);
+                    movemap[i] |= figures[i] << ((k + 1) * (board_size - 1));
+                    set = false;
+                    if (isKing(next)) {
+                        addToBeBlocked(figures[i], path);
+                        set = true;
+                    }
+
+                    long next_next;
+                    for (int rem = k + 2; rem < file + 1; rem++) {
+                        next_next = figures[i] << (rem * (board_size - 1));
+                        path |= next_next;
+                        if (set & rem == file) {
+                            addRedZone(figures[i], path);
+                        }
+                        if (rem == file) {
+                            addPinned(next);
+                            addPinnedMovement(figures[i], path);
+                        }
+                    }
+                    break;
+                }
+                /*long current = (figures[i] << (k * (board_size - 1))) & same_color;
                 if ((current != 0L) & k != 0) { //collision with OWN piece at current square
                     addprotected(figures[i], current);
                     break;
@@ -210,10 +348,44 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * (board_size - 1));
                     break;
-                }
+                }*/
             }
+            path = 0L;
             for (int k = 0; k < board_size - file; k++) {//move right up
                 long current = (figures[i] >>> (k * (board_size - 1))) & same_color;
+                path |= figures[i] >>> ((k + 1) * (board_size - 1));
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current);
+                    break;
+                }
+                if (k > 0) {
+                    movemap[i] |= figures[i] >>> (k * (board_size - 1));
+                }
+                long next = (figures[i] >>> ((k + 1) * (board_size - 1))) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addAttacked(figures[i], next);
+                    movemap[i] |= figures[i] >>> ((k + 1) * (board_size - 1));
+                    set = false;
+                    if (isKing(next)) {
+                        addToBeBlocked(figures[i], path);
+                        set = true;
+                    }
+
+                    long next_next;
+                    for (int rem = k + 2; rem < board_size - file; rem++) {
+                        next_next = figures[i] >>> (rem * (board_size - 1));
+                        path |= next_next;
+                        if (set & rem == board_size - file - 1) {
+                            addRedZone(figures[i], path);
+                        }
+                        if (rem == board_size - file - 1) {
+                            addPinned(next);
+                            addPinnedMovement(figures[i], path);
+                        }
+                    }
+                    break;
+                }
+                /*long current = (figures[i] >>> (k * (board_size - 1))) & same_color;
                 if ((current != 0L) & k != 0) {
                     addprotected(figures[i], current);
                     break;
@@ -226,10 +398,45 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * (board_size - 1));
                     break;
-                }
+                }*/
             }
+            path = 0L;
             for (int k = 0; (k < rank + 1) & (k < file + 1); k++) {//move left up
                 long current = (figures[i] >>> (k * (board_size + 1))) & same_color;
+                path |= figures[i] >>> ((k + 1) * (board_size + 1));
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current);
+                    break;
+                }
+                if (k > 0) {
+                    movemap[i] |= figures[i] >>> (k * (board_size + 1)); //TODO: should't I also add it to movemapsIndividual?!
+                }
+                long next = (figures[i] >>> ((k + 1) * (board_size + 1))) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addAttacked(figures[i], next);
+                    movemap[i] |= figures[i] >>> ((k + 1) * (board_size + 1));
+                    set = false;
+                    if (isKing(next)) {
+                        addToBeBlocked(figures[i], path);
+                        set = true;
+                    }
+
+                    long next_next;
+                    for (int rem = k + 2; (rem < (rank + 1)) & (rem < (file + 1)); rem++) {
+                        next_next = figures[i] >>> (rem * (board_size + 1));
+                        path |= next_next;
+                        //TODO:is the line below correct?
+                        if (set & ((rem == rank) | (rem < (file)))) {
+                            addRedZone(figures[i], path);
+                        }
+                        if ((rem == rank) | (rem < (file))) {
+                            addPinned(next);
+                            addPinnedMovement(figures[i], path);
+                        }
+                    }
+                    break;
+                }
+                /*long current = (figures[i] >>> (k * (board_size + 1))) & same_color;
                 if ((current != 0L) & k != 0) {
                     addprotected(figures[i], current);
                     break;
@@ -242,10 +449,45 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * (board_size + 1));
                     break;
-                }
+                }*/
             }
+            path = 0L;
             for (int k = 0; k < (board_size - rank) & (k < board_size - file); k++) {//move right down
                 long current = (figures[i] << (k * (board_size + 1))) & same_color;
+                path |= figures[i] >>> ((k + 1) * (board_size + 1));
+                if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
+                    addprotected(figures[i], current);
+                    break;
+                }
+                if (k > 0) {
+                    movemap[i] |= figures[i] << (k * (board_size + 1));
+                }
+                long next = (figures[i] << ((k + 1) * (board_size + 1))) & opposite_color;
+                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                    addAttacked(figures[i], next);
+                    movemap[i] |= figures[i] << ((k + 1) * (board_size + 1));
+                    set = false;
+                    if (isKing(next)) {
+                        addToBeBlocked(figures[i], path);
+                        set = true;
+                    }
+
+                    long next_next;
+                    for (int rem = k + 2; (rem < (board_size-rank)) & (rem < (board_size-file)); rem++) {
+                        next_next = figures[i] << (rem * (board_size + 1));
+                        path |= next_next;
+                        //TODO:is the line below correct?
+                        if (set & ((rem == (board_size-rank-1)) | (rem < (board_size-file-1)))) {
+                            addRedZone(figures[i], path);
+                        }
+                        if ((rem == (board_size-rank-1)) | (rem < (board_size-file-1))) {
+                            addPinned(next);
+                            addPinnedMovement(figures[i], path);
+                        }
+                    }
+                    break;
+                }
+                /*long current = (figures[i] << (k * (board_size + 1))) & same_color;
                 if ((current != 0L) & k != 0) {
                     addprotected(figures[i], current);
                     break;
@@ -258,7 +500,7 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * (board_size + 1));
                     break;
-                }
+                }*/
             }
         }
         //bitmap_to_chessboard(diag);
@@ -266,6 +508,7 @@ public class Moves_Helper {
     }
 
     public static int[][] getMoves() {
+        //TODO:
         int start = 0;
         if (whitesTurn) {
             start = 6;
@@ -329,8 +572,7 @@ public class Moves_Helper {
             }
         } else if (nrOfwAttackers >= 2) { //we don't allow any movements except the king moving out of chess.
             //remove all possibilities that aren't king moves (only king moves possible):
-            for (int fig = 0; fig < 6; fig++) {
-                movemaps[0] = 0L;
+            for (int fig = 0; fig < 5; fig++) {
                 long[] figures = get_single_figure_boards(bitmaps[fig]);
                 for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
                     if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
@@ -340,7 +582,7 @@ public class Moves_Helper {
             }
         } else { //if nrOfwAttackers==0
             if (pinnedB != 0L) { //if we have pinned pieces //TODO: pawn can still move forward if pinnned by a bishop...
-                for (int fig = 0; fig < 6; fig++) { //pieces of type T...
+                for (int fig = 0; fig < 5; fig++) { //pieces of type T...
                     if ((bitmaps[fig] & pinnedB) != 0) { //some figure of type T is among the pinned pieces... optimization, so we can opt out early
                         for (int i = 0; i < movemapsIndividual[fig].length; i++) { //...lets find out which one...
                             if (((movemapsIndividual[fig][i] | bitmaps[fig]) & pinnedB) != 0L) { //combine movemap with figure position to find out which movemap is the pinned one
@@ -355,10 +597,46 @@ public class Moves_Helper {
     }
 
     public static void valid_white_moves() {
-
+        movemaps[11] &= ~REDZONEW; //remove invalid king moves
+        movemapsIndividual[11][0] &= ~REDZONEW; //get black king
+        if (nrOfbAttackers == 1) { //if we don't have more than one piece attacking the king...
+            // ...and we can capture the attacker piece...or block the attacker piece:
+            for (int fig = 6; fig < 10; fig++) { //we exclude the king from this calculation because he can't be pinned nor block his own check
+                movemaps[fig] &= (locOfbAttackers | blockLocationsW);
+                long[] figures = get_single_figure_boards(bitmaps[fig]);
+                for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
+                        movemapsIndividual[fig][i] &= (locOfbAttackers | blockLocationsW);
+                    }
+                }
+            }
+        } else if (nrOfbAttackers >= 2) { //we don't allow any movements except the king moving out of chess.
+            //remove all possibilities that aren't king moves (only king moves possible):
+            for (int fig = 6; fig < 10; fig++) {
+                long[] figures = get_single_figure_boards(bitmaps[fig]);
+                for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
+                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
+                        movemapsIndividual[fig][i] = 0L;
+                    }
+                }
+            }
+        } else { //if nrOfbAttackers==0
+            if (pinnedW != 0L) { //if we have pinned pieces //TODO: pawn can still move forward if pinnned by a bishop...
+                for (int fig = 6; fig < 10; fig++) { //pieces of type T...
+                    if ((bitmaps[fig] & pinnedW) != 0) { //some figure of type T is among the pinned pieces... optimization, so we can opt out early
+                        for (int i = 0; i < movemapsIndividual[fig].length; i++) { //...lets find out which one...
+                            if (((movemapsIndividual[fig][i] | bitmaps[fig]) & pinnedW) != 0L) { //combine movemap with figure position to find out which movemap is the pinned one
+                                /*Instead of limiting the pinned piece to 'movemapsq[i] = 0L;' where it can only stay at the same spot, we are finding the 'ray pins' between the king and a attacking piece which pins the piece in between. This can be quite an expensive calculation and the suggested approach here is that we calculate in all directions the moves from the opponent's sliding pieces, the sliding piece moves from the king in the opposite direction and the overlap of these two rays (https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/). I do this differently and less expensive. I already gathered all information I need and prepared it. I only need to access the right ray and substract my own pieces. Thats the movement the pinned piece can make. thats it.*/
+                                movemapsIndividual[fig][i] = (movemapsIndividual[fig][i] & pinnedMovement); //here we combine the movement map of the individual piece with the pinned rays map of all pieces. The result of the &-operation of the 2 maps is the path on which the pinned piece is allowed to move. this works only because we have only one king on the board of each color. If there were multiple then this logic would fall apart as soon as both kings have pinned pieces and the pinned movement map of one piece extends the movement of the other piece.
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public static void initiate_inCheck() {
+    /*public static void initiate_inCheck() {
         if (whitesTurn) {
             if ((REDZONEW & bitmaps[11]) != 0L) { //if the white king is on an attackable square
                 WINCHECK = true;
@@ -368,7 +646,7 @@ public class Moves_Helper {
                 BINCHECK = true;
             }
         }
-    }
+    }*/
 
     public static void initiate_red_zone_white() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */

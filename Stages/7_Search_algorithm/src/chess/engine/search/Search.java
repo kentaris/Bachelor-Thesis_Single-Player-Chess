@@ -1,9 +1,5 @@
 package chess.engine.search;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
@@ -16,23 +12,18 @@ import static java.util.Objects.isNull;
 public class Search {
     public static final int board_size = 8;
 
-    private class State { //Search node which contains the bitboards
-        long[] bitboard;
-
-    }
-
     public static void main(String[] args) {
         String FEN = "r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
         nrOfbAttackers = 0;
         nrOfbAttackers = 0;
         initiate_boards(FEN); //non-bit operations which happen only at the start
         long t1 = System.nanoTime();
-        boolean whitesTurn = false;
+        boolean whitesTurn = true;
         initiate_next_moves(whitesTurn);
-        System.out.println("# white attackers: "+nrOfwAttackers);
-        bitmap_to_chessboard(REDZONEB); //TODO: now working!
+        /*System.out.println("# white attackers: "+nrOfwAttackers);
+        bitmap_to_chessboard(REDZONEB);
         System.out.println("red-zone black ^");
-        System.out.println(BINCHECK);
+        //System.out.println(BINCHECK);
         long valid_moves = 0L;
         for (int i = 0; i < 6; i++) {
             if (!isNull(movemapsIndividual[i])) {
@@ -41,9 +32,22 @@ public class Search {
                 }
             }
         }
+        bitmap_to_chessboard(valid_moves);*/
+        System.out.println("# white attackers: "+nrOfbAttackers);
+        bitmap_to_chessboard(REDZONEW);
+        System.out.println("red-zone white ^");
+        //System.out.println(WINCHECK);
+        long valid_moves = 0L;
+        for (int i = 6; i < 12; i++) {
+            if (!isNull(movemapsIndividual[i])) {
+                for (long m : movemapsIndividual[i]) {
+                    valid_moves |= m;
+                }
+            }
+        }
         bitmap_to_chessboard(valid_moves);
-        System.out.println("black valid moves ^");
-        Stack<long[]> successors = generate_successors();
+        System.out.println("white valid moves ^");
+        Stack<long[]> successors = generate_successors(); //TODO: this is quite slow and unpredictable (0.1-4ms)
         System.out.println("#Successor States: " + successors.size());
 
         /*int[][] test = getMoves();
@@ -68,10 +72,10 @@ public class Search {
         long s_int = s - (round(s / 1000) * 1000);
         long ms = TimeUnit.MILLISECONDS.convert(T, TimeUnit.NANOSECONDS);
         long ms_int = ms - (round(ms / 1000) * 1000);
-        long µs = TimeUnit.MICROSECONDS.convert(T, TimeUnit.NANOSECONDS);
-        long µs_int = µs - (round(µs / 1000) * 1000);
+        long mc = TimeUnit.MICROSECONDS.convert(T, TimeUnit.NANOSECONDS);
+        long mc_int = mc - (round(mc / 1000) * 1000);
         long ns = TimeUnit.NANOSECONDS.convert(T, TimeUnit.NANOSECONDS);
         long ns_int = ns - (round(ns / 1000) * 1000);
-        System.out.println(String.format("\n\u001B[33m[%ss %sms %sµs %sns execution time]\u001B[0m", s_int, ms_int, µs_int, ns_int));
+        System.out.println(String.format("\n\u001B[33m[%ss %sms %sµs %sns execution time]\u001B[0m", s_int, ms_int, mc_int, ns_int));
     }
 }

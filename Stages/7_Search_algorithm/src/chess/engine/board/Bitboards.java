@@ -12,8 +12,8 @@ public class Bitboards {
     public static long[] bitmaps = new long[12]; //12 maps for 2*6 chess figures (black and white) -->long so board has 64bits available
     public static long[] FILES = new long[board_size];
     public static long[] RANKS = new long[board_size];
-    static long DIAGS[] = {1L, 102L, 10204L, 1020408L, 102040810L, 10204081020L, 1020408102040L, 102040810204080L, 204081020408000L, 408102040800000L, 810204080000000L, 1020408000000000L, 2040800000000000L, 4080000000000000L, 8000000000000000L};
-    static long ADIAGS[] = {80L, 8040L, 804020L, 80402010L, 8040201008L, 804020100804L, 80402010080402L, 8040201008040201L, 4020100804020100L, 2010080402010000L, 1008040201000000L, 804020100000000L, 402010000000000L, 201000000000000L, 100000000000000L};
+    //static long[] DIAGS = {1L, 102L, 10204L, 1020408L, 102040810L, 10204081020L, 1020408102040L, 102040810204080L, 204081020408000L, 408102040800000L, 810204080000000L, 1020408000000000L, 2040800000000000L, 4080000000000000L, 8000000000000000L};
+    //static long[] ADIAGS = {80L, 8040L, 804020L, 80402010L, 8040201008L, 804020100804L, 80402010080402L, 8040201008040201L, 4020100804020100L, 2010080402010000L, 1008040201000000L, 804020100000000L, 402010000000000L, 201000000000000L, 100000000000000L};
     public static long KINGSIDE;
     public static long QUEENSIDE;
     public static long WHITEPIECES; //remove king to avoid legal move?
@@ -40,15 +40,15 @@ public class Bitboards {
 
     public static void initiate_custom_chessBoard() {
         /*creates a bitboard from a given visual representaion*/
-        /*This method is here for convenience only since it is somethimes timeconsuming and error prone to come up with the exact FEN code for a given chess position.*/
-        Character board[][] = {
+        /*This method is here for convenience only since it is somethimes timeconsuming and error-prone to come up with the exact FEN code for a given chess position.*/
+        Character[][] board = {
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
-                {' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', 'R', ' ', ' ', ' '},
+                {' ', 'q', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', 'R', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', 'K', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square index 63  &  0,7 (file,row)
         arrayToBitboards(board);
         bitmaps_to_chessboard(bitmaps);
@@ -138,9 +138,7 @@ public class Bitboards {
         /*For debugging purposes: returns the given bit as a readable string*/
         String str = Long.toBinaryString(l);
         String mask = "0".repeat(board_size * board_size);
-        String s = mask.substring(0, mask.length() - str.length()) + str;
-        //System.out.println(s);
-        return s;
+        return mask.substring(0, mask.length() - str.length()) + str;
     }
 
     public static void empty() {
@@ -214,8 +212,7 @@ public class Bitboards {
 
     public static Integer[] idx_to_fileRank(Integer idx) {
         /*assigning rows and files.*/
-        Integer[] file_row = {((idx / board_size)), ((idx % board_size))}; //this corresponds to the java matrix[x][y]-coordinates not the chessboard-square-coordinates.
-        return file_row;
+        return new Integer[]{((idx / board_size)), ((idx % board_size))};
     }
 
     public static long setBit(int n) {
@@ -230,44 +227,14 @@ public class Bitboards {
         return bitmap;
     }
 
-    public static boolean diffColor(long bitboard1, long bitboard2) {
-        /*returns true if the given bitboards have different colors.*/
-        if ((((bitboard1 & WHITEPIECES) != 0L) & ((bitboard2 & BLACKPIECES) != 0L)) | (((bitboard1 & BLACKPIECES) != 0L) & ((bitboard2 & WHITEPIECES) != 0L))) {
-            return true;
-        }
-        return false;
-    }
-
     public static boolean isWhite(long bitboard) {
         /*returns true if the given bitboard contains white pieces. It is thought to be given a bitboard with only one piece on it, but it works for multiple also.*/
         /*For this method to work, WHITEPIECES & BLACKPIECES need to be initialized correctly.*/
-        if ((bitboard & WHITEPIECES) != 0L) {
-            return true;
-        }
-        return false;
+        return (bitboard & WHITEPIECES) != 0L;
     }
 
     public static boolean isKing(long bitboard) {
         /*returns true if the given bitboard contains a king of some color*/
-        if ((bitboard & (bitmaps[gtidx('k')] | bitmaps[gtidx('K')])) != 0L) {
-            return true;
-        }
-        return false;
-    }
-
-    public static long unite(long[] bitmaps) {
-        long united = bitmaps[0];
-        united |= bitmaps[1];
-        united |= bitmaps[2];
-        united |= bitmaps[3];
-        united |= bitmaps[4];
-        united |= bitmaps[5];
-        united |= bitmaps[6];
-        united |= bitmaps[7];
-        united |= bitmaps[8];
-        united |= bitmaps[9];
-        united |= bitmaps[10];
-        united |= bitmaps[11];
-        return united;
+        return (bitboard & (bitmaps[gtidx('k')] | bitmaps[gtidx('K')])) != 0L;
     }
 }

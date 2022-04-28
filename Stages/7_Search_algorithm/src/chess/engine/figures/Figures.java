@@ -19,15 +19,15 @@ public class Figures {
         put('K', 11);
     }};
 
-    public static final Character[] get_pieces() {
+    public static Character[] get_pieces() {
         return cArray;
     }
 
-    public static final Character gtfig(Integer idx) {
+    public static Character gtfig(Integer idx) {
         return (Character) map.keySet().toArray()[idx];
     }
 
-    public static final int gtidx(Character fig) {
+    public static int gtidx(Character fig) {
         return map.get(fig);
     }
 }

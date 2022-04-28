@@ -10,12 +10,12 @@ public class Decoder {
         /* returns the board version of the given FEN code. */
         int length = FEN.split("/").length;
         if (length != board_size) {
-            System.out.println("FEN code doesn\'t match board_size!");
+            System.out.println("FEN code doesn't match board_size!");
             System.exit(1);
         }
         int rank = 0;
         int file = 0;
-        String board[][] = new String[length][length];
+        String[][] board = new String[length][length];
         for (String[] row : board) {
             Arrays.fill(row, " "); //populate the board
         }
@@ -42,7 +42,7 @@ public class Decoder {
         /* returns 12 (one for each figure) bitmaps à 64 position long string-Bit representations of the given FEN code. */
         int length = FEN.split("/").length;
         if (length != board_size) {
-            System.out.println("FEN code doesn\'t match board_size!");
+            System.out.println("FEN code doesn't match board_size!");
             System.exit(1);
         }
         String[] maps = new String[12]; //12 boards, one for every piece and color

@@ -1,7 +1,6 @@
 package chess.engine.figures;
 
 import static chess.engine.board.Bitboards.*;
-import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves_Helper.*;
 
@@ -27,8 +26,8 @@ public class Moves {
     public static long locOfwAttackers;
     public static long blockLocationsB; //locations which can be moved to, to block a check by white
     public static long blockLocationsW;
-    public static boolean BINCHECK; //if black king is in check
-    public static boolean WINCHECK;
+    /*public static boolean BINCHECK; //if black king is in check
+    public static boolean WINCHECK;*/
 
 
     public static void black_pawns() {
@@ -248,6 +247,7 @@ public class Moves {
 
     public static void black_king() {
         int idx = gtidx('k');
+        //TODO: castling
         long king_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
@@ -275,6 +275,7 @@ public class Moves {
 
     public static void white_king() {
         int idx = gtidx('K');
+        //TODO: castling
         long king_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
@@ -327,7 +328,7 @@ public class Moves {
         initiate_next_white_movements();
 
         initiate_redzone();
-        initiate_inCheck();
+        //initiate_inCheck();
         valid_moves();
     }
 }
