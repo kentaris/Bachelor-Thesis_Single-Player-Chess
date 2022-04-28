@@ -473,14 +473,14 @@ public class Moves_Helper {
                     }
 
                     long next_next;
-                    for (int rem = k + 2; (rem < (board_size-rank)) & (rem < (board_size-file)); rem++) {
+                    for (int rem = k + 2; (rem < (board_size - rank)) & (rem < (board_size - file)); rem++) {
                         next_next = figures[i] << (rem * (board_size + 1));
                         path |= next_next;
                         //TODO:is the line below correct?
-                        if (set & ((rem == (board_size-rank-1)) | (rem < (board_size-file-1)))) {
+                        if (set & ((rem == (board_size - rank - 1)) | (rem < (board_size - file - 1)))) {
                             addRedZone(figures[i], path);
                         }
-                        if ((rem == (board_size-rank-1)) | (rem < (board_size-file-1))) {
+                        if ((rem == (board_size - rank - 1)) | (rem < (board_size - file - 1))) {
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -566,7 +566,10 @@ public class Moves_Helper {
                 long[] figures = get_single_figure_boards(bitmaps[fig]);
                 for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
                     if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
-                        movemapsIndividual[fig][i] &= (locOfwAttackers | blockLocationsB);
+                        movemapsIndividual[fig][i] &= locOfwAttackers;
+                        if ((movemapsIndividual[fig][i] & pinnedB) == 0L) { //if I'm not a pinned piece
+                            movemapsIndividual[fig][i] &= blockLocationsB;
+                        }
                     }
                 }
             }
@@ -607,6 +610,9 @@ public class Moves_Helper {
                 for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
                     if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
                         movemapsIndividual[fig][i] &= (locOfbAttackers | blockLocationsW);
+                        if ((movemapsIndividual[fig][i] & pinnedW) == 0L) { //if I'm not a pinned piece
+                            movemapsIndividual[fig][i] &= blockLocationsW;
+                        }
                     }
                 }
             }

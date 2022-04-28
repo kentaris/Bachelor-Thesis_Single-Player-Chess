@@ -125,7 +125,7 @@ public class Moves {
                     BPROTECTED |= protecting;
                     REDZONEW |= protecting;
                 }
-                knight_to_moves &= ~WHITEPIECES;
+                knight_to_moves &= ~BLACKPIECES;
                 movemaps[idx] |= knight_to_moves;
                 movemapsIndividual[idx][i] = knight_to_moves;
             }
@@ -153,7 +153,7 @@ public class Moves {
                     REDZONEB |= protecting;
                 }
             }
-            knight_to_moves &= ~BLACKPIECES;
+            knight_to_moves &= ~WHITEPIECES;
             movemaps[idx] |= knight_to_moves;
             movemapsIndividual[idx][i] = knight_to_moves;
         }

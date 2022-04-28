@@ -1,9 +1,11 @@
 package chess.engine.search;
 
+import java.util.LinkedHashMap;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 import static chess.engine.board.Bitboards.*;
+import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.figures.Moves_Helper.*;
 import static java.lang.Math.round;
@@ -12,19 +14,32 @@ import static java.util.Objects.isNull;
 public class Search {
     public static final int board_size = 8;
 
+    public static void expand(long[] start,boolean wTurn){
+        //nrOfbAttackers = 0;
+        //nrOfbAttackers = 0;
+        initiate_next_moves(wTurn);
+        //LinkedHashMap<Integer,long[]> successors = generate_successors();  //TODO: use linked hash map instead to increase performance
+        Stack<long[]> successors = generate_successors(); //TODO: this is quite slow and unpredictable (0.1-4ms)
+        System.out.println("#Successor States: " + successors.size());
+        while(!successors.isEmpty()){
+            wTurn=!wTurn;
+            expand(successors.pop(),wTurn);
+        }
+    }
+
     public static void main(String[] args) {
-        String FEN = "r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
-        nrOfbAttackers = 0;
-        nrOfbAttackers = 0;
+        String FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
+
+        boolean whitesTurn = true;
         initiate_boards(FEN); //non-bit operations which happen only at the start
         long t1 = System.nanoTime();
-        boolean whitesTurn = true;
-        initiate_next_moves(whitesTurn);
-        /*System.out.println("# white attackers: "+nrOfwAttackers);
-        bitmap_to_chessboard(REDZONEB);
-        System.out.println("red-zone black ^");
+        expand(whitesTurn);
+
+        //System.out.println("# white attackers: "+nrOfwAttackers);
+        //bitmap_to_chessboard(REDZONEB);
+        //System.out.println("red-zone black ^");
         //System.out.println(BINCHECK);
-        long valid_moves = 0L;
+        /*long valid_moves = 0L;
         for (int i = 0; i < 6; i++) {
             if (!isNull(movemapsIndividual[i])) {
                 for (long m : movemapsIndividual[i]) {
@@ -32,8 +47,10 @@ public class Search {
                 }
             }
         }
-        bitmap_to_chessboard(valid_moves);*/
-        System.out.println("# white attackers: "+nrOfbAttackers);
+        bitmap_to_chessboard(valid_moves);
+        System.out.println("valid moves black ^");
+
+        *//*System.out.println("# white attackers: "+nrOfbAttackers);
         bitmap_to_chessboard(REDZONEW);
         System.out.println("red-zone white ^");
         //System.out.println(WINCHECK);
@@ -42,13 +59,14 @@ public class Search {
             if (!isNull(movemapsIndividual[i])) {
                 for (long m : movemapsIndividual[i]) {
                     valid_moves |= m;
+                    bitmap_to_chessboard(m);
+                    System.out.println(gtfig(i));
                 }
             }
         }
         bitmap_to_chessboard(valid_moves);
-        System.out.println("white valid moves ^");
-        Stack<long[]> successors = generate_successors(); //TODO: this is quite slow and unpredictable (0.1-4ms)
-        System.out.println("#Successor States: " + successors.size());
+        System.out.println("white valid moves ^");*/
+
 
         /*int[][] test = getMoves();
 
