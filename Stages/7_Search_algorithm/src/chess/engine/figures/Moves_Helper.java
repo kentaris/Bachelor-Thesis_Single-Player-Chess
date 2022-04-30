@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Figures.gtfig;
+import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.search.Search.board_size;
 import static java.util.Objects.isNull;
@@ -76,10 +77,10 @@ public class Moves_Helper {
         /*https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating*/
         /*https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks*/
         /*https://core.ac.uk/download/pdf/33500946.pdf*/
-
         long[] figures = get_single_figure_boards(bitboard); //here I split the board's figures into single figure bitboards for every piece (if there are multiple)
-        long[] movemap = new long[figures.length];
-        for (int i = 0; i < figures.length; i++) { //loop over single figures //TODO: replace with 'Long.bitCount(bitboard)' to be faster
+        currAmount=figures.length;
+        long[] movemap = new long[currAmount];
+        for (int i = 0; i < currAmount; i++) { //loop over single figures
             movemap[i] = 0L;
             long path; //squares which can be blocked to get out of check will be saved here if there is a check
             boolean set = false;
@@ -291,8 +292,9 @@ public class Moves_Helper {
         /*creates a bitmap mask which marks the diagonals and anti-diagonals to mark the spots where a bishop (or queen) can possibly go to.*/
         /*For the diagonals and anti-diagonals I decided to reuse the logic I came up with previously (horizontals & verticals). The diagonals are horizontal and vertical lines that are rotated 45 degrees counterclockwise. this is why for example the left down anti-diagonal has the opposite shift operator as the left moving vertical line.*/
         long[] figures = get_single_figure_boards(bitboard); //separate figures into separate boards
-        long[] movemap = new long[figures.length];
-        for (int i = 0; i < figures.length; i++) { //loop over single figures
+        currAmount=figures.length;
+        long[] movemap = new long[currAmount];
+        for (int i = 0; i < currAmount; i++) { //loop over single figures
             movemap[i] = 0L;
             long path; //squares which can be blocked to get out of check will be saved here if there is a check
             boolean set = false;
@@ -656,6 +658,7 @@ public class Moves_Helper {
 
     public static void initiate_red_zone_white() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
+        REDZONEW=0L;
         REDZONEW |= movemaps[0] | movemaps[1] | movemaps[2] | movemaps[3] | movemaps[4] | movemaps[5];
         REDZONEW &= ~pPOSM; //TODO: doesn't work!!!!   //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
         //REDZONEW &= ~WPROTECTED;
@@ -664,6 +667,8 @@ public class Moves_Helper {
     }
 
     public static void initiate_redzone() {
+        REDZONEB=0L;
+        REDZONEW=0L;
         if (whitesTurn) {
             initiate_red_zone_white();
         } else {
@@ -673,6 +678,7 @@ public class Moves_Helper {
 
     public static void initiate_red_zone_black() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
+        REDZONEB=0L;
         REDZONEB |= movemaps[6] | movemaps[7] | movemaps[8] | movemaps[9] | movemaps[10] | movemaps[11];
         REDZONEB &= ~PPOSM; //remove regular pawn movements as they are not attacking
         //REDZONEB &= ~BPROTECTED; //TODO: not working somehow
@@ -690,6 +696,58 @@ public class Moves_Helper {
         return movesbitboard;
     }
 
+    public static Stack<long[]> generate_successors2(long[] parent) {
+        int start = 0;
+        if (whitesTurn) {
+            start = 6;
+        }
+        int end = 6;
+        if (whitesTurn) {
+            end = 12;
+        }
+        //reset all:
+        bitmaps=parent;
+        pinnedMovement = 0L;
+        pPOSM=0L;
+        PPOSM=0L;
+        BPROTECTED=0L;
+        WPROTECTED=0L;
+        BATTACKED=0L;
+        WATTACKED=0L;
+        //TODO: reset everything
+        Stack<long[]> successors = new Stack<>();
+        for (int type = start; type < end; type++) { //forall types (black pawns, white rooks, etc.
+            long[] figures = get_single_figure_boards(bitmaps[type]); //get every figure
+            for (int i = 0; i < figures.length; i++) { //for all pieces of the same type (w_pawn_1, w_pawn_2, etc.)
+                //bitmap_to_chessboard(figures[i]);
+                long[] movements = get_single_figure_boards(movemapsIndividual[type][i]); //every figure has multiple moves
+                for (int m = 0; m < movements.length; m++) {//for all possible individual movements
+                    long[] newState = bitmaps.clone();
+                    if ((movements[m] & (BLACKPIECES | WHITEPIECES)) != 0L) { //we are capturing a piece
+                        for (int k = 0; k < 12; k++) {
+                            if ((movements[m] & newState[k]) != 0L) {
+                                newState[k] = 0L;
+                            }
+                        }
+                    }
+                    //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
+                    //TODO: IFF pawn promotion: generate states here!
+                    //TODO: return 0L map if no more moves possible to not run into null value problems
+                    newState[type] = movements.clone()[m]|(newState[type]&~figures[i]); //remove original figure and add the to movement
+                    //bitmaps_to_chessboard(newState);
+                    successors.push(newState);
+                    /*if (type==gtidx('Q')){
+                        bitmaps_to_chessboard(newState);
+                    }*/
+                }
+            }
+        }
+        /*for (int i = 0; i < successors.size(); i++) {
+            bitmaps_to_chessboard(successors.elementAt(i));
+        }*/
+        return successors;
+    }
+
     public static Stack<long[]> generate_successors() {
         int start = 0;
         if (whitesTurn) {
@@ -701,13 +759,12 @@ public class Moves_Helper {
         }
         Stack<long[]> successors = new Stack<>();
         for (int type = start; type < end; type++) { //forall types (black pawns, white rooks, etc.
-            long[] figures = get_single_figure_boards(bitmaps[type]);
+            long[] figures = get_single_figure_boards(bitmaps[type]); //get every figure
             for (int i = 0; i < figures.length; i++) { //for all pieces of the same type (w_pawn_1, w_pawn_2, etc.)
                 //bitmap_to_chessboard(figures[i]);
-                long[] movements = get_single_figure_boards(movemapsIndividual[type][i]);
+                long[] movements = get_single_figure_boards(movemapsIndividual[type][i]); //every figure has multiple moves
                 for (int m = 0; m < movements.length; m++) {//for all possible individual movements
                     long[] newState = bitmaps.clone();
-                    //remove captured piece:
                     if ((movements[m] & (BLACKPIECES | WHITEPIECES)) != 0L) { //we are capturing a piece
                         for (int k = 0; k < 12; k++) {
                             if ((movements[m] & newState[k]) != 0L) {
@@ -717,12 +774,19 @@ public class Moves_Helper {
                     }
                     //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
                     //TODO: IFF pawn promotion: generate states here!
-                    newState[type] = movements.clone()[m];
+                    //TODO: return 0L map if no more moves possible to not run into null value problems
+                    newState[type] = movements.clone()[m]|(newState[type]&~figures[i]); //remove original figure and add the to movement
                     //bitmaps_to_chessboard(newState);
                     successors.push(newState);
+                    /*if (type==gtidx('Q')){
+                        bitmaps_to_chessboard(newState);
+                    }*/
                 }
             }
         }
+        /*for (int i = 0; i < successors.size(); i++) {
+            bitmaps_to_chessboard(successors.elementAt(i));
+        }*/
         return successors;
     }
 }

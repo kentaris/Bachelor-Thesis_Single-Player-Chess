@@ -3,6 +3,7 @@ package chess.engine.figures;
 import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves_Helper.*;
+import static java.util.Objects.isNull;
 
 public class Moves {
     public static boolean whitesTurn;
@@ -28,6 +29,7 @@ public class Moves {
     public static long blockLocationsW;
     /*public static boolean BINCHECK; //if black king is in check
     public static boolean WINCHECK;*/
+    public static int currAmount;
 
 
     public static void black_pawns() {
@@ -39,7 +41,7 @@ public class Moves {
             long curr = Figures[i];
             long pawn_to_moves = 0L; //empty board
             long pawn_to_captures = 0L;
-            if (curr != 0) {
+            if (curr != 0L) {
                 pawn_to_moves |= (curr << 8) & EMPTY & (~RANKS[0]); //move one forward
                 pawn_to_moves |= (curr << 16) & EMPTY & (EMPTY << 8) & (RANKS[6] << 16); //move two forwards
                 pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES;//capture left
@@ -67,7 +69,7 @@ public class Moves {
         }
     }
 
-    public static void white_pawns() {
+    public static void white_pawns() { //TODO: white pawn can capture white pawn and also it does so in the wrong direction...
         int idx = gtidx('P');
         movemaps[idx] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[idx]);
@@ -76,7 +78,7 @@ public class Moves {
             long curr = Figures[i];
             long pawn_to_moves = 0L; //empty board
             long pawn_to_captures = 0L;
-            if (curr != 0) {
+            if (curr != 0L) {
                 pawn_to_moves |= (curr >>> 8) & EMPTY & (~RANKS[7]); //move one forward
                 pawn_to_moves |= (curr >>> 16) & EMPTY & (EMPTY >> 8) & (RANKS[1] >> 16); //move two forwards
                 pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES;//capture left //TODO: remove captured piece
@@ -106,7 +108,7 @@ public class Moves {
     }
 
     public static void black_knights() {
-        int idx= gtidx('n');
+        int idx = gtidx('n');
         movemaps[idx] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[idx]);
         movemapsIndividual[idx] = new long[Figures.length];
@@ -115,7 +117,7 @@ public class Moves {
             long knight_to_moves = 0L; //empty board
             if (curr != 0L) {
                 knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17));
-                clearOverflow(curr, knight_to_moves);
+                knight_to_moves = clearOverflow(curr, knight_to_moves);
                 if ((knight_to_moves & bitmaps[gtidx('K')]) != 0L) { //if a white king is attacked
                     nrOfbAttackers++;
                     locOfbAttackers |= curr;
@@ -140,7 +142,7 @@ public class Moves {
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long knight_to_moves = 0L; //empty board
-            if (curr != 0) {
+            if (curr != 0L) {
                 knight_to_moves |= ((curr >>> 6) | (curr >>> 10) | (curr >>> 15) | (curr >>> 17) | (curr << 6) | (curr << 10) | (curr << 15) | (curr << 17));
                 knight_to_moves = clearOverflow(curr, knight_to_moves);
                 if ((knight_to_moves & bitmaps[gtidx('k')]) != 0L) { //if a white king is attacked
@@ -152,10 +154,10 @@ public class Moves {
                     WPROTECTED |= protecting;
                     REDZONEB |= protecting;
                 }
+                knight_to_moves &= ~WHITEPIECES;
+                movemaps[idx] |= knight_to_moves;
+                movemapsIndividual[idx][i] = knight_to_moves;
             }
-            knight_to_moves &= ~WHITEPIECES;
-            movemaps[idx] |= knight_to_moves;
-            movemapsIndividual[idx][i] = knight_to_moves;
         }
     }
 
@@ -164,7 +166,7 @@ public class Moves {
         movemaps[idx] = 0L;
         //long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
-        if (curr != 0) {
+        if (curr != 0L) {
             movemapsIndividual[idx] = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
@@ -177,7 +179,7 @@ public class Moves {
         movemaps[idx] = 0L;
         //long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
-        if (curr != 0) {
+        if (curr != 0L) {
             movemapsIndividual[idx] = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
@@ -203,12 +205,14 @@ public class Moves {
         movemaps[idx] = 0L;
         //long rook_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
-        if (curr != 0) {
+        if (curr != 0L) {
             movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
         }
+        //bitmap_to_chessboard(movemaps[idx]);
+        //System.out.println(idx);
     }
 
     public static void black_queens() {
@@ -216,13 +220,13 @@ public class Moves {
         movemaps[idx] = 0L;
         //long queen_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
-        if (curr != 0) {
+        if (curr != 0L) {
             movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
             long[] diag = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            for (int m=0;m<movemapsIndividual[idx].length;m++) {
-                movemapsIndividual[idx][m] |=diag[m];
+            for (int m = 0; m < currAmount; m++) {
+                movemapsIndividual[idx][m] |= diag[m];
             }
-            for (long f: movemapsIndividual[idx]) {
+            for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
         }
@@ -233,13 +237,13 @@ public class Moves {
         movemaps[idx] = 0L;
         //long queen_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
-        if (curr != 0) {
+        if (curr != 0L) {
             movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
             long[] diag = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            for (int m=0;m<movemapsIndividual[idx].length;m++) {
-                movemapsIndividual[idx][m] |=diag[m];
+            for (int m = 0; m < currAmount; m++) { //how many queens we have
+                movemapsIndividual[idx][m] |= diag[m];
             }
-            for (long f: movemapsIndividual[idx]) {
+            for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
         }
@@ -251,7 +255,7 @@ public class Moves {
         long king_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
-        if (curr != 0) {
+        if (curr != 0L) {
             king_to_moves |= (curr >>> 8); //move one up
             king_to_moves |= (curr >>> 9); //move one left up
             king_to_moves |= (curr >>> 7); //move one right up
@@ -279,7 +283,7 @@ public class Moves {
         long king_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
-        if (curr != 0) {
+        if (curr != 0L) {
             king_to_moves |= (curr >>> 8); //move one up
             king_to_moves |= (curr >>> 9); //move one left up
             king_to_moves |= (curr >>> 7); //move one right up
@@ -322,8 +326,14 @@ public class Moves {
         white_king();
     }
 
-    public static void initiate_next_moves(boolean turn) { //initiates all moves
-        whitesTurn=turn;
+    public static void initiate_next_moves(long[] bitboards, long[] history, boolean turn) { //initiates all moves
+        if (!isNull(history)) {
+            //TODO: use history
+        }
+        whitesTurn = turn;
+        if (!isNull(bitboards)) {
+            set_bitboards(bitboards);
+        }
         initiate_next_black_movements();
         initiate_next_white_movements();
 

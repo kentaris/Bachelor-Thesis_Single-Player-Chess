@@ -7,6 +7,7 @@ import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.search.Search.board_size;
 import static java.lang.Long.parseUnsignedLong;
+import static java.util.Objects.isNull;
 
 public class Bitboards {
     public static long[] bitmaps = new long[12]; //12 maps for 2*6 chess figures (black and white) -->long so board has 64bits available
@@ -29,6 +30,10 @@ public class Bitboards {
         return bitmaps;
     }
 
+    public static void set_bitboards(long[] bitboards){
+        bitmaps=bitboards;
+    }
+
     public static void initiate_FEN_to_chessboard(String FEN) {
         /*translates the fen code into the 12 bitmaps*/
         System.out.println(FEN);
@@ -42,14 +47,15 @@ public class Bitboards {
         /*creates a bitboard from a given visual representaion*/
         /*This method is here for convenience only since it is somethimes timeconsuming and error-prone to come up with the exact FEN code for a given chess position.*/
         Character[][] board = {
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}, //left: square index 0  &  7,0 (file,row)
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}}; //right: square index 63  &  0,7 (file,row)
+                {'r','n','b','q','k','b','n','r'},
+                {'p','p','p','p','p','p','p','p'},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {'P','P','P','P','P','P','P','P'},
+                {'R','N','B','Q','K','B','N','R'}
+        }; //right: square index 63  &  0,7 (file,row)
         arrayToBitboards(board);
         bitmaps_to_chessboard(bitmaps);
     }
@@ -66,8 +72,8 @@ public class Bitboards {
 
     public static void initiate_boards(String FEN) {
         /*initiates the board variables*/
-        initiate_FEN_to_chessboard(FEN); //toggle this....
-        //initiate_custom_chessBoard(); //and this line to switch between FEN-code input and manual array input (initiate_custom_chessBoard())
+        //initiate_FEN_to_chessboard(FEN); //toggle this....
+        initiate_custom_chessBoard(); //and this line to switch between FEN-code input and manual array input (initiate_custom_chessBoard())
         if (Long.bitCount(bitmaps[gtidx('k')]) > 1 | Long.bitCount(bitmaps[gtidx('K')]) > 1) {
             System.out.println("\u001B[31mThere are multiple kings of the same color present on the board. this is an illegal chess position!\u001B[0m");
             System.exit(2);
@@ -80,9 +86,45 @@ public class Bitboards {
         ranks();
         KQ_side();
     }
+    public static void two_bitmaps_to_chessboard(long[] bitmaps1, long[] bitmaps2) {
+        /*prints 2 given bitboards next to each other so I can compare them better for debugging purposes*/
+        String[][] board = new String[board_size][board_size];
+        for (int pos = 0; pos < (board_size * board_size); pos++) {
+            board[pos / board_size][pos % board_size] = " "; //initialize empty board with placeholder
+        }
+        String[][] board2 = new String[board_size][board_size];
+        for (int pos = 0; pos < (board_size * board_size); pos++) {
+            board2[pos / board_size][pos % board_size] = " "; //initialize empty board with placeholder
+        }
+        for (int fig = 0; fig < bitmaps1.length; fig++) {
+            for (int i = 0; i < (board_size * board_size); i++) {
+                if (((bitmaps1[fig] >> i) & 1) == 1) { //wherever we find 1's in the binary code of the current bitmap...
+                    board[i / board_size][i % board_size] = gtfig(fig).toString(); // ...place the character of the current bitmap to the board
+                }
+            }
+        }
+        for (int fig = 0; fig < bitmaps2.length; fig++) {
+            for (int i = 0; i < (board_size * board_size); i++) {
+                if (((bitmaps2[fig] >> i) & 1) == 1) { //wherever we find 1's in the binary code of the current bitmap...
+                    board2[i / board_size][i % board_size] = gtfig(fig).toString(); // ...place the character of the current bitmap to the board
+                }
+            }
+        }
+        for (int i = 0; i < board_size; i++) {
+            String s = "        ";
+            if (i==4){
+                s="   -->̣  ";
+            }
+            System.out.println(Arrays.toString(board[i])+String.format("%s",s)+Arrays.toString(board2[i]));
+        }
+    }
 
     public static void bitmaps_to_chessboard(long[] bitmaps) {
         /*prints the n given bitmaps by overlaying them on top of each other and printing the result to the terminal.*/
+        if(isNull(bitmaps)){
+            System.out.println("\u001B[35mBitmap is Null\u001B[0m");
+            return;
+        }
         String[][] board = new String[board_size][board_size];
         for (int pos = 0; pos < (board_size * board_size); pos++) {
             board[pos / board_size][pos % board_size] = " "; //initialize empty board with placeholder
@@ -102,6 +144,10 @@ public class Bitboards {
 
     public static void bitmap_to_chessboard(long bitmap) {
         /*prints the given 64bit as a chessboard to the terminal*/
+        if(isNull(bitmap)){
+            System.out.println("\u001B[35mBitmap is Null\u001B[0m");
+            return;
+        }
         String[][] board = new String[board_size][board_size];
         for (int pos = 0; pos < (board_size * board_size); pos++) {
             board[pos / board_size][pos % board_size] = " "; //initialize empty board with placeholder
@@ -149,6 +195,8 @@ public class Bitboards {
 
     public static void colors() {
         /*sets the occupied squares of each color*/
+        BLACKPIECES = 0L;
+        WHITEPIECES = 0L;
         for (int fig = 0; fig < 6; fig++) { //black figures
             BLACKPIECES |= bitmaps[fig];
         }
