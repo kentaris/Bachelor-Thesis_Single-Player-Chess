@@ -46,15 +46,23 @@ public class Bitboards {
     public static void initiate_custom_chessBoard() {
         /*creates a bitboard from a given visual representaion*/
         /*This method is here for convenience only since it is somethimes timeconsuming and error-prone to come up with the exact FEN code for a given chess position.*/
+        /*{'r','n','b','q','k','b','n','r'},
+        {'p','p','p','p','p','p','p',' '},
+        {' ',' ',' ',' ',' ',' ',' ',' '},
+        {' ',' ',' ',' ',' ',' ',' ','Q'},
+        {' ',' ',' ',' ','P',' ',' ',' '},
+        {' ',' ',' ',' ',' ',' ',' ',' '},
+        {'P','P','P','P',' ','P','P','P'},
+        {'R','N','B',' ','K','B','N','R'}*/
         Character[][] board = {
-                {'r','n','b','q','k','b','n','r'},
-                {'p','p','p','p','p','p','p','p'},
+                {' ',' ',' ',' ',' ',' ',' ','r'},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
-                {'P','P','P','P','P','P','P','P'},
-                {'R','N','B','Q','K','B','N','R'}
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ','B',' ',' '}
         }; //right: square index 63  &  0,7 (file,row)
         arrayToBitboards(board);
         bitmaps_to_chessboard(bitmaps);

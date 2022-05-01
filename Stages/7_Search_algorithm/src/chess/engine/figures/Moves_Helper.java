@@ -38,7 +38,6 @@ public class Moves_Helper {
     }
 
     public static void addPinnedMovement(long attacker, long path) {
-
         pinnedMovement |= path + attacker;
     }
 
@@ -66,7 +65,7 @@ public class Moves_Helper {
         }
     }
 
-    public static long[] hor_ver_bitboard(long bitboard, long opposite_color, long same_color) {
+    public static long[] hor_ver_bitboard(long bitboard, long opposite_color, long same_color, int fig_idx) {
         /*creates a bitmap mask which marks the row and file up and down to mark the spots where a rook (or queen) can possibly go to.*/
         /*the input is a bitmap of attacking pieces (rooks and or queens), opposite color bitmap where all opposite colored pieces are marked with a 1, and same colored bitmap. the bitmap is then separated such that every attacker piece is on its own isolated bitmap. We can then loop over those isolated pieces. The index of the current isolated attacker piece is calculated (0-63) by shifting the bit and counting how many times we had to shift to the right to get a 1.With that index we can now calculate what the represented row and columns would be on a chess board. To calculate the file we use the formula: index/board_size and cast it into an integer. To calculate the row we use the formula index%board_size. */
         /*Now that we know the file and rank of an attacker piece we can do some more math to move the piece into every direction until it reaches the end of the board. We do this with another (very shot) loop for every direction like so: /insert pseudo code/. This is very efficient since the loops will in total only execute 2*(board_size-1) times (possibilities in both directions minus the square on which the attacker piece is currently on). We can make it even more efficient by checking for a collision with the same colored pieces at current square or else checking for a collision with opposite colored piece at previous square. in both cases we can break the loop prematurely because if we know that the current square to be checked has the same color, then I don't want to set the bit. Similarly, if I know the previous checked location (either k-1 or k+1 depending on the direction we move to) was a opposite colored piece, then we already set the bit and now know we must stop since we can't continue the piece movement. Otherwise we can just continue shifting the attacker bitmap to the right and adding the resulting bitmap to the result bitmap (squares which can be attacked). This also saves us time since we don't need to do an additional removing of those unreachable squares.*/
@@ -78,9 +77,11 @@ public class Moves_Helper {
         /*https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks*/
         /*https://core.ac.uk/download/pdf/33500946.pdf*/
         long[] figures = get_single_figure_boards(bitboard); //here I split the board's figures into single figure bitboards for every piece (if there are multiple)
-        currAmount=figures.length;
+        currAmount = figures.length;
         long[] movemap = new long[currAmount];
+        posmapsIndividual[fig_idx] = new long[currAmount];
         for (int i = 0; i < currAmount; i++) { //loop over single figures
+            posmapsIndividual[fig_idx][i] = figures[i];//we add the position of the current figure //TODO: remove that position again everywhere!!!
             movemap[i] = 0L;
             long path; //squares which can be blocked to get out of check will be saved here if there is a check
             boolean set = false;
@@ -117,7 +118,7 @@ public class Moves_Helper {
                             addRedZone(figures[i], path);
                         }
                         if (rem == file) {
-                            addPinned(next);
+                            addPinned(next); //TODO: piece is pinned even if there is no king behind it...
                             addPinnedMovement(figures[i], path);
                         }
                     }
@@ -288,14 +289,15 @@ public class Moves_Helper {
         return movemap;
     }
 
-    public static long[] diag_bitboard(long bitboard, long opposite_color, long same_color) {
+    public static long[] diag_bitboard(long bitboard, long opposite_color, long same_color, int fig_idx) {
         /*creates a bitmap mask which marks the diagonals and anti-diagonals to mark the spots where a bishop (or queen) can possibly go to.*/
         /*For the diagonals and anti-diagonals I decided to reuse the logic I came up with previously (horizontals & verticals). The diagonals are horizontal and vertical lines that are rotated 45 degrees counterclockwise. this is why for example the left down anti-diagonal has the opposite shift operator as the left moving vertical line.*/
         long[] figures = get_single_figure_boards(bitboard); //separate figures into separate boards
-        currAmount=figures.length;
+        currAmount = figures.length;
         long[] movemap = new long[currAmount];
+        posmapsIndividual[fig_idx] = new long[currAmount];
         for (int i = 0; i < currAmount; i++) { //loop over single figures
-            movemap[i] = 0L;
+            posmapsIndividual[fig_idx][i] = figures[i];//we add the position of the current figure //TODO: remove that position again everywhere!!!
             long path; //squares which can be blocked to get out of check will be saved here if there is a check
             boolean set = false;
             Integer idx = get_squareIndex_of_figure(figures[i]);
@@ -403,7 +405,8 @@ public class Moves_Helper {
                 }*/
             }
             path = 0L;
-            for (int k = 0; (k < rank + 1) & (k < file + 1); k++) {//move left up
+            System.out.println(rank + " " + file);
+            for (int k = 0; (k <= rank) & (k <= file); k++) {//move left up
                 long current = (figures[i] >>> (k * (board_size + 1))) & same_color;
                 path |= figures[i] >>> ((k + 1) * (board_size + 1));
                 if ((current != 0L) & k != 0) { //collision with OWN piece at current square.
@@ -431,7 +434,7 @@ public class Moves_Helper {
                         if (set & ((rem == rank) | (rem < (file)))) {
                             addRedZone(figures[i], path);
                         }
-                        if ((rem == rank) | (rem < (file))) {
+                        if ((rem == rank) | (rem < (file))) { //TODO: only pinned if king behind (set==true)
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -551,6 +554,7 @@ public class Moves_Helper {
     }
 
     public static void valid_moves() {
+
         if (whitesTurn) { //TODO: not sure if I can do this. Is there a scenario where we need to initiate valid moves of the opposite color to
             valid_white_moves();
         } else {
@@ -563,11 +567,11 @@ public class Moves_Helper {
         movemapsIndividual[5][0] &= ~REDZONEB; //get black king
         if (nrOfwAttackers == 1) { //if we don't have more than one piece attacking the king...
             // ...and we can capture the attacker piece...or block the attacker piece:
-            for (int fig = 0; fig < 5; fig++) { //we exclude the king from this calculation because he can't be pinned nor block his own check
+            for (int fig = 0; fig < 5; fig++) { //we exclude the king(5) from this calculation because he can't be pinned nor block his own check
                 movemaps[fig] &= (locOfwAttackers | blockLocationsB);
                 long[] figures = get_single_figure_boards(bitmaps[fig]);
-                for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
-                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
+                for (int i = 0; i < figures.length; i++) { //own figure captures attacker piece or blocks the path to the king
+                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) { //TODO: double check logic
                         movemapsIndividual[fig][i] &= locOfwAttackers;
                         if ((movemapsIndividual[fig][i] & pinnedB) == 0L) { //if I'm not a pinned piece
                             movemapsIndividual[fig][i] &= blockLocationsB;
@@ -580,7 +584,7 @@ public class Moves_Helper {
             for (int fig = 0; fig < 5; fig++) {
                 long[] figures = get_single_figure_boards(bitmaps[fig]);
                 for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
-                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) {
+                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) { //TODO: replace with posmapsIndividual[fig][i]
                         movemapsIndividual[fig][i] = 0L;
                     }
                 }
@@ -592,7 +596,11 @@ public class Moves_Helper {
                         for (int i = 0; i < movemapsIndividual[fig].length; i++) { //...lets find out which one...
                             if (((movemapsIndividual[fig][i] | bitmaps[fig]) & pinnedB) != 0L) { //combine movemap with figure position to find out which movemap is the pinned one
                                 /*Instead of limiting the pinned piece to 'movemapsq[i] = 0L;' where it can only stay at the same spot, we are finding the 'ray pins' between the king and a attacking piece which pins the piece in between. This can be quite an expensive calculation and the suggested approach here is that we calculate in all directions the moves from the opponent's sliding pieces, the sliding piece moves from the king in the opposite direction and the overlap of these two rays (https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/). I do this differently and less expensive. I already gathered all information I need and prepared it. I only need to access the right ray and substract my own pieces. Thats the movement the pinned piece can make. thats it.*/
-                                movemapsIndividual[fig][i] = (movemapsIndividual[fig][i] & pinnedMovement); //here we combine the movement map of the individual piece with the pinned rays map of all pieces. The result of the &-operation of the 2 maps is the path on which the pinned piece is allowed to move. this works only because we have only one king on the board of each color. If there were multiple then this logic would fall apart as soon as both kings have pinned pieces and the pinned movement map of one piece extends the movement of the other piece.
+                                //TODO: not sure if this works.... also: needs to be implemented for nrOfwAttackers==1 & nrOfwAttackers>=2...
+                                //TODO: ...does not work... pawn can now move out of it's pinned position..
+                                if (((movemapsIndividual[fig][i] | posmapsIndividual[fig][i]) & pinnedB) != 0L) {//(((movemapsIndividual[fig][i] & ~(bitmaps[fig])) & pinnedMovement) != 0L) {
+                                    movemapsIndividual[fig][i] = 0L;//(movemapsIndividual[fig][i] & pinnedMovement); //here we combine the movement map of the individual piece with the pinned rays map of all pieces. The result of the &-operation of the 2 maps is the path on which the pinned piece is allowed to move. this works only because we have only one king on the board of each color. If there were multiple then this logic would fall apart as soon as both kings have pinned pieces and the pinned movement map of one piece extends the movement of the other piece.
+                                }
                             }
                         }
                     }
@@ -634,8 +642,9 @@ public class Moves_Helper {
                     if ((bitmaps[fig] & pinnedW) != 0) { //some figure of type T is among the pinned pieces... optimization, so we can opt out early
                         for (int i = 0; i < movemapsIndividual[fig].length; i++) { //...lets find out which one...
                             if (((movemapsIndividual[fig][i] | bitmaps[fig]) & pinnedW) != 0L) { //combine movemap with figure position to find out which movemap is the pinned one
-                                /*Instead of limiting the pinned piece to 'movemapsq[i] = 0L;' where it can only stay at the same spot, we are finding the 'ray pins' between the king and a attacking piece which pins the piece in between. This can be quite an expensive calculation and the suggested approach here is that we calculate in all directions the moves from the opponent's sliding pieces, the sliding piece moves from the king in the opposite direction and the overlap of these two rays (https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/). I do this differently and less expensive. I already gathered all information I need and prepared it. I only need to access the right ray and substract my own pieces. Thats the movement the pinned piece can make. thats it.*/
-                                movemapsIndividual[fig][i] = (movemapsIndividual[fig][i] & pinnedMovement); //here we combine the movement map of the individual piece with the pinned rays map of all pieces. The result of the &-operation of the 2 maps is the path on which the pinned piece is allowed to move. this works only because we have only one king on the board of each color. If there were multiple then this logic would fall apart as soon as both kings have pinned pieces and the pinned movement map of one piece extends the movement of the other piece.
+                                if (((movemapsIndividual[fig][i] | posmapsIndividual[fig][i]) & pinnedW) != 0L) {//(((movemapsIndividual[fig][i] & ~(bitmaps[fig])) & pinnedMovement) != 0L) {
+                                    movemapsIndividual[fig][i] = 0L;//(movemapsIndividual[fig][i] & pinnedMovement); //here we combine the movement map of the individual piece with the pinned rays map of all pieces. The result of the &-operation of the 2 maps is the path on which the pinned piece is allowed to move. this works only because we have only one king on the board of each color. If there were multiple then this logic would fall apart as soon as both kings have pinned pieces and the pinned movement map of one piece extends the movement of the other piece.
+                                }
                             }
                         }
                     }
@@ -658,7 +667,7 @@ public class Moves_Helper {
 
     public static void initiate_red_zone_white() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONEW=0L;
+        //REDZONEW=0L;
         REDZONEW |= movemaps[0] | movemaps[1] | movemaps[2] | movemaps[3] | movemaps[4] | movemaps[5];
         REDZONEW &= ~pPOSM; //TODO: doesn't work!!!!   //remove regular pawn movements as they are not attacking //TODO: consider en-passant move. How to deal with them? they're only dangerous to pawns. for now they are just ignored
         //REDZONEW &= ~WPROTECTED;
@@ -667,8 +676,8 @@ public class Moves_Helper {
     }
 
     public static void initiate_redzone() {
-        REDZONEB=0L;
-        REDZONEW=0L;
+        REDZONEB = 0L; //TODO: this may be a problem since data of the other king is lost? I don't think it is tough
+        REDZONEW = 0L;
         if (whitesTurn) {
             initiate_red_zone_white();
         } else {
@@ -678,7 +687,7 @@ public class Moves_Helper {
 
     public static void initiate_red_zone_black() {
         /*this method does not initialize the moves. This method should only be called after the moves have been initialized otherwise we get the red-zone of the previous round. */
-        REDZONEB=0L;
+        //REDZONEB=0L;
         REDZONEB |= movemaps[6] | movemaps[7] | movemaps[8] | movemaps[9] | movemaps[10] | movemaps[11];
         REDZONEB &= ~PPOSM; //remove regular pawn movements as they are not attacking
         //REDZONEB &= ~BPROTECTED; //TODO: not working somehow
@@ -694,58 +703,6 @@ public class Moves_Helper {
             movesbitboard = (movesbitboard | (FILES[0] | FILES[1])) & (movesbitboard & ~(FILES[0] | FILES[1])); //clear the files on the left
         }
         return movesbitboard;
-    }
-
-    public static Stack<long[]> generate_successors2(long[] parent) {
-        int start = 0;
-        if (whitesTurn) {
-            start = 6;
-        }
-        int end = 6;
-        if (whitesTurn) {
-            end = 12;
-        }
-        //reset all:
-        bitmaps=parent;
-        pinnedMovement = 0L;
-        pPOSM=0L;
-        PPOSM=0L;
-        BPROTECTED=0L;
-        WPROTECTED=0L;
-        BATTACKED=0L;
-        WATTACKED=0L;
-        //TODO: reset everything
-        Stack<long[]> successors = new Stack<>();
-        for (int type = start; type < end; type++) { //forall types (black pawns, white rooks, etc.
-            long[] figures = get_single_figure_boards(bitmaps[type]); //get every figure
-            for (int i = 0; i < figures.length; i++) { //for all pieces of the same type (w_pawn_1, w_pawn_2, etc.)
-                //bitmap_to_chessboard(figures[i]);
-                long[] movements = get_single_figure_boards(movemapsIndividual[type][i]); //every figure has multiple moves
-                for (int m = 0; m < movements.length; m++) {//for all possible individual movements
-                    long[] newState = bitmaps.clone();
-                    if ((movements[m] & (BLACKPIECES | WHITEPIECES)) != 0L) { //we are capturing a piece
-                        for (int k = 0; k < 12; k++) {
-                            if ((movements[m] & newState[k]) != 0L) {
-                                newState[k] = 0L;
-                            }
-                        }
-                    }
-                    //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
-                    //TODO: IFF pawn promotion: generate states here!
-                    //TODO: return 0L map if no more moves possible to not run into null value problems
-                    newState[type] = movements.clone()[m]|(newState[type]&~figures[i]); //remove original figure and add the to movement
-                    //bitmaps_to_chessboard(newState);
-                    successors.push(newState);
-                    /*if (type==gtidx('Q')){
-                        bitmaps_to_chessboard(newState);
-                    }*/
-                }
-            }
-        }
-        /*for (int i = 0; i < successors.size(); i++) {
-            bitmaps_to_chessboard(successors.elementAt(i));
-        }*/
-        return successors;
     }
 
     public static Stack<long[]> generate_successors() {
@@ -768,14 +725,14 @@ public class Moves_Helper {
                     if ((movements[m] & (BLACKPIECES | WHITEPIECES)) != 0L) { //we are capturing a piece
                         for (int k = 0; k < 12; k++) {
                             if ((movements[m] & newState[k]) != 0L) {
-                                newState[k] = 0L;
+                                newState[k] &= ~(movements[m] & (BLACKPIECES | WHITEPIECES));
                             }
                         }
                     }
                     //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
                     //TODO: IFF pawn promotion: generate states here!
                     //TODO: return 0L map if no more moves possible to not run into null value problems
-                    newState[type] = movements.clone()[m]|(newState[type]&~figures[i]); //remove original figure and add the to movement
+                    newState[type] = movements.clone()[m] | (newState[type] & ~figures[i]); //remove original figure and add the to movement
                     //bitmaps_to_chessboard(newState);
                     successors.push(newState);
                     /*if (type==gtidx('Q')){
@@ -786,7 +743,8 @@ public class Moves_Helper {
         }
         /*for (int i = 0; i < successors.size(); i++) {
             bitmaps_to_chessboard(successors.elementAt(i));
-        }*/
+        }
+        System.exit(4);*/
         return successors;
     }
 }

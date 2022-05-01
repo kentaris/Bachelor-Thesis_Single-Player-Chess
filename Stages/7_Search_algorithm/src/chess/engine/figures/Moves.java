@@ -9,6 +9,7 @@ public class Moves {
     public static boolean whitesTurn;
     public static long[] movemaps = new long[12]; //TODO: needed only for the red zone, can we change that to make it faster?
     public static long[][] movemapsIndividual = new long[12][];
+    public static long[][] posmapsIndividual = new long[12][];
     public static long pinnedMovement = 0L;
     public static long REDZONEB;
     public static long REDZONEW;
@@ -37,6 +38,7 @@ public class Moves {
         movemaps[idx] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[idx]);
         movemapsIndividual[idx] = new long[Figures.length];
+        posmapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long pawn_to_moves = 0L; //empty board
@@ -66,6 +68,7 @@ public class Moves {
             pPOSM = pawn_to_moves;
             movemaps[idx] |= pawn_to_moves | pawn_to_captures;
             movemapsIndividual[idx][i] = pawn_to_moves | pawn_to_captures;
+            posmapsIndividual[idx][i] = Figures[i];
         }
     }
 
@@ -74,6 +77,7 @@ public class Moves {
         movemaps[idx] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[idx]);
         movemapsIndividual[idx] = new long[Figures.length];
+        posmapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long pawn_to_moves = 0L; //empty board
@@ -104,6 +108,7 @@ public class Moves {
             PPOSM = pawn_to_moves;
             movemaps[gtidx('P')] |= pawn_to_moves | pawn_to_captures;
             movemapsIndividual[idx][i] = pawn_to_moves | pawn_to_captures;
+            posmapsIndividual[idx][i] = Figures[i];
         }
     }
 
@@ -112,6 +117,7 @@ public class Moves {
         movemaps[idx] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[idx]);
         movemapsIndividual[idx] = new long[Figures.length];
+        posmapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long knight_to_moves = 0L; //empty board
@@ -130,6 +136,7 @@ public class Moves {
                 knight_to_moves &= ~BLACKPIECES;
                 movemaps[idx] |= knight_to_moves;
                 movemapsIndividual[idx][i] = knight_to_moves;
+                posmapsIndividual[idx][i] = Figures[i];
             }
         }
     }
@@ -139,6 +146,7 @@ public class Moves {
         movemaps[idx] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[idx]);
         movemapsIndividual[idx] = new long[Figures.length];
+        posmapsIndividual[idx] = new long[Figures.length];
         for (int i = 0; i < Figures.length; i++) {
             long curr = Figures[i];
             long knight_to_moves = 0L; //empty board
@@ -157,6 +165,7 @@ public class Moves {
                 knight_to_moves &= ~WHITEPIECES;
                 movemaps[idx] |= knight_to_moves;
                 movemapsIndividual[idx][i] = knight_to_moves;
+                posmapsIndividual[idx][i] = Figures[i];
             }
         }
     }
@@ -167,7 +176,7 @@ public class Moves {
         //long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         if (curr != 0L) {
-            movemapsIndividual[idx] = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            movemapsIndividual[idx] = diag_bitboard(curr, WHITEPIECES, BLACKPIECES, idx);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
@@ -180,11 +189,13 @@ public class Moves {
         //long bishop_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         if (curr != 0L) {
-            movemapsIndividual[idx] = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            movemapsIndividual[idx] = diag_bitboard(curr, BLACKPIECES, WHITEPIECES, idx);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
         }
+        bitmaps_to_chessboard(movemapsIndividual[idx]);
+        System.exit(4);
     }
 
     public static void black_rooks() {
@@ -193,7 +204,7 @@ public class Moves {
         //long rook_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         if (curr != 0L) {
-            movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES, idx);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
@@ -206,7 +217,7 @@ public class Moves {
         //long rook_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         if (curr != 0L) {
-            movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES, idx);
             for (long f : movemapsIndividual[idx]) {
                 movemaps[idx] |= f;
             }
@@ -221,8 +232,8 @@ public class Moves {
         //long queen_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         if (curr != 0L) {
-            movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES);
-            long[] diag = diag_bitboard(curr, WHITEPIECES, BLACKPIECES);
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, WHITEPIECES, BLACKPIECES, idx);
+            long[] diag = diag_bitboard(curr, WHITEPIECES, BLACKPIECES, idx);
             for (int m = 0; m < currAmount; m++) {
                 movemapsIndividual[idx][m] |= diag[m];
             }
@@ -238,8 +249,8 @@ public class Moves {
         //long queen_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         if (curr != 0L) {
-            movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES);
-            long[] diag = diag_bitboard(curr, BLACKPIECES, WHITEPIECES);
+            movemapsIndividual[idx] = hor_ver_bitboard(curr, BLACKPIECES, WHITEPIECES, idx);
+            long[] diag = diag_bitboard(curr, BLACKPIECES, WHITEPIECES, idx);
             for (int m = 0; m < currAmount; m++) { //how many queens we have
                 movemapsIndividual[idx][m] |= diag[m];
             }
@@ -326,13 +337,29 @@ public class Moves {
         white_king();
     }
 
-    public static void initiate_next_moves(long[] bitboards, long[] history, boolean turn) { //initiates all moves
+    public static void initiate_next_moves(long[] parent, long[] history, boolean turn) { //initiates all moves
+        //Reset everything:
+        blockLocationsB = 0L;
+        blockLocationsW = 0L;
+        movemaps = new long[12];
+        movemapsIndividual = new long[12][];
+        pinnedMovement = 0L;
+        nrOfbAttackers = 0;
+        nrOfwAttackers = 0;
+        WATTACKED = 0L;
+        BATTACKED = 0L;
+        BPROTECTED = 0L;
+        WPROTECTED = 0L;
+        pinnedB = 0L;
+        pinnedW = 0L;
+        locOfbAttackers = 0L;
+        locOfwAttackers = 0L;
         if (!isNull(history)) {
             //TODO: use history
         }
         whitesTurn = turn;
-        if (!isNull(bitboards)) {
-            set_bitboards(bitboards);
+        if (!isNull(parent)) {
+            set_bitboards(parent);
         }
         initiate_next_black_movements();
         initiate_next_white_movements();
