@@ -194,8 +194,6 @@ public class Moves {
                 movemaps[idx] |= f;
             }
         }
-        bitmaps_to_chessboard(movemapsIndividual[idx]);
-        System.exit(4);
     }
 
     public static void black_rooks() {

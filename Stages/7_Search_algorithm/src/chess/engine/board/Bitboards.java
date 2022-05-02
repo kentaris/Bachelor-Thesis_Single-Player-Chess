@@ -59,7 +59,7 @@ public class Bitboards {
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {'r',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ','B',' ',' '}
@@ -80,8 +80,8 @@ public class Bitboards {
 
     public static void initiate_boards(String FEN) {
         /*initiates the board variables*/
-        //initiate_FEN_to_chessboard(FEN); //toggle this....
-        initiate_custom_chessBoard(); //and this line to switch between FEN-code input and manual array input (initiate_custom_chessBoard())
+        initiate_FEN_to_chessboard(FEN); //toggle this....
+        //initiate_custom_chessBoard(); //and this line to switch between FEN-code input and manual array input (initiate_custom_chessBoard())
         if (Long.bitCount(bitmaps[gtidx('k')]) > 1 | Long.bitCount(bitmaps[gtidx('K')]) > 1) {
             System.out.println("\u001B[31mThere are multiple kings of the same color present on the board. this is an illegal chess position!\u001B[0m");
             System.exit(2);

@@ -26,7 +26,7 @@ public class Search {
         return children;
     }
     public static void print_Stack(Stack<long[]> children) {
-        int k = children.size();
+        int k = children.size()-1;
         System.out.println("expanding " + children.size() + " nodes:");
         Stack<long[]> copy = (Stack<long[]>) children.clone();
         while (!copy.isEmpty()) {
@@ -41,7 +41,7 @@ public class Search {
         }
     }
     public static void print_children(long[] parent, Stack<long[]> children) {
-        int k = children.size();
+        int k = children.size()-1;
         System.out.println("expanding " + children.size() + " nodes:");
         Stack<long[]> copy = (Stack<long[]>) children.clone();
         while (!copy.isEmpty()) {
@@ -113,7 +113,7 @@ public class Search {
         System.out.println("\u001B[32m\n\n==============2==============\n\n\u001B[0m");
         //depth 2:
         long[] old_parent = parent.clone();
-        parent = children.elementAt(7);
+        parent = children.elementAt(4);
         children = get_children(parent, old_parent, invert(whitesTurn));
         print_children(parent, children);
         System.out.println(n);
@@ -122,7 +122,7 @@ public class Search {
 
         //depth 3:
         old_parent = parent.clone();
-        parent = children.elementAt(0);
+        parent = children.elementAt(6);
         //bitmaps_to_chessboard(parent);
         children = get_children(parent, old_parent, invert(whitesTurn));
         print_children(parent, children);
@@ -132,7 +132,7 @@ public class Search {
 
         //depth 4:
         old_parent = parent.clone();
-        parent = children.elementAt(29);
+        parent = children.elementAt(3);
         //bitmaps_to_chessboard(parent);
         children = get_children(parent, old_parent, invert(whitesTurn));
         print_children(parent, children);
@@ -143,7 +143,7 @@ public class Search {
 
         //depth 5:
         old_parent = parent.clone();
-        parent = children.elementAt(3);
+        parent = children.elementAt(26);
         children = get_children(parent, old_parent, invert(whitesTurn));
         print_children(parent.clone(), (Stack<long[]>) children.clone());
         System.out.println(n);
@@ -152,10 +152,20 @@ public class Search {
 
         //depth 6:
         old_parent = parent.clone();
-        parent = children.elementAt(1);
+        parent = children.elementAt(0);
         children = get_children(parent, old_parent, invert(whitesTurn));
-        //print_children(parent.clone(), (Stack<long[]>) children.clone());
+        print_children(parent.clone(), (Stack<long[]>) children.clone());
         System.out.println(n);
+
+        System.out.println("\u001B[32m\n\n==============7==============\n\n\u001B[0m");
+        System.exit(5);
+        //depth 7:
+        old_parent = parent.clone();
+        parent = children.elementAt(0);
+        children = get_children(parent, old_parent, invert(whitesTurn));
+        print_children(parent.clone(), (Stack<long[]>) children.clone());
+        System.out.println(n);
+
 
         /*Stack<long[]> root = new Stack<>();
         root.push(bitmaps.clone());

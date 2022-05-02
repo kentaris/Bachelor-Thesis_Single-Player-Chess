@@ -101,7 +101,8 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] >>> k;
                 }
                 long next = (figures[i] >>> (k + 1)) & opposite_color;
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                //the following needs to stop at the end of the board. if we don't have the k<file+1 condition, the piece can check a piece on the opposite side of the board and also capture those pieces:
+                if (next != 0L & k < (file + 1)) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> (k + 1);
                     set = false;
@@ -151,7 +152,7 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] << k;
                 }
                 long next = (figures[i] << (k + 1)) & opposite_color;
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                if (next != 0L & k < (board_size - file)) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << (k + 1);
                     set = false;
@@ -203,7 +204,7 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] >>> (k * board_size); //mark the current square which is targeted by figures[i]
                 }
                 long next = (figures[i] >>> ((k + 1) * board_size)) & opposite_color; //next square which is being attacked
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                if (next != 0L & k < (rank + 1)) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * board_size);
 
@@ -245,7 +246,7 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] << (k * board_size);
                 }
                 long next = (figures[i] << ((k + 1) * board_size)) & opposite_color;
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                if (next != 0L & k < (board_size - rank)) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * board_size);
                     set = false;
@@ -316,7 +317,7 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] << (k * (board_size - 1));
                 }
                 long next = (figures[i] << ((k + 1) * (board_size - 1))) & opposite_color;
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                if (next != 0L & k < (file + 1)) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * (board_size - 1));
                     set = false;
@@ -366,7 +367,7 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] >>> (k * (board_size - 1));
                 }
                 long next = (figures[i] >>> ((k + 1) * (board_size - 1))) & opposite_color;
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                if (next != 0L & k < (board_size - file)) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * (board_size - 1));
                     set = false;
@@ -405,7 +406,6 @@ public class Moves_Helper {
                 }*/
             }
             path = 0L;
-            System.out.println(rank + " " + file);
             for (int k = 0; (k <= rank) & (k <= file); k++) {//move left up
                 long current = (figures[i] >>> (k * (board_size + 1))) & same_color;
                 path |= figures[i] >>> ((k + 1) * (board_size + 1));
@@ -417,7 +417,7 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] >>> (k * (board_size + 1)); //TODO: should't I also add it to movemapsIndividual?!
                 }
                 long next = (figures[i] >>> ((k + 1) * (board_size + 1))) & opposite_color;
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                if (next != 0L & k < rank & k < file) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> ((k + 1) * (board_size + 1));
                     set = false;
@@ -468,7 +468,7 @@ public class Moves_Helper {
                     movemap[i] |= figures[i] << (k * (board_size + 1));
                 }
                 long next = (figures[i] << ((k + 1) * (board_size + 1))) & opposite_color;
-                if (next != 0L) { //collision with OPPOSITE colored piece at next square
+                if (next != 0L & k < (board_size - rank) & (k < board_size - file)) { //collision with OPPOSITE colored piece at next square
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] << ((k + 1) * (board_size + 1));
                     set = false;
