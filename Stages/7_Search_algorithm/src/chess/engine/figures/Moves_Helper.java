@@ -705,7 +705,7 @@ public class Moves_Helper {
         return movesbitboard;
     }
 
-    public static Stack<long[]> generate_successors() {
+    public static Stack<long[]> generate_successors(long history) {
         int start = 0;
         if (whitesTurn) {
             start = 6;
@@ -729,12 +729,55 @@ public class Moves_Helper {
                             }
                         }
                     }
+                    //pawn extra movements:
+                    if (type == 0 | type == 6) { //it's a pawn
+                        if ((movements[m] & (RANKS[0] | RANKS[7])) != 0L) { //pawn promotes
+                            if ((figures[i] & BLACKPIECES) != 0L) { //we are dealing with a black piece
+                                long[] copy;
+                                for (int p = 0; p < 4; p++) {
+                                    copy = newState.clone();
+                                    copy[type] = (newState[type] & ~figures[i]); //remove original figure
+                                    copy[p + 1] = movements[m];
+                                    successors.push(copy);
+                                }
+                            } else if ((figures[i] & WHITEPIECES) != 0L) { //we are dealing with a white piece
+                                long[] copy;
+                                for (int p = 6; p < 10; p++) {
+                                    copy = newState.clone();
+                                    copy[type] = (newState[type] & ~figures[i]); //remove original figure
+                                    copy[p + 1] = movements[m];
+                                    successors.push(copy);
+                                }
+                            }
+                        } else if (((figures[i] & (RANKS[3] | RANKS[4])) != 0L) & ((((history >>> 16) & history) != 0L)|(((history << 16) & history) != 0L))) {//en-passant capture position , if history shifted by 2 squares forwards or backwards does not overlap with itself, then the pawn did not do a double move but a single move
+                            //TODO: check history: piece must have moved in last turn
+                            long next_to_me = ((figures[i] >>> 1) & history | (figures[i] << 1) & history);
+                            if (next_to_me != 0L) { //if the piece is next to me
+                                long[] copi = newState.clone();
+                                if (((figures[i] & BLACKPIECES) != 0L) & ((next_to_me & bitmaps[gtidx('P')]) != 0L)) { //we are dealing with a black pawn capturing a white pawn
+                                    copi[type] = (copi[type] & ~figures[i]); //remove original figure
+                                    copi[gtidx('P')] &= ~next_to_me; //remove captured pawn
+                                    copi[type] |= next_to_me << 8; //position pawn behind captured pawn
+                                    successors.push(copi);
+                                } else if (((figures[i] & WHITEPIECES) != 0L) & ((next_to_me & bitmaps[gtidx('p')]) != 0L)) { //we are dealing with a white piece
+                                    copi[type] = (copi[type] & ~figures[i]); //remove original figure
+                                    copi[gtidx('p')] &= ~next_to_me; //remove captured pawn
+                                    copi[type] |= next_to_me >>> 8; //position pawn behind captured pawn
+                                    successors.push(copi);
+                                }
+                            }
+                        }
+                    } else { //normal move
+                        newState[type] = movements.clone()[m] | (newState[type] & ~figures[i]); //remove original figure and add the to movement
+                        successors.push(newState);
+                    }
+                    newState[type] = movements.clone()[m] | (newState[type] & ~figures[i]); //remove original figure and add the to movement
+                    successors.push(newState);
                     //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
                     //TODO: IFF pawn promotion: generate states here!
                     //TODO: return 0L map if no more moves possible to not run into null value problems
-                    newState[type] = movements.clone()[m] | (newState[type] & ~figures[i]); //remove original figure and add the to movement
+
                     //bitmaps_to_chessboard(newState);
-                    successors.push(newState);
                     /*if (type==gtidx('Q')){
                         bitmaps_to_chessboard(newState);
                     }*/

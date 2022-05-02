@@ -15,13 +15,13 @@ public class Search {
     public static int current_depth = 1;
     public static int desired_depth;
 
-    public static Stack<long[]> get_children(long[] parent, long[] history, boolean wTurn) {
+    public static Stack<long[]> get_children(long[] parent, long difference, boolean wTurn) {
         /*expands a given position and returns it's children*/
         /*if (current_depth == desired_depth) { //if we reached the desired depth, return no more children
             return null;
         }*/
-        initiate_next_moves(parent, history, wTurn); //TODO: implement history - parent = history
-        Stack<long[]> children = generate_successors();
+        initiate_next_moves(parent, difference, wTurn);
+        Stack<long[]> children = generate_successors(difference);
         n += children.size();
         return children;
     }
@@ -92,11 +92,18 @@ public class Search {
         whitesTurn = true;
         return true;
     }
+    public static long get_diff(long[] old_parent, long[] parent){
+        long diff=0L;
+        for (int i = 0; i < 12; i++) {
+            diff|=old_parent[i]^parent[i];
+        }
+        return diff;
+    }
 
     public static void main(String[] args) {
         String FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
 
-        whitesTurn = true;
+        whitesTurn = false;
         System.out.println("=======Start Board=======");
         initiate_boards(FEN); //non-bit operations which happen only at the start
         System.out.println("=========================\n");
@@ -106,65 +113,20 @@ public class Search {
 
         //depth 1:
         long[] parent = bitmaps.clone(); //get initialized parent node
-        Stack<long[]> children = get_children(parent, null, whitesTurn); //create possible children nodes
+        Stack<long[]> children = get_children(parent, 0L, whitesTurn); //create possible children nodes
         print_children(parent, children);
         System.out.println(n);
 
         System.out.println("\u001B[32m\n\n==============2==============\n\n\u001B[0m");
         //depth 2:
         long[] old_parent = parent.clone();
-        parent = children.elementAt(4);
-        children = get_children(parent, old_parent, invert(whitesTurn));
+        parent = children.elementAt(0);
+        long difference=get_diff(old_parent,parent);
+        children = get_children(parent, difference, invert(whitesTurn));
         print_children(parent, children);
         System.out.println(n);
 
         System.out.println("\u001B[32m\n\n==============3==============\n\n\u001B[0m");
-
-        //depth 3:
-        old_parent = parent.clone();
-        parent = children.elementAt(6);
-        //bitmaps_to_chessboard(parent);
-        children = get_children(parent, old_parent, invert(whitesTurn));
-        print_children(parent, children);
-        System.out.println(n);
-
-        System.out.println("\u001B[32m\n\n==============4==============\n\n\u001B[0m");
-
-        //depth 4:
-        old_parent = parent.clone();
-        parent = children.elementAt(3);
-        //bitmaps_to_chessboard(parent);
-        children = get_children(parent, old_parent, invert(whitesTurn));
-        print_children(parent, children);
-        System.out.println(n);
-
-
-        System.out.println("\u001B[32m\n\n==============5==============\n\n\u001B[0m");
-
-        //depth 5:
-        old_parent = parent.clone();
-        parent = children.elementAt(26);
-        children = get_children(parent, old_parent, invert(whitesTurn));
-        print_children(parent.clone(), (Stack<long[]>) children.clone());
-        System.out.println(n);
-
-        System.out.println("\u001B[32m\n\n==============6==============\n\n\u001B[0m");
-
-        //depth 6:
-        old_parent = parent.clone();
-        parent = children.elementAt(0);
-        children = get_children(parent, old_parent, invert(whitesTurn));
-        print_children(parent.clone(), (Stack<long[]>) children.clone());
-        System.out.println(n);
-
-        System.out.println("\u001B[32m\n\n==============7==============\n\n\u001B[0m");
-        System.exit(5);
-        //depth 7:
-        old_parent = parent.clone();
-        parent = children.elementAt(0);
-        children = get_children(parent, old_parent, invert(whitesTurn));
-        print_children(parent.clone(), (Stack<long[]>) children.clone());
-        System.out.println(n);
 
 
         /*Stack<long[]> root = new Stack<>();

@@ -7,6 +7,7 @@ import static java.util.Objects.isNull;
 
 public class Moves {
     public static boolean whitesTurn;
+    public static long diff;
     public static long[] movemaps = new long[12]; //TODO: needed only for the red zone, can we change that to make it faster?
     public static long[][] movemapsIndividual = new long[12][];
     public static long[][] posmapsIndividual = new long[12][];
@@ -43,7 +44,7 @@ public class Moves {
             long curr = Figures[i];
             long pawn_to_moves = 0L; //empty board
             long pawn_to_captures = 0L;
-            if (curr != 0L) {
+            if (curr != 0L) { //pawns can theoretically move into infinity, but the bit is not set since it's outside the 64 bit and therefore no child for that case will be generated so we don't need to take care of this..
                 pawn_to_moves |= (curr << 8) & EMPTY & (~RANKS[0]); //move one forward
                 pawn_to_moves |= (curr << 16) & EMPTY & (EMPTY << 8) & (RANKS[6] << 16); //move two forwards
                 pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES;//capture left
@@ -51,8 +52,6 @@ public class Moves {
                 pawn_to_moves |= (curr << 8) & EMPTY & (RANKS[0]); //pawn promotion by move; //TODO: replace pawn with new figure
                 pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture left; //TODO: replace pawn with new figure
                 pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture right; //TODO: replace pawn with new figure
-                //pawn_to_moves |= (curr << 7);//en-passant capture left // TODO: en-passant : piece must have moved in last turn
-                //pawn_to_moves |= (curr << 9);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
                 //bitmap_to_chessboard(pawn_to_moves);
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
                 if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
@@ -90,9 +89,6 @@ public class Moves {
                 pawn_to_moves |= (curr >>> 8) & EMPTY & (RANKS[7]); //pawn promotion by move; //TODO: replace pawn with new figure
                 pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture left; //TODO: replace pawn with new figure
                 pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture right; //TODO: replace pawn with new figure
-                //pawn_to_moves |= (curr >>> 9);//en-passant capture left // TODO: en-passant : piece must have moved in last turn
-                //pawn_to_moves |= (curr >>> 7);//en-passant capture right // TODO: en-passant : piece must have moved in last turn
-                //TODO: for the en-passant I give the search call a "history" of the last move that has been played. I can give it a bitmap of the NEW position of the pawn that moved IFF it did a dobble move. otherwise the history is empty.
                 //bitmap_to_chessboard(pawn_to_moves);
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
                 if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
@@ -335,8 +331,9 @@ public class Moves {
         white_king();
     }
 
-    public static void initiate_next_moves(long[] parent, long[] history, boolean turn) { //initiates all moves
+    public static void initiate_next_moves(long[] parent, long difference, boolean turn) { //initiates all moves
         //Reset everything:
+        diff=difference;
         blockLocationsB = 0L;
         blockLocationsW = 0L;
         movemaps = new long[12];
@@ -352,9 +349,6 @@ public class Moves {
         pinnedW = 0L;
         locOfbAttackers = 0L;
         locOfwAttackers = 0L;
-        if (!isNull(history)) {
-            //TODO: use history
-        }
         whitesTurn = turn;
         if (!isNull(parent)) {
             set_bitboards(parent);
