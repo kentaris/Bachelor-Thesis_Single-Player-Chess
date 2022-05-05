@@ -33,6 +33,11 @@ public class Moves {
     public static boolean WINCHECK;*/
     public static int currAmount;
 
+    //castling:
+    public static long KingsideCastling = -8070450532247928688L;
+    public static long QueensideCastling = 1224979098644774929L;
+    public static long Castling = KingsideCastling|QueensideCastling;
+
 
     public static void black_pawns() {
         int idx = gtidx('p');
@@ -49,9 +54,9 @@ public class Moves {
                 pawn_to_moves |= (curr << 16) & EMPTY & (EMPTY << 8) & (RANKS[6] << 16); //move two forwards
                 pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES;//capture left
                 pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES;//capture right
-                pawn_to_moves |= (curr << 8) & EMPTY & (RANKS[0]); //pawn promotion by move; //TODO: replace pawn with new figure
-                pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture left; //TODO: replace pawn with new figure
-                pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture right; //TODO: replace pawn with new figure
+                //pawn_to_moves |= (curr << 8) & EMPTY & (RANKS[0]); //pawn promotion by move;
+                //pawn_to_captures |= (curr << 7) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture left;
+                //pawn_to_captures |= (curr << 9) & (~EMPTY) & WHITEPIECES & (RANKS[0]); //pawn promotion by capture right;
                 //bitmap_to_chessboard(pawn_to_moves);
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
                 if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
@@ -71,7 +76,7 @@ public class Moves {
         }
     }
 
-    public static void white_pawns() { //TODO: white pawn can capture white pawn and also it does so in the wrong direction...
+    public static void white_pawns() {
         int idx = gtidx('P');
         movemaps[idx] = 0L;
         long[] Figures = get_single_figure_boards(bitmaps[idx]);
@@ -82,13 +87,13 @@ public class Moves {
             long pawn_to_moves = 0L; //empty board
             long pawn_to_captures = 0L;
             if (curr != 0L) {
-                pawn_to_moves |= (curr >>> 8) & EMPTY & (~RANKS[7]); //move one forward
+                pawn_to_moves |= (curr >>> 8) & EMPTY; //move one forward
                 pawn_to_moves |= (curr >>> 16) & EMPTY & (EMPTY >> 8) & (RANKS[1] >> 16); //move two forwards
-                pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES;//capture left //TODO: remove captured piece
-                pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES;//capture right //TODO: remove captured piece
-                pawn_to_moves |= (curr >>> 8) & EMPTY & (RANKS[7]); //pawn promotion by move; //TODO: replace pawn with new figure
-                pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture left; //TODO: replace pawn with new figure
-                pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture right; //TODO: replace pawn with new figure
+                pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES;//capture left
+                pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES;//capture right
+                //pawn_to_moves |= (curr >>> 8) & EMPTY & (RANKS[7]); //pawn promotion by move;
+                //pawn_to_captures |= (curr >>> 9) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture left;
+                //pawn_to_captures |= (curr >>> 7) & (~EMPTY) & BLACKPIECES & (RANKS[7]); //pawn promotion by capture right;
                 //bitmap_to_chessboard(pawn_to_moves);
                 pawn_to_captures = clearOverflow(curr, pawn_to_captures);
                 if ((pawn_to_captures & bitmaps[gtidx('k')]) != 0L) { //if a black king is attacked
@@ -256,7 +261,6 @@ public class Moves {
 
     public static void black_king() {
         int idx = gtidx('k');
-        //TODO: castling
         long king_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
@@ -284,7 +288,6 @@ public class Moves {
 
     public static void white_king() {
         int idx = gtidx('K');
-        //TODO: castling
         long king_to_moves = 0L; //empty board
         long curr = bitmaps[idx];
         movemapsIndividual[idx] = new long[1]; //there is only one king!
@@ -350,6 +353,8 @@ public class Moves {
         locOfbAttackers = 0L;
         locOfwAttackers = 0L;
         whitesTurn = turn;
+        REDZONEB = 0L;
+        REDZONEW = 0L;
         if (!isNull(parent)) {
             set_bitboards(parent);
         }

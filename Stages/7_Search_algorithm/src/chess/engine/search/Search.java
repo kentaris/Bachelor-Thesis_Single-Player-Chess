@@ -14,6 +14,7 @@ public class Search {
     public static int n = 0;
     public static int current_depth = 1;
     public static int desired_depth;
+    public static long[] goal_state;
 
     public static Stack<long[]> get_children(long[] parent, long difference, boolean wTurn) {
         /*expands a given position and returns it's children*/
@@ -100,14 +101,42 @@ public class Search {
         return diff;
     }
 
-    public static void main(String[] args) {
-        String FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
+    public static boolean isGoal(long[] state){
+        /*Goal test which takes around 1-2µs to execute if true and less if false.*/
+        for (int i = 0; i < 12; i++) {
+            if(state[i]!=goal_state[i]){ //if we find a bitboard that doesn't match with that goal bitboard, we return false
+                return false;
+            }
+        }
+        return true; //if all matched, we return true
+    }
 
-        whitesTurn = false;
+    public static void main(String[] args) {
+        String start_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
+        String goal_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+        Character[][] goal_board = {
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ','K',' ',' ',' ',' ','r'},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '}
+        };
+        //toggle the following two lines to switch input method:
+        //long[] goal_position = return_arrayToBitboards(goal_board);
+        goal_state = FEN_to_chessboard(goal_FEN);
+        long[] goal_statee = FEN_to_chessboard(goal_FEN);
+        bitmaps_to_chessboard(goal_statee);
+        System.out.println(isGoal(goal_statee));
+
+        whitesTurn = true;
         System.out.println("=======Start Board=======");
-        initiate_boards(FEN); //non-bit operations which happen only at the start
+        initiate_boards(start_FEN); //non-bit operations which happen only at the start
         System.out.println("=========================\n");
         long t1 = System.nanoTime();
+        /*
 
         System.out.println("\u001B[32m\n\n==============1==============\n\n\u001B[0m");
 
@@ -120,14 +149,14 @@ public class Search {
         System.out.println("\u001B[32m\n\n==============2==============\n\n\u001B[0m");
         //depth 2:
         long[] old_parent = parent.clone();
-        parent = children.elementAt(0);
+        parent = children.elementAt(1);
         long difference=get_diff(old_parent,parent);
         children = get_children(parent, difference, invert(whitesTurn));
         print_children(parent, children);
         System.out.println(n);
 
         System.out.println("\u001B[32m\n\n==============3==============\n\n\u001B[0m");
-
+        */
 
         /*Stack<long[]> root = new Stack<>();
         root.push(bitmaps.clone());

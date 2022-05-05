@@ -1,5 +1,7 @@
 package chess.engine.board;
 
+import chess.engine.figures.Moves;
+
 import java.util.Arrays;
 
 import static chess.engine.fen.Decoder.FEN_decodeTo_64String;
@@ -30,6 +32,15 @@ public class Bitboards {
         return bitmaps;
     }
 
+    public static long[] return_bitboards(String[] stringMaps) {
+        /*Part of the fen-code translation process. it takes the strings and makes longs out of it.*/
+        long[] Bitmaps = new long[12];
+        for (int i = 0; i < Bitmaps.length; i++) {
+            Bitmaps[i] = Long.parseUnsignedLong(stringMaps[i], 2);
+        }
+        return Bitmaps;
+    }
+
     public static void set_bitboards(long[] bitboards){
         bitmaps=bitboards;
     }
@@ -41,6 +52,13 @@ public class Bitboards {
         long[] bitmaps = generate_bitboards(board);
         bitmaps_to_chessboard(bitmaps);
         //System.out.println(long_to_bitstring(bitmaps[gtidx('p')]));
+    }
+
+    public static long[] FEN_to_chessboard(String FEN) {
+        /*translates the fen code into the 12 bitmaps*/
+        String[] board = FEN_decodeTo_64String(FEN, board_size);
+        long[] Bitmaps = return_bitboards(board);
+        return Bitmaps;
     }
 
     public static void initiate_custom_chessBoard() {
@@ -56,10 +74,10 @@ public class Bitboards {
         {'R','N','B',' ','K','B','N','R'}*/
         Character[][] board = {
                 {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ','p',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ','P',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ','K',' ',' ',' ',' ','r'},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '}
@@ -76,6 +94,18 @@ public class Bitboards {
                 bitmaps[gtidx(board[i / 8][i % 8])] |= Long.parseUnsignedLong((bit), 2); //add it to the correct bitmap
             }
         }
+    }
+
+    public static long[] return_arrayToBitboards(Character[][] board) {
+        /*used for translating the given board in the method 'initiate_custom_chessBoard()' to the 12 bitmaps.*/
+        long[] chess_bitboards = new long[12];
+        for (int i = 0; i < 64; i++) {
+            if (board[i / 8][i % 8] != ' ') {
+                String bit = "0".repeat((board_size * board_size) - (i + 1)) + "1" + "0".repeat(i); //build bit string where 1 bit is at pos i and rest is 0... but we need to reverse it like we did in the FEN decoder.
+                chess_bitboards[gtidx(board[i / 8][i % 8])] |= Long.parseUnsignedLong((bit), 2); //add it to the correct bitmap
+            }
+        }
+        return chess_bitboards;
     }
 
     public static void initiate_boards(String FEN) {

@@ -81,10 +81,10 @@ public class Moves_Helper {
         long[] movemap = new long[currAmount];
         posmapsIndividual[fig_idx] = new long[currAmount];
         for (int i = 0; i < currAmount; i++) { //loop over single figures
-            posmapsIndividual[fig_idx][i] = figures[i];//we add the position of the current figure //TODO: remove that position again everywhere!!!
+            posmapsIndividual[fig_idx][i] = figures[i];//we add the position of the current figure
             movemap[i] = 0L;
             long path; //squares which can be blocked to get out of check will be saved here if there is a check
-            boolean set = false;
+            boolean set;
             Integer idx = get_squareIndex_of_figure(figures[i]);
             Integer[] file_row = idx_to_fileRank(idx);
             Integer file = file_row[1];
@@ -106,19 +106,21 @@ public class Moves_Helper {
                     addAttacked(figures[i], next);
                     movemap[i] |= figures[i] >>> (k + 1);
                     set = false;
-                    if (isKing(next)) {
+                    if (isKing(next)) { //must be opposite king
                         addToBeBlocked(figures[i], path);
-                        set = true;
+                        set = true; //we encountered a king
                     }
 
                     long next_next;
                     for (int rem = k + 2; rem < file + 1; rem++) {
                         next_next = figures[i] >>> (rem);
                         path |= next_next;
-                        if (set & rem == file) {
+                        if ((next_next & EMPTY) == 0L) { //if we encounter ANOTHER piece of our own or another opponent piece, then the piece can't be pinned and also not a red-zone
                             addRedZone(figures[i], path);
+                            break;
                         }
-                        if (rem == file) {
+                        if (set & rem == file) { //we saw a king and are at the end of the file
+                            addRedZone(figures[i], path);
                             addPinned(next); //TODO: piece is pinned even if there is no king behind it...
                             addPinnedMovement(figures[i], path);
                         }
@@ -160,15 +162,16 @@ public class Moves_Helper {
                         addToBeBlocked(figures[i], path);
                         set = true;
                     }
-
                     long next_next;
                     for (int rem = k + 2; rem < board_size - file; rem++) {
                         next_next = figures[i] << (rem);
                         path |= next_next;
-                        if (set & rem == board_size - file - 1) {
+                        if ((next_next & EMPTY) == 0L) { //if we encounter ANOTHER piece of our own or another opponent piece, then the piece can't be pinned and also not a red-zone
                             addRedZone(figures[i], path);
+                            break;
                         }
-                        if (rem == board_size - file - 1) {
+                        if (set & rem == board_size - file - 1) { //we saw a king and are at the end of the file
+                            addRedZone(figures[i], path);
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -219,14 +222,13 @@ public class Moves_Helper {
                     for (int rem = k + 2; rem < rank + 1; rem++) { //check if there is a king behind the piece (meaning piece is pinned)
                         next_next = figures[i] >>> (rem * board_size);
                         path |= next_next;
-                        /*if (isKing(next_next)) { //if next square is an opposite colored king...
-                            set = true;
-                        }*/
-                        if (set & rem == rank) { //the opposite piece we collided with was a king
-                            addRedZone(figures[i], path); //the whole path is a red zone
+                        if ((next_next & EMPTY) == 0L) {
+                            addRedZone(figures[i], path);
+                            break;
                         }
-                        if (rem == rank) { //if the opposite piece we collided with was not a king (it is pinned)
-                            addPinned(next); //piece is pinned
+                        if (set & rem == rank) {
+                            addRedZone(figures[i], path);
+                            addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
                     }
@@ -259,10 +261,12 @@ public class Moves_Helper {
                     for (int rem = k + 2; rem < board_size - rank; rem++) {
                         next_next = figures[i] << (rem * board_size);
                         path |= next_next;
+                        if ((next_next & EMPTY) == 0L) {
+                            addRedZone(figures[i], path);
+                            break;
+                        }
                         if (set & rem == board_size - rank - 1) {
                             addRedZone(figures[i], path);
-                        }
-                        if (rem == board_size - rank - 1) {
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -330,10 +334,12 @@ public class Moves_Helper {
                     for (int rem = k + 2; rem < file + 1; rem++) {
                         next_next = figures[i] << (rem * (board_size - 1));
                         path |= next_next;
+                        if ((next_next & EMPTY) == 0L) {
+                            addRedZone(figures[i], path);
+                            break;
+                        }
                         if (set & rem == file) {
                             addRedZone(figures[i], path);
-                        }
-                        if (rem == file) {
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -380,10 +386,12 @@ public class Moves_Helper {
                     for (int rem = k + 2; rem < board_size - file; rem++) {
                         next_next = figures[i] >>> (rem * (board_size - 1));
                         path |= next_next;
+                        if ((next_next & EMPTY) == 0L) {
+                            addRedZone(figures[i], path);
+                            break;
+                        }
                         if (set & rem == board_size - file - 1) {
                             addRedZone(figures[i], path);
-                        }
-                        if (rem == board_size - file - 1) {
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -430,11 +438,13 @@ public class Moves_Helper {
                     for (int rem = k + 2; (rem < (rank + 1)) & (rem < (file + 1)); rem++) {
                         next_next = figures[i] >>> (rem * (board_size + 1));
                         path |= next_next;
+                        if ((next_next & EMPTY) == 0L) {
+                            addRedZone(figures[i], path);
+                            break;
+                        }
                         //TODO:is the line below correct?
                         if (set & ((rem == rank) | (rem < (file)))) {
                             addRedZone(figures[i], path);
-                        }
-                        if ((rem == rank) | (rem < (file))) { //TODO: only pinned if king behind (set==true)
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -481,11 +491,13 @@ public class Moves_Helper {
                     for (int rem = k + 2; (rem < (board_size - rank)) & (rem < (board_size - file)); rem++) {
                         next_next = figures[i] << (rem * (board_size + 1));
                         path |= next_next;
+                        if ((next_next & EMPTY) == 0L) {
+                            addRedZone(figures[i], path);
+                            break;
+                        }
                         //TODO:is the line below correct?
                         if (set & ((rem == (board_size - rank - 1)) | (rem < (board_size - file - 1)))) {
                             addRedZone(figures[i], path);
-                        }
-                        if ((rem == (board_size - rank - 1)) | (rem < (board_size - file - 1))) {
                             addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
@@ -584,7 +596,7 @@ public class Moves_Helper {
             for (int fig = 0; fig < 5; fig++) {
                 long[] figures = get_single_figure_boards(bitmaps[fig]);
                 for (int i = 0; i < figures.length; i++) { //pawn captures attacker piece or blocks the path
-                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) { //TODO: replace with posmapsIndividual[fig][i]
+                    if ((movemapsIndividual[fig][i] | figures[i]) != 0L) { //TODO: replace with posmapsIndividual[fig][i]?
                         movemapsIndividual[fig][i] = 0L;
                     }
                 }
@@ -676,8 +688,6 @@ public class Moves_Helper {
     }
 
     public static void initiate_redzone() {
-        REDZONEB = 0L; //TODO: this may be a problem since data of the other king is lost? I don't think it is tough
-        REDZONEW = 0L;
         if (whitesTurn) {
             initiate_red_zone_white();
         } else {
@@ -736,7 +746,7 @@ public class Moves_Helper {
                                 long[] copy;
                                 for (int p = 0; p < 4; p++) {
                                     copy = newState.clone();
-                                    copy[type] = (newState[type] & ~figures[i]); //remove original figure
+                                    copy[type] = (copy[type] & ~figures[i]); //remove original figure
                                     copy[p + 1] = movements[m];
                                     successors.push(copy);
                                 }
@@ -744,33 +754,60 @@ public class Moves_Helper {
                                 long[] copy;
                                 for (int p = 6; p < 10; p++) {
                                     copy = newState.clone();
-                                    copy[type] = (newState[type] & ~figures[i]); //remove original figure
+                                    copy[type] = (copy[type] & ~figures[i]); //remove original figure
                                     copy[p + 1] = movements[m];
                                     successors.push(copy);
                                 }
                             }
-                        } else if (((figures[i] & (RANKS[3] | RANKS[4])) != 0L) & ((((history >>> 16) & history) != 0L)|(((history << 16) & history) != 0L))) {//en-passant capture position , if history shifted by 2 squares forwards or backwards does not overlap with itself, then the pawn did not do a double move but a single move
+                        } else if (((figures[i] & (RANKS[3] | RANKS[4])) != 0L) & ((((history >>> 16) & history) != 0L) | (((history << 16) & history) != 0L))) {//en-passant capture position , if history shifted by 2 squares forwards or backwards does not overlap with itself, then the pawn did not do a double move but a single move
                             //TODO: check history: piece must have moved in last turn
                             long next_to_me = ((figures[i] >>> 1) & history | (figures[i] << 1) & history);
                             if (next_to_me != 0L) { //if the piece is next to me
-                                long[] copi = newState.clone();
+                                long[] copy = newState.clone();
                                 if (((figures[i] & BLACKPIECES) != 0L) & ((next_to_me & bitmaps[gtidx('P')]) != 0L)) { //we are dealing with a black pawn capturing a white pawn
-                                    copi[type] = (copi[type] & ~figures[i]); //remove original figure
-                                    copi[gtidx('P')] &= ~next_to_me; //remove captured pawn
-                                    copi[type] |= next_to_me << 8; //position pawn behind captured pawn
-                                    successors.push(copi);
+                                    copy[type] = (copy[type] & ~figures[i]); //remove original figure
+                                    copy[gtidx('P')] &= ~next_to_me; //remove captured pawn
+                                    copy[type] |= next_to_me << 8; //position pawn behind captured pawn
+                                    successors.push(copy);
                                 } else if (((figures[i] & WHITEPIECES) != 0L) & ((next_to_me & bitmaps[gtidx('p')]) != 0L)) { //we are dealing with a white piece
-                                    copi[type] = (copi[type] & ~figures[i]); //remove original figure
-                                    copi[gtidx('p')] &= ~next_to_me; //remove captured pawn
-                                    copi[type] |= next_to_me >>> 8; //position pawn behind captured pawn
-                                    successors.push(copi);
+                                    copy[type] = (copy[type] & ~figures[i]); //remove original figure
+                                    copy[gtidx('p')] &= ~next_to_me; //remove captured pawn
+                                    copy[type] |= next_to_me >>> 8; //position pawn behind captured pawn
+                                    successors.push(copy);
                                 }
                             }
                         }
-                    } else { //normal move
+                    } else if ((type == 5 & ((figures[i] | bitmaps[3]) & Castling) != 0L) | (type == 11 & ((figures[i] | bitmaps[9]) & Castling) != 0L)) { //Castling black (king & rook are in starting position)
+                        long[] copy;
+                        int idx;
+                        if (whitesTurn) {
+                            idx = gtidx('R');
+                        } else {
+                            idx = gtidx('r');
+                        }
+                        if (((movements[m] & (figures[i] >>> 1)) != 0L) & ((bitmaps[idx] & QUEENSIDE) != 0L)) { //add queenside castling if king moves to the right (in addition)
+                            if (((((figures[i] >>> 1) | (figures[i] >>> 2) | (figures[i] >>> 3)) & EMPTY) != 0L) | (((figures[i] | figures[i] >>> 1 | figures[i] >>> 2) & REDZONEB) == 0L)) { //if there is no piece inbetween king and rook and king doesn't walk trough a check
+                                copy = newState.clone();
+                                copy[type] = copy[type] & ~(figures[i]); //remove original figure
+                                copy[type] |= figures[i] >>> 2; //set new king position
+                                copy[idx] &= KINGSIDE; //remove original queenside rook (only leave kingside rook)
+                                copy[idx] |= figures[i] >>> 1; //set rook position
+                                successors.push(copy);
+                            }
+                        } else if (((movements[m] & (figures[i] << 1)) != 0L) & ((bitmaps[idx] & KINGSIDE) != 0L)) { //add kingside castling if king moves to the left (in addition)
+                            if (((((figures[i] << 1) | (figures[i] << 2)) & EMPTY) != 0L) | (((figures[i] | figures[i] >>> 1 | figures[i] >>> 2) & REDZONEB) == 0L)) { //if there is no piece inbetween king and rook and king doesn't walk trough a check
+                                copy = newState.clone();
+                                copy[type] = copy[type] & ~(figures[i]); //remove original figure
+                                copy[type] |= figures[i] << 2; //set new king position
+                                copy[idx] &= QUEENSIDE; //remove original kingside rook (only leave queenside rook)
+                                copy[idx] |= figures[i] << 1; //set rook position
+                                successors.push(copy);
+                            }
+                        }
+                    } /*else { //normal move //TODO: not sure if I really need this... test it
                         newState[type] = movements.clone()[m] | (newState[type] & ~figures[i]); //remove original figure and add the to movement
                         successors.push(newState);
-                    }
+                    }*/
                     newState[type] = movements.clone()[m] | (newState[type] & ~figures[i]); //remove original figure and add the to movement
                     successors.push(newState);
                     //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
