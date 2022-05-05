@@ -7,7 +7,9 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
 
 <img width="180" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/logo-4-1.png" alt="Logo">
 
-# Bachelor Thesis: Single Player Chess
+# Solving Single-Player Chess
+
+This is the official GitHub repository of my Bachelor's thesis. The written thesis can be viewed on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm). The finish date was agreed ([contract](https://drive.google.com/file/d/192AzZeenHUWgXjJgPDF19V5BIRtWQxuu/view?usp=sharing)) to be the 07.06.2022.
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -16,6 +18,7 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
     <li><a href="#abstract">Abstract</a></li>
     <li><a href="#journal">Journal</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#dependencies">Dependencies</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -32,11 +35,6 @@ The goal of this thesis is to model single-player Chess as a planning domain usi
 ## Journal
 
 I am keeping a [Journal](Journal.md) of what I am doing so it is easier for me to time manage and also so it easier to write the final thesis. Feel free to have a look at it.
-
-<!-- Thesis -->
-## Thesis
-
-The full thesis can be viewed on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -79,8 +77,8 @@ Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_S
 <!-- Requirements -->
 ## Dependencies
 
-* Numpy (via: `sudo apt-get install python3-numpy`)
 * Fast downward: [Github](https://github.com/aibasel/downward), [Website](https://www.fast-downward.org/) 
+* Numpy (via: `sudo apt-get install python3-numpy`)
 
 <!-- Authors -->
 ## Authors
