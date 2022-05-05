@@ -16,7 +16,7 @@
         - pawns past position
         - etc
       - First steps:
-        - implement bfsand see if for simplmle cases it works
+        - implement bfs and see if for simplmle cases it works
         - change to gbfs & use priority queue
 
 
