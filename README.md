@@ -8,6 +8,7 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
 <img width="180" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/logo-4-1.png" alt="Logo">
 
 # Bachelor Thesis: Single Player Chess
+
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -22,20 +23,30 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
 
 <!-- Abstract -->
 ## Abstract
+
 <img width="300" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/Screenshot-from-2022-03-04-15-52-21.png" alt="Terminal CHess UI">
 The goal of this thesis is to model single-player Chess as a planning domain using the planning domain definition language (PDDL). We want to look into the problem of how to reach check mate position from an initial position. Both the initial and the goal position are given. As a first approach, we will encode this problem using PDDL. After this is done, we will also study how classical planners perform in this new domain implement a state-space search algorithm for this problem. 
 <br clear="right"/>
 
 <!-- Journal -->
 ## Journal
+
 I am keeping a [Journal](Journal.md) of what I am doing so it is easier for me to time manage and also so it easier to write the final thesis. Feel free to have a look at it.
+
+<!-- Thesis -->
+## Thesis
+
+The full thesis can be viewed on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
 
 <!-- ROADMAP -->
 ## Roadmap
+
 The roadblocks below build on on another so to see the relevant files for this project it is sufficient to check the folder linked in the last mentioned roadblock.
 
 <!-- ROADBLOCKS -->
 #### Roadblocks: 
+
+The following roadblocks are simplified by a lot so the reader can have some insight on how the project timeline was roughly organized. To get more insigt about this I encourage the reader to have a look at [the Journal](Journal.md).
 1. [x] Getting familiar [![familiar](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][1_First_attempt]
 2. [x] Implement **Knight's Tour** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][2_Knights Tour]
 3. [x] Implement **Two Knight's Walk** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
@@ -56,7 +67,11 @@ The roadblocks below build on on another so to see the relevant files for this p
       2. [x] blocked movement (ex: bishop can't move trough a pawn)
       3. [x] castling
       4. [x] taking turns
-7. 
+7. [ ] Write a state space algorithm that solves single-player chess][![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][7_Search_algorithm]
+   1. [x] writing a Move generator using a 12x64bit array (one bitboard for every figure of every color)
+   2. [ ] implement best-first-search and see if  it works for simpmle cases.
+   3. [ ] implement Greedy-best-first-search & use priority queue
+8. [ ] Finishing the theis document on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
 Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.
@@ -78,9 +93,10 @@ Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_S
 ## Acknowledgments
 
 * An Introduction to the Planning Domain Deﬁnition Language by Patrik Haslum and co. ([Book](https://www.morganclaypool.com/doi/abs/10.2200/S00900ED2V01Y201902AIM042))
-* planing.domains ([Online PDDL Editor Tool](http://planning.domains/))
-* [Fast Downward](https://github.com/aibasel/downward)
-* Chess Logo inspired by [Marko Ivanovic](https://dribbble.com/shots/14950766/attachments/6667952?mode=media)
+* The planing.domains ([Online PDDL Editor Tool](http://planning.domains/)) helped me a lot to get started with using PDDL.
+* The [Fast Downward](https://github.com/aibasel/downward) planner enabled me to use a state of the art PDDL planner which made it possible for me to make use of more powerfull aspects of the PDDL languare such as axioms.
+* The [Basilea-latex Template](https://github.com/ivangiangreco/basilea-latex) used to write the thesis was created by Ivan Giangreco.
+* The Chess Logo I designed was inspired by [Marko Ivanovic](https://dribbble.com/shots/14950766/attachments/6667952?mode=media)'s Chess Logo.
 
 [AI Group]: https://ai.dmi.unibas.ch/
 [dmi]: https://dmi.unibas.ch/en/
