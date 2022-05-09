@@ -6,8 +6,10 @@ import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves.*;
-import static chess.engine.search.Search.board_size;
+import static chess.engine.search.Problem.board_size;
 import static java.util.Objects.isNull;
+import chess.engine.search.NODE;
+import chess.engine.search.Problem;
 
 public class Moves_Helper {
 
@@ -524,46 +526,6 @@ public class Moves_Helper {
         return movemap;
     }
 
-    public static int[][] getMoves() {
-        //TODO:
-        int start = 0;
-        if (whitesTurn) {
-            start = 6;
-        }
-        int end = 6;
-        if (whitesTurn) {
-            end = 12;
-        }
-        int n = 0;
-        for (int i = start; i < end; i++) {
-            if (!isNull(movemapsIndividual[i])) {
-                for (int j = 0; j < movemapsIndividual[i].length; j++) {
-                    n += Long.bitCount(movemapsIndividual[i][j]);
-                }
-            }
-        }
-        int[][] coordinate = new int[n][7]; //a3h3 movement for example -->̣ [3, 1,3,8,3, 0,0] the first number represents the piece (here a black rook). The second last number represents movemens (0) vs captures (1). The last number represents promotions (0-4), castling (5-6), double pawn moves (7).
-        for (int i = 0; i < 12; i++) { //for all figures
-            for (int j = 0; j < Long.bitCount(movemaps[i]); j++) { //for all possible movements for that figure
-                if (!isNull(movemapsIndividual[i][j])) {
-                    int idx = get_squareIndex_of_figure(movemapsIndividual[i][j]);
-                    int file = idx / board_size;
-                    int rank = idx % board_size;
-                }
-            }
-        }
-        return coordinate;
-    }
-
-    public static String convertMove(int[] move) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(gtfig(move[0]) + " ");
-        builder.append((char) (move[1] + 97));
-        builder.append(move[2] + 1);
-        builder.append((char) (move[3] + 97));
-        builder.append(move[4] + 1);
-        return builder.toString();
-    }
 
     public static void valid_moves() {
 
@@ -715,13 +677,14 @@ public class Moves_Helper {
         return movesbitboard;
     }
 
-    public static Stack<long[]> generate_successors(long history) {
-        int start = 0;
-        if (whitesTurn) {
+    public static Stack<long[]> generate_successors(NODE node) {
+        long history = node.STATE.difference;
+        int start = 0; //blacks turn
+        if (node.STATE.wTurn) {
             start = 6;
         }
-        int end = 6;
-        if (whitesTurn) {
+        int end = 6; //blacks turn
+        if (node.STATE.wTurn) {
             end = 12;
         }
         Stack<long[]> successors = new Stack<>();
@@ -811,8 +774,6 @@ public class Moves_Helper {
                     newState[type] = movements.clone()[m] | (newState[type] & ~figures[i]); //remove original figure and add the to movement
                     successors.push(newState);
                     //TODO: IFF en-passant has been made: remove enpassant captured piece & if king is in check after, don't add the move
-                    //TODO: IFF pawn promotion: generate states here!
-                    //TODO: return 0L map if no more moves possible to not run into null value problems
 
                     //bitmaps_to_chessboard(newState);
                     /*if (type==gtidx('Q')){

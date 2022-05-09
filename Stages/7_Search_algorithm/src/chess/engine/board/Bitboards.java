@@ -7,7 +7,7 @@ import java.util.Arrays;
 import static chess.engine.fen.Decoder.FEN_decodeTo_64String;
 import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Figures.gtidx;
-import static chess.engine.search.Search.board_size;
+import static chess.engine.search.Problem.board_size;
 import static java.lang.Long.parseUnsignedLong;
 import static java.util.Objects.isNull;
 
@@ -61,7 +61,7 @@ public class Bitboards {
         return Bitmaps;
     }
 
-    public static void initiate_custom_chessBoard() {
+    public static void initiate_custom_chessBoard(Character[][] board) {
         /*creates a bitboard from a given visual representaion*/
         /*This method is here for convenience only since it is somethimes timeconsuming and error-prone to come up with the exact FEN code for a given chess position.*/
         /*{'r','n','b','q','k','b','n','r'},
@@ -71,19 +71,19 @@ public class Bitboards {
         {' ',' ',' ',' ','P',' ',' ',' '},
         {' ',' ',' ',' ',' ',' ',' ',' '},
         {'P','P','P','P',' ','P','P','P'},
-        {'R','N','B',' ','K','B','N','R'}*/
+        {'R','N','B',' ','K','B','N','R'}*//*
         Character[][] board = {
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
+                {' ',' ',' ','p',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ','K',' ',' ',' ',' ','r'},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '},
                 {' ',' ',' ',' ',' ',' ',' ',' '}
-        }; //right: square index 63  &  0,7 (file,row)
+        }; //right: square index 63  &  0,7 (file,row)*/
         arrayToBitboards(board);
-        bitmaps_to_chessboard(bitmaps);
+        //bitmaps_to_chessboard(bitmaps);
     }
 
     public static void arrayToBitboards(Character[][] board) {
@@ -108,10 +108,8 @@ public class Bitboards {
         return chess_bitboards;
     }
 
-    public static void initiate_boards(String FEN) {
+    public static void initiate_boards() {
         /*initiates the board variables*/
-        //initiate_FEN_to_chessboard(FEN); //toggle this....
-        initiate_custom_chessBoard(); //and this line to switch between FEN-code input and manual array input (initiate_custom_chessBoard())
         if (Long.bitCount(bitmaps[gtidx('k')]) > 1 | Long.bitCount(bitmaps[gtidx('K')]) > 1) {
             System.out.println("\u001B[31mThere are multiple kings of the same color present on the board. this is an illegal chess position!\u001B[0m");
             System.exit(2);
@@ -123,6 +121,7 @@ public class Bitboards {
         files();
         ranks();
         KQ_side();
+        bitmaps_to_chessboard(bitmaps);
     }
     public static void two_bitmaps_to_chessboard(long[] bitmaps1, long[] bitmaps2) {
         /*prints 2 given bitboards next to each other so I can compare them better for debugging purposes*/

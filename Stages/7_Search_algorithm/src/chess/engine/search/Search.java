@@ -1,33 +1,56 @@
 package chess.engine.search;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
-import java.util.concurrent.TimeUnit;
 
 import static chess.engine.board.Bitboards.*;
+import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.figures.Moves_Helper.*;
+
+import static chess.engine.search.Problem.board_size;
 import static java.lang.Math.round;
 import static java.util.Objects.isNull;
 
 public class Search {
-    public static final int board_size = 8;
     public static int n = 0;
-    public static int current_depth = 1;
-    public static int desired_depth;
-    public static long[] goal_state;
+    public static int counter = 0;
+    public static Queue<NODE> frontier = new LinkedList<>();
+    public static Queue<STATE> reached = new LinkedList<>();
+    //timing:
 
-    public static Stack<long[]> get_children(long[] parent, long difference, boolean wTurn) {
+
+    /*public static Stack<long[]> get_children(long[] parent, long difference, boolean wTurn) {
         /*expands a given position and returns it's children*/
         /*if (current_depth == desired_depth) { //if we reached the desired depth, return no more children
             return null;
-        }*/
+        }*//*
         initiate_next_moves(parent, difference, wTurn);
         Stack<long[]> children = generate_successors(difference);
         n += children.size();
         return children;
+    }*/
+    public NODE[] EXPAND(Problem problem, NODE node) {
+        initiate_next_moves(node);
+        Stack<long[]> children = generate_successors(node);
+        int size = children.size();
+        NODE[] nodes = new NODE[size];
+        n += size;
+        boolean wTurn = true; //we assume it is white's turn...
+        if (node.STATE.wTurn) { //...but if input node (=new parent node) represents a state where it is white's Turn
+            wTurn = false; //then the child state must be a state where it is black's turn
+        }
+        for (int i = 0; i < size; i++) {
+            long[] child = children.pop();
+            long difference = get_diff(node.STATE.state, child);
+            nodes[i] = Problem.makeNode(node, child, difference, node.PATH_COST + 1, wTurn);
+        }
+        return nodes;
     }
+
     public static void print_Stack(Stack<long[]> children) {
-        int k = children.size()-1;
+        int k = children.size() - 1;
         System.out.println("expanding " + children.size() + " nodes:");
         Stack<long[]> copy = (Stack<long[]>) children.clone();
         while (!copy.isEmpty()) {
@@ -41,8 +64,17 @@ public class Search {
             k--;
         }
     }
+
+    public static String[] EXTRACT_SOLUTION_ACTIONS(LinkedList<long[]> path, int size) {
+        String[] actions = new String[size - 1];
+        for (int i = 0; i < size - 1; i++) { //we go through all pairs of from-to boards forwards (we already reversed the path) until we reach the node before the solution node (since solution node is included in that pair)
+            actions[i] = convertMove(getMove(path.get(i+1), path.get(i)));
+        }
+        return actions;
+    }
+
     public static void print_children(long[] parent, Stack<long[]> children) {
-        int k = children.size()-1;
+        int k = children.size() - 1;
         System.out.println("expanding " + children.size() + " nodes:");
         Stack<long[]> copy = (Stack<long[]>) children.clone();
         while (!copy.isEmpty()) {
@@ -85,144 +117,93 @@ public class Search {
         }
         return null; //not able to generate successors
     }*/
+
     public static boolean invert(boolean turn) {
         if (turn) {
-            whitesTurn = false;
+            //whitesTurn = false;
             return false;
         }
-        whitesTurn = true;
+        //whitesTurn = true;
         return true;
     }
-    public static long get_diff(long[] old_parent, long[] parent){
-        long diff=0L;
+
+    public static int[] getMove(long[] parent, long[] child) {
+        //long[] from = parent;
+        //long[] to = child;
+        //two_bitmaps_to_chessboard(from,to);
+        long difference = get_diff(parent, child);
+        long from_pos = unite(parent) & difference;
+        long to_pos = unite(child) & difference;
+        int from_idx = get_squareIndex_of_figure(from_pos);
+        int to_idx = get_squareIndex_of_figure(to_pos);
+        int from_file = from_idx % board_size;
+        int from_rank = 8 - (from_idx / board_size);
+        int to_file = to_idx % board_size;
+        int to_rank = 8 - (to_idx / board_size);
+        int[] coordinate = {from_file, from_rank, to_file, to_rank}; //a3h3
+        //System.out.println(from_file + " " + from_rank + " " + to_file + " " + to_rank);
+        return coordinate;
+    }
+
+    public static long unite(long[] state) {
+        long s = 0L;
+        for (long map : state) {
+            s |= map;
+        }
+        return s;
+    }
+
+    public static String convertMove(int[] move) {
+        StringBuilder builder = new StringBuilder();
+        builder.append((char) (move[0] + 97));
+        builder.append(move[1]);
+        builder.append((char) (move[2] + 97));
+        builder.append(move[3]);
+        return builder.toString();
+    }
+
+    public static long get_diff(long[] old_parent, long[] parent) {
+        long diff = 0L;
         for (int i = 0; i < 12; i++) {
-            diff|=old_parent[i]^parent[i];
+            diff |= old_parent[i] ^ parent[i];
         }
         return diff;
     }
 
-    public static boolean isGoal(long[] state){
-        /*Goal test which takes around 1-2µs to execute if true and less if false.*/
-        for (int i = 0; i < 12; i++) {
-            if(state[i]!=goal_state[i]){ //if we find a bitboard that doesn't match with that goal bitboard, we return false
-                return false;
-            }
+    public LinkedList<long[]> EXTRACT_PATH(NODE node) {
+        LinkedList<long[]> path = new LinkedList<>();
+        while (!isNull(node.PARENT)) {
+            path.add(node.STATE.state);
+            node = node.PARENT;
         }
-        return true; //if all matched, we return true
+        path.add(node.STATE.state); //add root node as well
+        return path;
     }
 
-    public static void main(String[] args) {
-        String start_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
-        String goal_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-        Character[][] goal_board = {
-                {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ','K',' ',' ',' ',' ','r'},
-                {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ',' ',' ',' ',' ',' ',' '},
-                {' ',' ',' ',' ',' ',' ',' ',' '}
-        };
-        //toggle the following two lines to switch input method:
-        //long[] goal_position = return_arrayToBitboards(goal_board);
-        goal_state = FEN_to_chessboard(goal_FEN);
-        long[] goal_statee = FEN_to_chessboard(goal_FEN);
-        bitmaps_to_chessboard(goal_statee);
-        System.out.println(isGoal(goal_statee));
-
-        whitesTurn = true;
-        System.out.println("=======Start Board=======");
-        initiate_boards(start_FEN); //non-bit operations which happen only at the start
-        System.out.println("=========================\n");
-        long t1 = System.nanoTime();
-        /*
-
-        System.out.println("\u001B[32m\n\n==============1==============\n\n\u001B[0m");
-
-        //depth 1:
-        long[] parent = bitmaps.clone(); //get initialized parent node
-        Stack<long[]> children = get_children(parent, 0L, whitesTurn); //create possible children nodes
-        print_children(parent, children);
-        System.out.println(n);
-
-        System.out.println("\u001B[32m\n\n==============2==============\n\n\u001B[0m");
-        //depth 2:
-        long[] old_parent = parent.clone();
-        parent = children.elementAt(1);
-        long difference=get_diff(old_parent,parent);
-        children = get_children(parent, difference, invert(whitesTurn));
-        print_children(parent, children);
-        System.out.println(n);
-
-        System.out.println("\u001B[32m\n\n==============3==============\n\n\u001B[0m");
-        */
-
-        /*Stack<long[]> root = new Stack<>();
-        root.push(bitmaps.clone());
-        desired_depth = 2;
-        generate_depth_n(root, null, whitesTurn);*/
-
-
-        //System.out.println("# white attackers: "+nrOfwAttackers);
-        //bitmap_to_chessboard(REDZONEB);
-        //System.out.println("red-zone black ^");
-        //System.out.println(BINCHECK);
-        /*long valid_moves = 0L;
-        for (int i = 0; i < 6; i++) {
-            if (!isNull(movemapsIndividual[i])) {
-                for (long m : movemapsIndividual[i]) {
-                    valid_moves |= m;
+    public NODE BFS(Problem problem) {
+        //TODO: Exit if goal state can't be reached cause of insufficient material
+        NODE root = problem.INITIAL();
+        if (problem.IS_GOAL(root.STATE)) return root;
+        frontier.add(root);
+        reached.add(root.STATE);
+        //long t1 = System.currentTimeMillis();
+        //long t2 = System.currentTimeMillis();
+        while (!frontier.isEmpty()){ //& t2-t1<1000) {
+            //t2=System.currentTimeMillis();
+            NODE node = frontier.poll(); //pop
+            NODE[] EXPAND = EXPAND(problem, node);
+            for (NODE child : EXPAND) {
+                System.out.print("\rcurrently expanded nodes: " + counter + child.STATE.wTurn);
+                counter += 1;
+                STATE s = child.STATE;
+                if (problem.IS_GOAL(s)) return child;
+                if (!reached.contains(s)) {
+                    reached.add(s);
+                    frontier.add(child);
                 }
             }
         }
-        bitmap_to_chessboard(valid_moves);
-        System.out.println("valid moves black ^");
-
-        *//*System.out.println("# white attackers: "+nrOfbAttackers);
-        bitmap_to_chessboard(REDZONEW);
-        System.out.println("red-zone white ^");
-        //System.out.println(WINCHECK);
-        long valid_moves = 0L;
-        for (int i = 6; i < 12; i++) {
-            if (!isNull(movemapsIndividual[i])) {
-                for (long m : movemapsIndividual[i]) {
-                    valid_moves |= m;
-                    bitmap_to_chessboard(m);
-                    System.out.println(gtfig(i));
-                }
-            }
-        }
-        bitmap_to_chessboard(valid_moves);
-        System.out.println("white valid moves ^");*/
-
-
-        /*int[][] test = getMoves();
-
-        for (int i=0;i< test.length;i++){
-            String s = (i+1)+": "+convertMove(test[i]);
-        }*/
-        //TODO: if there are no more black movements available and it's black's turn, then generate no more children
-        //bitmap_to_chessboard(valid_moves);
-        //System.out.println("white ^");
-        /*bitmap_to_chessboard(BATTACKED);
-        System.out.println("black attacked pieces ^");
-        bitmap_to_chessboard(WATTACKED);
-        System.out.println("white attacked pieces ^");
-        bitmap_to_chessboard(BPROTECTED);
-        System.out.println("black PROTECTED pieces ^");
-        bitmap_to_chessboard(WPROTECTED);
-        System.out.println("white PROTECTED pieces ^");*/
-        long t2 = System.nanoTime();
-        long T = t2 - t1;
-        long s = TimeUnit.SECONDS.convert(T, TimeUnit.NANOSECONDS);
-        long s_int = s - (round(s / 1000) * 1000);
-        long ms = TimeUnit.MILLISECONDS.convert(T, TimeUnit.NANOSECONDS);
-        long ms_int = ms - (round(ms / 1000) * 1000);
-        long mc = TimeUnit.MICROSECONDS.convert(T, TimeUnit.NANOSECONDS);
-        long mc_int = mc - (round(mc / 1000) * 1000);
-        long ns = TimeUnit.NANOSECONDS.convert(T, TimeUnit.NANOSECONDS);
-        long ns_int = ns - (round(ns / 1000) * 1000);
-        System.out.println(String.format("\n\u001B[33m[%ss %sms %sµs %sns execution time]\u001B[0m", s_int, ms_int, mc_int, ns_int));
+        //Stack<long[]> children = EXPAND(parent, 0L, whitesTurn); //create possible children nodes
+        return null; //failure
     }
 }

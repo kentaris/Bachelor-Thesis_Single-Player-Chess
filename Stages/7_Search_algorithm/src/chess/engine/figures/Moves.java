@@ -4,6 +4,7 @@ import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Figures.gtidx;
 import static chess.engine.figures.Moves_Helper.*;
 import static java.util.Objects.isNull;
+import chess.engine.search.NODE;
 
 public class Moves {
     public static boolean whitesTurn;
@@ -334,9 +335,9 @@ public class Moves {
         white_king();
     }
 
-    public static void initiate_next_moves(long[] parent, long difference, boolean turn) { //initiates all moves
+    public static void initiate_next_moves(NODE node) { //initiates all moves
         //Reset everything:
-        diff=difference;
+        diff= node.STATE.difference;
         blockLocationsB = 0L;
         blockLocationsW = 0L;
         movemaps = new long[12];
@@ -352,11 +353,11 @@ public class Moves {
         pinnedW = 0L;
         locOfbAttackers = 0L;
         locOfwAttackers = 0L;
-        whitesTurn = turn;
+        whitesTurn = node.STATE.wTurn;
         REDZONEB = 0L;
         REDZONEW = 0L;
-        if (!isNull(parent)) {
-            set_bitboards(parent);
+        if (!isNull(node.PARENT)) {
+            set_bitboards(node.STATE.state);
         }
         initiate_next_black_movements();
         initiate_next_white_movements();

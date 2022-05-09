@@ -36,7 +36,7 @@
         (last_pawn_line ?to_file ?to_rank - location)
         (TRUE)
         (FALSE)
-     ;fluent/normal predicates:
+     ;fluent/normal predicates: 
         (at ?figure - figure ?file ?rank - location)
         (not_moved ?figure - figure)
         (removed ?figure - figure)
@@ -46,7 +46,7 @@
         (empty_square ?file ?rank - location)
         ;(is_on_board ?figure - figure)
 
-     ;derived predicates:
+     ;derived predicates: 
         (myturn ?figure - figure)
         (white_pawn_at ?file ?rank - location)
         (black_pawn_at ?file ?rank - location)
