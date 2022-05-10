@@ -1,23 +1,21 @@
 package chess.engine.search;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.*;
 
 import static chess.engine.board.Bitboards.*;
-import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.figures.Moves_Helper.*;
 
 import static chess.engine.search.Problem.board_size;
-import static java.lang.Math.round;
+
+import java.util.PriorityQueue;
+
+import static chess.engine.search.Problem.root_node;
 import static java.util.Objects.isNull;
 
 public class Search {
     public static int n = 0;
     public static int counter = 0;
-    public static Queue<NODE> frontier = new LinkedList<>();
-    public static Queue<STATE> reached = new LinkedList<>();
     //timing:
 
 
@@ -37,6 +35,7 @@ public class Search {
         int size = children.size();
         NODE[] nodes = new NODE[size];
         n += size;
+        System.out.print("\rcurrently expanded nodes: " + n);
         boolean wTurn = true; //we assume it is white's turn...
         if (node.STATE.wTurn) { //...but if input node (=new parent node) represents a state where it is white's Turn
             wTurn = false; //then the child state must be a state where it is black's turn
@@ -44,7 +43,26 @@ public class Search {
         for (int i = 0; i < size; i++) {
             long[] child = children.pop();
             long difference = get_diff(node.STATE.state, child);
-            nodes[i] = Problem.makeNode(node, child, difference, node.PATH_COST + 1, wTurn);
+            nodes[i] = Problem.makeNode(node, child, difference, node.PATH_COST + 1, wTurn, 0);
+        }
+        return nodes;
+    }
+
+    public NODE[] EXPAND2(Problem problem, Heuristic heuristic, NODE node) {
+        initiate_next_moves(node);
+        Stack<long[]> children = generate_successors(node);
+        int size = children.size();
+        NODE[] nodes = new NODE[size];
+        n += size;
+        System.out.print("\rcurrently expanded nodes: " + n);
+        boolean wTurn = true; //we assume it is white's turn...
+        if (node.STATE.wTurn) { //...but if input node (=new parent node) represents a state where it is white's Turn
+            wTurn = false; //then the child state must be a state where it is black's turn
+        }
+        for (int i = 0; i < size; i++) {
+            long[] child = children.pop();
+            long difference = get_diff(node.STATE.state, child);
+            nodes[i] = Problem.makeNode(node, child, difference, node.PATH_COST + 1, wTurn, heuristic.f(problem, child, wTurn));
         }
         return nodes;
     }
@@ -67,9 +85,15 @@ public class Search {
 
     public static String[] EXTRACT_SOLUTION_ACTIONS(LinkedList<long[]> path, int size) {
         String[] actions = new String[size - 1];
-        for (int i = 0; i < size - 1; i++) { //we go through all pairs of from-to boards forwards (we already reversed the path) until we reach the node before the solution node (since solution node is included in that pair)
-            actions[i] = convertMove(getMove(path.get(i+1), path.get(i)));
-        }
+        if (size > 1) {
+            //System.out.println(size);
+            for (int i = 0; i < size - 1; i++) { //we go through all pairs of from-to boards backwards until we reach the root node (since root node is included in that pair)
+                //System.out.println(i);
+                //bitmaps_to_chessboard(path.get(i));
+                actions[(size - 2) - i] = convertMove(getMove(path.get(i + 1), path.get(i)));
+            }
+        } else actions[0] = "No Action needed!";
+        //for (String s:actions) System.out.println(s);
         return actions;
     }
 
@@ -128,6 +152,10 @@ public class Search {
     }
 
     public static int[] getMove(long[] parent, long[] child) {
+        //TODO: castling:
+        /*
+        if (bitcount(bitmap)>1) then assume it's castling
+        */
         //long[] from = parent;
         //long[] to = child;
         //two_bitmaps_to_chessboard(from,to);
@@ -173,37 +201,67 @@ public class Search {
     public LinkedList<long[]> EXTRACT_PATH(NODE node) {
         LinkedList<long[]> path = new LinkedList<>();
         while (!isNull(node.PARENT)) {
-            path.add(node.STATE.state);
+            path.add(node.STATE.state); //adds nodes from goal state to root state
             node = node.PARENT;
         }
         path.add(node.STATE.state); //add root node as well
         return path;
     }
 
-    public NODE BFS(Problem problem) {
-        //TODO: Exit if goal state can't be reached cause of insufficient material
+    public NODE BreadthFirst_Search(Problem problem) {
+        ArrayList<NODE> frontier = new ArrayList<>();
+        HashMap<STATE, Integer> reached = new HashMap<>(); //we use a hash map because it is faster than array list
         NODE root = problem.INITIAL();
         if (problem.IS_GOAL(root.STATE)) return root;
         frontier.add(root);
-        reached.add(root.STATE);
-        //long t1 = System.currentTimeMillis();
-        //long t2 = System.currentTimeMillis();
-        while (!frontier.isEmpty()){ //& t2-t1<1000) {
-            //t2=System.currentTimeMillis();
-            NODE node = frontier.poll(); //pop
+        reached.put(root.STATE, 0);
+        while (!frontier.isEmpty()) {
+            NODE node = frontier.remove(0); //pop
             NODE[] EXPAND = EXPAND(problem, node);
             for (NODE child : EXPAND) {
-                System.out.print("\rcurrently expanded nodes: " + counter + child.STATE.wTurn);
-                counter += 1;
                 STATE s = child.STATE;
                 if (problem.IS_GOAL(s)) return child;
-                if (!reached.contains(s)) {
-                    reached.add(s);
+                if (!reached.containsKey(s)) {
+                    reached.put(s, 0);
                     frontier.add(child);
                 }
             }
         }
-        //Stack<long[]> children = EXPAND(parent, 0L, whitesTurn); //create possible children nodes
         return null; //failure
+    }
+
+    public NODE BestFirst_Search(Problem problem, Heuristic heuristic) {
+        PriorityQueue<NODE> frontier = new PriorityQueue<>();
+        Map<STATE, Integer> reached = new HashMap<>(); //Lookup Table
+        NODE root = problem.INITIAL2(problem, heuristic);
+        NODE cheapestNode = root;
+        if (root.HEURISTIC_VALUE == heuristic.INFINITY) {
+            return null; //failure (unreachable goal state)
+        }
+        frontier.add(root);
+        reached.put(root.STATE, root.HEURISTIC_VALUE);//a lookup table, with one entry with key problem.INITIAL and value node
+        while (!frontier.isEmpty()) {
+            if (n > 18000000) {
+                System.out.println("Out of Memory");
+                return null; //out of Memory
+            }
+            NODE node = frontier.poll(); //pop
+            if (problem.IS_GOAL(node.STATE)) return node;
+            NODE[] EXPAND = EXPAND2(problem, heuristic, node);
+            for (NODE child : EXPAND) {
+                STATE s = child.STATE;
+                if (child.PATH_COST < cheapestNode.PATH_COST) {
+                    cheapestNode = child;
+                }
+                if (child.HEURISTIC_VALUE > heuristic.INFINITY) {
+                    continue; //skip
+                }
+                if (!reached.containsKey(s) | child.PATH_COST < cheapestNode.PATH_COST) {
+                    reached.put(s, child.HEURISTIC_VALUE);
+                    frontier.add(child);
+                }
+            }
+        }
+        return null; //failure (search finished without a solution)
     }
 }

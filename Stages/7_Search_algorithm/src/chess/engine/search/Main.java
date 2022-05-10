@@ -1,9 +1,9 @@
 package chess.engine.search;
 
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.concurrent.TimeUnit;
 
-import static chess.engine.board.Bitboards.bitmaps_to_chessboard;
 import static chess.engine.search.Search.EXTRACT_SOLUTION_ACTIONS;
 import static java.lang.Math.round;
 import static java.util.Objects.isNull;
@@ -12,7 +12,7 @@ public class Main {
     public static long t1;
     public static long t2;
 
-    public static String translate(long t1, long t2){
+    public static String translate(long t1, long t2) {
         long T = t2 - t1;
         long s = TimeUnit.SECONDS.convert(T, TimeUnit.NANOSECONDS);
         long s_int = s - (round(s / 1000) * 1000);
@@ -22,32 +22,59 @@ public class Main {
         long mc_int = mc - (round(mc / 1000) * 1000);
         long ns = TimeUnit.NANOSECONDS.convert(T, TimeUnit.NANOSECONDS);
         long ns_int = ns - (round(ns / 1000) * 1000);
-        return String.format("\n\u001B[33m[%ss %sms %sµs %sns execution time]\u001B[0m", s_int, ms_int, mc_int, ns_int);
+        if (ns_int > 1000) return String.format("\n\u001B[33m[%ss %sms execution time]\u001B[0m", s_int, ms_int);
+        else return String.format("\n\u001B[33m[%ss %sms %sµs %sns execution time]\u001B[0m", s_int, ms_int, mc_int, ns_int);
     }
 
     public static void time_it() {
         t2 = System.nanoTime();
-        String time = translate(t1,t2);
+        String time = translate(t1, t2);
         System.out.println(time);
     }
 
     public static void main(String[] args) {
+        /*PriorityQueue<test> T = new PriorityQueue<test>();
+        test t1 = new test(3,"erstes:3");
+        test t2 = new test(2,"zweites:2");
+        test t3 = new test(1,"drittes:1");
+        test t4 = new test(4,"viertes:4");
+        test t5 = new test(5,"fünftes:5");
+        T.add(t1);
+        T.add(t2);
+        T.add(t4);
+        T.add(t5);
+        T.add(t3);
+        for (int i =0;i<5;i++){
+            System.out.println(T.poll().element);
+        }
+        System.exit(8);*/
         Problem problem = new Problem();
         Search search = new Search();
-        NODE node = search.BFS(problem);
-        LinkedList<long[]> path = search.EXTRACT_PATH(node);
-        //print solution:
-        if (isNull(node)) System.out.println("\u001B[31mno solution found (" + Search.n + "nodes expanded)");
-        else {
-            int size = path.size();
-            System.out.println("\u001B[32mSolution found:\n"+"\u2500".repeat(22));
-            System.out.println("Solution length:\t" + size);
-            System.out.println("Nodes expanded:\t\t" + Search.n);
-            String[] solution = EXTRACT_SOLUTION_ACTIONS(path,size);
-            System.out.println("\t\u2502"+"Found plan:\u2502\n\t\u251C"+"\u2500".repeat(11)+"\u2524");
-            for (int i =0;i<size-1;i++) System.out.println("\t\u2502"+i+": "+solution[i]+"\t\u2502");
+        NODE node = new NODE();
+        if (args[0].toLowerCase().contains("best")){
+            System.out.println("Greedy-Best-First Search selected");
+            Heuristic heuristic = new Heuristic();
+            node = search.BestFirst_Search(problem,heuristic);
+        } else if (args[0].toLowerCase().contains("breadth")) {
+            System.out.println("Breadth-First Search selected");
+            node = search.BreadthFirst_Search(problem);
         }
-
+        System.out.println();
+        //print solution:
+        if (isNull(node)) System.out.println("\u001B[31mno solution found (" + Search.n + " nodes expanded)");
+        else {
+            LinkedList<long[]> path = search.EXTRACT_PATH(node);
+            int size = path.size();
+            System.out.println("\u001B[32m"+"\u2500".repeat(4)+"Solution found" + "\u2500".repeat(4));
+            System.out.println("Nodes expanded:\t\t" + Search.n);
+            System.out.println("Solution length:\t" + size);
+            System.out.println("Solution g-Value:\t" + node.PATH_COST);
+            //System.out.println("\u2500".repeat(22));
+            String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size);
+            System.out.println("\u001B[32m"+"\u2500".repeat(5)+"Action Plan" + "\u2500".repeat(5));
+            //System.out.println("\t\u2502" + "Found plan:\u2502\n\t\u251C" + "\u2500".repeat(11) + "\u2524");
+            for (int i = 0; i < size - 1; i++) System.out.println("\t  \u2502" + (i+1) + ": " + solution[i] + "\u2502");
+        }
         /*for (long[] state : path) {
             bitmaps_to_chessboard(state);
         }*/

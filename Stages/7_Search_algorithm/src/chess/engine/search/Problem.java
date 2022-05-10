@@ -2,9 +2,6 @@ package chess.engine.search;
 
 import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Moves.*;
-import static chess.engine.search.Search.convertMove;
-import static chess.engine.search.Search.getMove;
-import static java.lang.Math.round;
 import static java.util.Objects.isNull;
 
 public class Problem {
@@ -26,7 +23,7 @@ public class Problem {
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {'r', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {'P', 'P', 'P', 'P', 'P', ' ', ' ', ' '},
+                {'P', 'P', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}
         };
         Character[][] goal_board = {
@@ -34,7 +31,7 @@ public class Problem {
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {'P', 'P', 'P', 'P', 'P', ' ', ' ', ' '},
+                {'P', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', 'r'}
@@ -44,11 +41,14 @@ public class Problem {
         initiate_custom_chessBoard(start_board);
         //goal_state = FEN_to_chessboard(goal_FEN);
         //initiate_FEN_to_chessboard(start_FEN);
+        /*Heuristic h = new Heuristic();
+        System.out.println(h.f(bitmaps,goal_state));
+        System.exit(9);*/
 
         whitesTurn = true;
-        System.out.println("=======Start Board=======");
+        System.out.print(" " + "\u2500".repeat(6) + "Init Board" + "\u2500".repeat(6));
         initiate_boards(); //non-bit operations which happen only at the start
-        System.out.println("=========================\n");
+        System.out.println(" " + "\u2500".repeat(22));
 
         //System.out.println(convertMove(getMove(bitmaps,goal_state)));
         //System.exit(9);
@@ -58,15 +58,24 @@ public class Problem {
         if (isNull(root)) {
             initialize();
             root = bitmaps.clone(); //get initialized parent node
-
-            root_node = new NODE(null, root, 0L, 0, whitesTurn);
+            root_node = new NODE(null, root, 0L, 0, whitesTurn, 0);
         }
-        Main.t1 = System.nanoTime(); //initialization is included here now...
+        Main.t1 = System.nanoTime();
         return root_node;
     }
 
-    public static NODE makeNode(NODE parent, long[] state, long difference, int path_cost, boolean wTurn) {
-        NODE node = new NODE(parent, state, difference, path_cost, wTurn);
+    public NODE INITIAL2(Problem problem, Heuristic heuristic) {
+        if (isNull(root)) {
+            initialize();
+            root = bitmaps.clone(); //get initialized parent node
+            root_node = new NODE(null, root, 0L, 0, whitesTurn, heuristic.f(problem, root, whitesTurn));
+        }
+        Main.t1 = System.nanoTime();
+        return root_node;
+    }
+
+    public static NODE makeNode(NODE parent, long[] state, long difference, int path_cost, boolean wTurn, int heuristic) {
+        NODE node = new NODE(parent, state, difference, path_cost, wTurn, heuristic);
         return node;
     }
 
