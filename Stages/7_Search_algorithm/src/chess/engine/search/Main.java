@@ -63,7 +63,7 @@ public class Main {
         //print solution:
         if (isNull(node)) System.out.println("\u001B[31mno solution found (" + Search.n + " nodes expanded)");
         else {
-            LinkedList<long[]> path = search.EXTRACT_PATH(node);
+            LinkedList<NODE> path = search.EXTRACT_PATH(node);
             int size = path.size();
             System.out.println("\u001B[32m"+"\u2500".repeat(4)+"Solution found" + "\u2500".repeat(4));
             System.out.println("Nodes expanded:\t\t" + Search.n);

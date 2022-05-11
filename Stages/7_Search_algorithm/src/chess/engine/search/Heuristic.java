@@ -29,7 +29,7 @@ public class Heuristic {
         if (UNSOLVABLE(problem, current, wTurn, missingFigures)) {
             return INFINITY;
         }
-        return n*10;
+        return n;
     }
 
     private boolean UNSOLVABLE(Problem problem, long[] current, boolean wTurn, int[] missingFigures) {

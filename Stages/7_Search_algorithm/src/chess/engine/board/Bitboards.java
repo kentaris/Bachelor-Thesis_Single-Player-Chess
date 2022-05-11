@@ -156,6 +156,22 @@ public class Bitboards {
         }
     }
 
+    public static String[][] bitmaps_to_array(long[] bitmaps) {
+        /*returns an aray which is used to evaluate what piece has moved at the very end after the solution path has been found*/
+        String[][] board = new String[board_size][board_size];
+        for (int pos = 0; pos < (board_size * board_size); pos++) {
+            board[pos / board_size][pos % board_size] = " "; //initialize empty board with placeholder
+        }
+        for (int fig = 0; fig < bitmaps.length; fig++) {
+            for (int i = 0; i < (board_size * board_size); i++) {
+                if (((bitmaps[fig] >> i) & 1) == 1) { //wherever we find 1's in the binary code of the current bitmap...
+                    board[i / board_size][i % board_size] = gtfig(fig).toString(); // ...place the character of the current bitmap to the board
+                }
+            }
+        }
+        return board;
+    }
+
     public static void bitmaps_to_chessboard(long[] bitmaps) {
         /*prints the n given bitmaps by overlaying them on top of each other and printing the result to the terminal.*/
         if(isNull(bitmaps)){
