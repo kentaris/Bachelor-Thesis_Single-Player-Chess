@@ -17,24 +17,33 @@ public class Problem {
         String start_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
         String goal_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
         Character[][] start_board = {
-                {'P', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+                {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {'r', ' ', 'P', ' ', ' ', ' ', ' ', ' '},
-                {'P', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', 'P', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+                {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
         };
         Character[][] goal_board = {
+                {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+                {'p', 'p', ' ', ' ', ' ', ' ', ' ', 'p'},
+                {' ', ' ', 'p', 'p', 'p', 'p', 'p', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {'P', 'P', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', 'r'}
+                {' ', ' ', ' ', 'P', 'P', 'N', ' ', ' '},
+                {'P', 'P', 'P', ' ', 'B', 'P', 'P', 'P'},
+                {'R', 'N', 'B', 'Q', ' ', 'R', ' ', 'K'}
+
+                /*{'r', 'n', 'b', 'q', 'k', 'b', ' ', 'r'}, //out of memory
+                {' ', 'p', ' ', ' ', ' ', 'p', 'p', 'p'},
+                {'p', ' ', ' ', ' ', 'p', 'n', ' ', ' '},
+                {' ', ' ', 'p', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', 'B', 'P', ' ', ' ', ' ', ' '},
+                {' ', ' ', 'N', ' ', 'P', 'N', ' ', ' '},
+                {'P', 'P', ' ', ' ', ' ', 'P', 'P', 'P'},
+                {'R', ' ', 'B', 'Q', ' ', 'R', 'K', ' '}*/
         };
         //toggle the following two lines to switch input method:
         goal_state = return_arrayToBitboards(goal_board);
@@ -68,8 +77,10 @@ public class Problem {
         if (isNull(root)) {
             initialize();
             root = bitmaps.clone(); //get initialized parent node
-            root_node = new NODE(null, root, 0L, 0, whitesTurn, heuristic.f(problem, root, whitesTurn));
+            root_node = new NODE(null, root, 0L, 0, whitesTurn, heuristic.f(problem, root, whitesTurn, 0));
         }
+        //System.out.println(heuristic.f(problem,problem.goal_state,whitesTurn));
+        //System.exit(9);
         Main.t1 = System.nanoTime();
         return root_node;
     }

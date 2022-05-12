@@ -3,7 +3,6 @@ package chess.engine.search;
 import java.util.*;
 
 import static chess.engine.board.Bitboards.*;
-import static chess.engine.board.Bitboards.bitmap_to_chessboard;
 import static chess.engine.figures.Figures.gtfig;
 import static chess.engine.figures.Moves.*;
 import static chess.engine.figures.Moves_Helper.*;
@@ -36,8 +35,7 @@ public class Search {
         int size = children.size();
         NODE[] nodes = new NODE[size];
         n += size;
-        //System.out.print("\rcurrently expanded nodes: " + n); //TODO: uncomment
-        System.out.println();
+        System.out.print("\rcurrently expanded nodes: " + n);
         boolean wTurn = true; //we assume it is white's turn...
         if (node.STATE.wTurn) { //...but if input node (=new parent node) represents a state where it is white's Turn
             wTurn = false; //then the child state must be a state where it is black's turn
@@ -45,7 +43,7 @@ public class Search {
         for (int i = 0; i < size; i++) {
             long[] child = children.pop();
             long difference = get_diff(node.STATE.state, child);
-            nodes[i] = Problem.makeNode(node, child, difference, node.PATH_COST + 1, wTurn, 0);
+            nodes[i] = Problem.makeNode(node, child, difference, node.STATE.path_cost + 1, wTurn, 0);
         }
         return nodes;
     }
@@ -64,7 +62,8 @@ public class Search {
         for (int i = 0; i < size; i++) {
             long[] child = children.pop();
             long difference = get_diff(node.STATE.state, child);
-            nodes[i] = Problem.makeNode(node, child, difference, node.PATH_COST + 1, wTurn, heuristic.f(problem, child, wTurn));
+            int path_cost = node.STATE.path_cost + 1;
+            nodes[i] = Problem.makeNode(node, child, difference, path_cost, wTurn, heuristic.f(problem, child, wTurn, path_cost));
         }
         return nodes;
     }
@@ -160,16 +159,15 @@ public class Search {
         //long[] from = parent;
         //long[] to = child;
         //two_bitmaps_to_chessboard(from,to);
-        long difference = child.STATE.difference;
-        set_AkrAtkdCastl(parent, child);
-        long from_pos = unite(parent.STATE.state) & difference;
-        long to_pos = unite(child.STATE.state) & difference;
-        int from_idx = get_squareIndex_of_figure(from_pos);
-        int to_idx = get_squareIndex_of_figure(to_pos);
-        int from_file = from_idx % board_size;
-        int from_rank = 8 - (from_idx / board_size);
-        int to_file = to_idx % board_size;
-        int to_rank = 8 - (to_idx / board_size);
+        //long difference = child.STATE.difference;
+        Integer[] pos = set_AkrAtkdCastl(parent, child);
+        //System.out.println(Arrays.toString(pos));
+        int from_square = pos[0];
+        int to_square = pos[1];
+        int from_file = from_square % board_size;
+        int from_rank = 8 - (from_square / board_size);
+        int to_file = to_square % board_size;
+        int to_rank = 8 - (to_square / board_size);
         Integer moved = parent.MovedCapturedCastling[0];
         Integer captured = parent.MovedCapturedCastling[1];
         Integer castling = parent.MovedCapturedCastling[2];
@@ -205,7 +203,7 @@ public class Search {
             System.exit(6);
         }*/
         StringBuilder builder = new StringBuilder();
-        builder.append(figure+" ");
+        builder.append(figure + " ");
         builder.append((char) (move[0] + 97));
         builder.append(move[1]);
         builder.append(captured);
@@ -222,7 +220,7 @@ public class Search {
         return diff;
     }
 
-    public static int[] set_AkrAtkdCastl(NODE parent, NODE child) {
+    public static Integer[] set_AkrAtkdCastl(NODE parent, NODE child) {
         int start = 0; //blacks turn
         if (parent.STATE.wTurn) {
             start = 6;
@@ -234,49 +232,59 @@ public class Search {
         Integer mover = null;
         Integer captured = null;
         Integer castling = null;
+        Integer[] pos = {null, null}; //from_square ,to_square
+        long MOVER_FROM = 0L;
+        long MOVER_TO = 0L;
         for (int i = end - 1; i > start - 1; i--) { //find out who is moving: we go backwards, so we prioritize the king (for castling)
             long parent_i = parent.STATE.state[i];
             long child_i = child.STATE.state[i];
-            if ((parent_i & ~(parent_i & child_i)) != 0L) { //if no figure moved then this will be = 0L - if at least one moved it won't be =0L
+            long check = (child_i & ~(parent_i & child_i));
+            if (check != 0L) { //if no figure moved then this will be = 0L - if at least one moved it won't be =0L
                 mover = i;//we only set mover one time and do not override it after
-                //System.exit(2);
+                MOVER_FROM = parent_i & child.STATE.difference;
+                pos[0] = get_squareIndex_of_figure(MOVER_FROM);//from_square
+                MOVER_TO = check;
+                pos[1] = get_squareIndex_of_figure(MOVER_TO); //to_square
+                /*bitmap_to_chessboard(parent_i & child.STATE.difference);
+                System.out.println(pos[0]);
+                bitmap_to_chessboard(check);
+                System.out.println(pos[1]);
+                System.exit(2);*/
                 break;
             }
         }
         for (int i = 0; i < 12; i++) { //find out who is captured (if someone is)
-            long child_i = child.STATE.state[i];
-            if ((child_i & mover) != 0L & i != mover) {
+            long parent_i = parent.STATE.state[i];
+            if ((parent_i & MOVER_TO) != 0L & i != mover) { //parent map had a piece at the position and now it's gone
+                //bitmap_to_chessboard(child_i);
+                //bitmap_to_chessboard(MOVER_TO);
                 captured = i;
                 break;
             }
         }
         if (mover == 5 | mover == 11) { //king is moving
             for (int i = 0; i < 12; i++) {
+                //long parent_i = parent.STATE.state[i];
                 long child_i = child.STATE.state[i];
-                if ((child_i & mover) != 0L & i != mover & i != captured) {
-                    if ((child_i & KINGSIDE) != 0L) { //kingside =1 ,
+                //if ((parent_i & MOVER_TO) != 0L & i != mover & i != captured) {
+                if ((child_i & KINGSIDE) != 0L & i != mover) { //kingside =1 ,
+                    if ((MOVER_FROM<<2)==MOVER_TO) {
                         castling = 1;
-                    } else {//queenside =2
-                        castling = 2;
+                        break;
                     }
-                    break;
+                } else if ((child_i & QUEENSIDE) != 0L & i != mover){//queenside =2
+                    if ((MOVER_FROM>>>2)==MOVER_TO) {
+                        castling = 2;
+                        break;
+                    }
                 }
             }
         }
-        /*
-        for (int i = 0; i < 12; i++) { //find out if castled
-            //TODO: if attacker = king and he moves 2 squares: castling
-            long child_i = child.STATE.state[i];
-            if ((child_i&attacker) != 0L) { //we only set attacker one time and do not override it after
-                attacked = i;
-                break;
-            }
-        }*/
         Integer[] moved = {mover, captured, castling};
-        System.out.println(Arrays.toString(moved));
-        parent.MovedCapturedCastling = moved;
         //System.out.println(Arrays.toString(moved));
+        parent.MovedCapturedCastling = moved;
         //System.exit(6);
+        return pos;
     }
 
     public LinkedList<NODE> EXTRACT_PATH(NODE node) {
@@ -290,43 +298,43 @@ public class Search {
     }
 
     public NODE BreadthFirst_Search(Problem problem) {
+        /*int d = 0; //<<<
+        Search search = new Search(); //<<<*/
         ArrayList<NODE> frontier = new ArrayList<>();
         HashMap<STATE, Integer> reached = new HashMap<>(); //we use a hash map because it is faster than array list
         NODE root = problem.INITIAL();
         if (problem.IS_GOAL(root.STATE)) return root;
         frontier.add(root);
-        int frontier_size = 0;
-        int d = 0;
+        //int frontier_size = 0;
         reached.put(root.STATE, 0);
-        Search search = new Search();
         while (!frontier.isEmpty()) {
+            /*int c = 0; //<<<
+            d += 1; //<<<
+            System.out.println("===========" + d + "==========="); //<<<*/
             NODE node = frontier.remove(0); //pop
-            frontier_size -= 1;
+            //frontier_size -= 1;
             NODE[] EXPAND = EXPAND(problem, node);
-            int c = 0;
-            d += 1;
-            System.out.println("===========" + d + "===========");
             for (NODE child : EXPAND) {
+                /*System.out.println("c: "+c); //<<<
+                c += 1; //<<<
+                two_bitmaps_to_chessboard(node.STATE.state, child.STATE.state); //<<<
+                LinkedList<NODE> path = search.EXTRACT_PATH(child); //<<<
+                int size = path.size(); //<<<
+                String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size); //<<<
+                for (int i = 0; i < size - 1; i++) //<<<
+                System.out.println("\t  \u2502" + (i + 1) + ": " + solution[i] + "\u2502"); //<<<*/
+                /*if (child.STATE.path_cost > 2) { //<<<
+                    System.exit(7); //<<<
+                }*/ //<<<
                 STATE s = child.STATE;
-                System.out.println(c);
-                c += 1;
-                two_bitmaps_to_chessboard(node.STATE.state, child.STATE.state);
-                LinkedList<NODE> path = search.EXTRACT_PATH(child);
-                int size = path.size();
-                String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size);
-                for (int i = 0; i < size - 1; i++)
-                    System.out.println("\t  \u2502" + (i + 1) + ": " + solution[i] + "\u2502");
-                if (child.PATH_COST > 2) {
-                    System.exit(7);
-                }
                 if (problem.IS_GOAL(s)) {
-                    bitmaps_to_chessboard(s.state);
+                    //bitmaps_to_chessboard(s.state);
                     return child;
                 }
                 if (!reached.containsKey(s)) {
                     reached.put(s, 0);
                     frontier.add(child);
-                    frontier_size += 1;
+                    //frontier_size += 1;
                 }
             }
         }
@@ -334,33 +342,46 @@ public class Search {
     }
 
     public NODE BestFirst_Search(Problem problem, Heuristic heuristic) {
+        int d = 0; //<<<
+        Search search = new Search(); //<<<
         PriorityQueue<NODE> frontier = new PriorityQueue<>();
-        Map<STATE, Integer> reached = new HashMap<>(); //Lookup Table
+        Map<STATE, NODE> reached = new HashMap<>(); //Lookup Table
         NODE root = problem.INITIAL2(problem, heuristic);
-        NODE cheapestNode = root;
-        if (root.HEURISTIC_VALUE == heuristic.INFINITY) {
-            return null; //failure (unreachable goal state)
+        if (root.STATE.heuristic_value <= heuristic.INFINITY) {
+            frontier.add(root);
         }
-        frontier.add(root);
-        reached.put(root.STATE, root.HEURISTIC_VALUE);//a lookup table, with one entry with key problem.INITIAL and value node
+        reached.put(root.STATE, root);//a lookup table, with one entry with key problem.INITIAL and value node
         while (!frontier.isEmpty()) {
-            if (n > 18000000) {
-                System.out.println("Out of Memory");
-                return null; //out of Memory
-            }
+            /*int c = 0; //<<<
+            d += 1; //<<<
+            System.out.println("===========" + d + "==========="); //<<<*/
             NODE node = frontier.poll(); //pop
             if (problem.IS_GOAL(node.STATE)) return node;
             NODE[] EXPAND = EXPAND2(problem, heuristic, node);
             for (NODE child : EXPAND) {
+                /*System.out.println("\nc: "+c); //<<<
+                System.out.println("h: "+child.STATE.heuristic_value); //<<<
+                c += 1; //<<<
+                two_bitmaps_to_chessboard(node.STATE.state, child.STATE.state); //<<<
+                LinkedList<NODE> path = search.EXTRACT_PATH(child); //<<<
+                int size = path.size(); //<<<
+                String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size); //<<<*/
+                /*for (int i = 0; i < size - 1; i++) {//<<<
+                    System.out.println("\t  \u2502" + (i + 1) + ": " + solution[i] + "\u2502"); //<<<
+                }*/ //<<<
+                /*if (child.STATE.path_cost > 2) { //<<<
+                    continue;
+                    //System.exit(7); //<<<
+                } //<<<*/
                 STATE s = child.STATE;
-                if (child.PATH_COST < cheapestNode.PATH_COST) {
-                    cheapestNode = child;
-                }
-                if (child.HEURISTIC_VALUE > heuristic.INFINITY) {
+                if (problem.IS_GOAL(s)) return child;
+                if (child.STATE.heuristic_value >= heuristic.INFINITY) {
                     continue; //skip
                 }
-                if (!reached.containsKey(s) | child.PATH_COST < cheapestNode.PATH_COST) {
-                    reached.put(s, child.HEURISTIC_VALUE);
+                if (!reached.containsKey(s)) {//"§ Each child node is added to the frontier if it has not been reached before, §"
+                    frontier.add(child);
+                } else if (child.STATE.path_cost < reached.get(s).STATE.path_cost) {//"§ OR: re-added if child node is now being reached with a path that has a lower path cost than any previous path. §"
+                    reached.replace(s, child); //update value
                     frontier.add(child);
                 }
             }

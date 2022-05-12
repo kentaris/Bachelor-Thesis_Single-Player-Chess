@@ -5,11 +5,14 @@ import java.util.Stack;
 import static chess.engine.board.Bitboards.bitmap_to_chessboard;
 import static chess.engine.board.Bitboards.bitmaps_to_chessboard;
 import static chess.engine.search.Search.unite;
+import static java.util.Objects.isNull;
 
 public class Heuristic {
     public int INFINITY = 2147483647; //maximal int value
+    boolean A_Star = false;
+    Double weight = null;
 
-    public int f(Problem problem, long[] current, boolean wTurn) {
+    public int f(Problem problem, long[] current, boolean wTurn, int path_cost) {
         /*count number of out of place figures*/
         long[] goal = problem.goal_state;
         int n = 0;
@@ -29,7 +32,17 @@ public class Heuristic {
         if (UNSOLVABLE(problem, current, wTurn, missingFigures)) {
             return INFINITY;
         }
-        return n;
+        if (A_Star){
+            if (isNull(weight)) {
+                return n + path_cost; //A-Star
+            }
+            else{
+                return ((int)(weight*n) + path_cost); //weighted A-Star
+            }
+        }
+        else { //Greedy-Best-First Search
+            return n;
+        }
     }
 
     private boolean UNSOLVABLE(Problem problem, long[] current, boolean wTurn, int[] missingFigures) {
