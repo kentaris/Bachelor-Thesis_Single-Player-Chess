@@ -2,8 +2,7 @@ package chess.engine.search;
 
 import java.util.Stack;
 
-import static chess.engine.board.Bitboards.bitmap_to_chessboard;
-import static chess.engine.board.Bitboards.bitmaps_to_chessboard;
+import static chess.engine.board.Bitboards.*;
 import static chess.engine.search.Search.unite;
 import static java.util.Objects.isNull;
 
@@ -32,20 +31,19 @@ public class Heuristic {
         if (UNSOLVABLE(problem, current, wTurn, missingFigures)) {
             return INFINITY;
         }
-        if (A_Star){
+        if (A_Star) {
             if (isNull(weight)) {
                 return n + path_cost; //A-Star
+            } else {
+                return ((int) (weight * n) + path_cost); //weighted A-Star
             }
-            else{
-                return ((int)(weight*n) + path_cost); //weighted A-Star
-            }
-        }
-        else { //Greedy-Best-First Search
+        } else { //Greedy-Best-First Search
             return n;
         }
     }
 
     private boolean UNSOLVABLE(Problem problem, long[] current, boolean wTurn, int[] missingFigures) {
+        //-----initializing variables:
         int start = 0; //blacks turn
         if (wTurn) {
             start = 6;
@@ -54,12 +52,36 @@ public class Heuristic {
         if (wTurn) {
             end = 12;
         }
+        int totDiff = 0;
         int nrOfPawns = Long.bitCount(current[start]);
         for (int i = start; i < end; i++) {
-            //Unsolvable Cases:
-            //System.out.println(nrOfPawns+" "+missingFigures[i]+i+wTurn);
-            //System.exit(5);
-            if (nrOfPawns < missingFigures[i]) {
+            totDiff += missingFigures[i];
+        }
+        int[] lastPawnsGoal = problem.lastPawnsGoalB;
+        int[] lastPawnCurr = get_last_pawns(current[start]);
+        //----------------------------
+        //Unsolvable Cases:
+        if (nrOfPawns < totDiff) { //if number of pawns is smaller than missing pieces
+            return true; //unsolvable
+        }
+
+        if (wTurn) { //if pawn in last row of color c is further ahead than the pawn in the last row of the goal state
+            lastPawnsGoal = problem.lastPawnsGoalW;
+            if (lastPawnCurr[1] < lastPawnsGoal[1]) {
+                return true; //unsolvable
+            }
+        } else {
+            if (lastPawnCurr[0] > lastPawnsGoal[0]) {
+                return true; //unsolvable
+            }
+        }
+
+        if (wTurn) { //number of pawns in goal state is bigger than in current state (since we cannot create new pawns)
+            if (problem.nrPawnsB > nrOfPawns) {
+                return true; //unsolvable
+            }
+        } else {
+            if (problem.nrPawnsW > nrOfPawns) {
                 return true; //unsolvable
             }
         }

@@ -311,6 +311,28 @@ public class Bitboards {
         return index;
     }
 
+    public static int[] get_last_pawns(long pawnMap){
+        //System.out.println(get_squareIndex_of_figure(pawnMap));
+        int[] lastPawns = {-1,-1};
+        long topLeft = pawnMap;
+        long bottomRight = pawnMap;
+        for (int i = 0; i < 65; i++) {
+            if(topLeft!=0L){
+                topLeft<<=1;
+                lastPawns[0]+=1;
+            }
+            if(bottomRight!=0L){
+                bottomRight>>>=1;
+                lastPawns[1]+=1;
+            }
+        }
+        lastPawns[0]=63-lastPawns[0];
+        //lastPawns[1]=63-lastPawns[1];
+        //System.out.println(Arrays.toString(lastPawns));
+        //System.exit(9);
+        return lastPawns;
+    }
+
     public static Integer[] idx_to_fileRank(Integer idx) {
         /*assigning rows and files.*/
         return new Integer[]{((idx / board_size)), ((idx % board_size))};

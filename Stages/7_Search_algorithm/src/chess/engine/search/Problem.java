@@ -12,6 +12,10 @@ public class Problem {
     public static long[] goal_state;
     public static long[] root; //start_state
     public static NODE root_node;
+    public static int[] lastPawnsGoalB;
+    public static int[] lastPawnsGoalW;
+    public static int nrPawnsB;
+    public static int nrPawnsW;
 
     public static void initialize() {
         String start_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
@@ -27,14 +31,14 @@ public class Problem {
                 {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
         };
         Character[][] goal_board = {
-                {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+                /*{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
                 {'p', 'p', ' ', ' ', ' ', ' ', ' ', 'p'},
                 {' ', ' ', 'p', 'p', 'p', 'p', 'p', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', 'P', 'P', 'N', ' ', ' '},
                 {'P', 'P', 'P', ' ', 'B', 'P', 'P', 'P'},
-                {'R', 'N', 'B', 'Q', ' ', 'R', ' ', 'K'}
+                {'R', 'N', 'B', 'Q', ' ', 'R', ' ', 'K'}*/
 
                 /*{'r', 'n', 'b', 'q', 'k', 'b', ' ', 'r'}, //out of memory
                 {' ', 'p', ' ', ' ', ' ', 'p', 'p', 'p'},
@@ -44,9 +48,31 @@ public class Problem {
                 {' ', ' ', 'N', ' ', 'P', 'N', ' ', ' '},
                 {'P', 'P', ' ', ' ', ' ', 'P', 'P', 'P'},
                 {'R', ' ', 'B', 'Q', ' ', 'R', 'K', ' '}*/
+
+                {'r', 'n', 'b', 'q', 'k', 'b', ' ', 'r'},
+                {'p', 'p', 'p', ' ', ' ', 'p', 'p', 'p'},
+                {' ', ' ', ' ', ' ', 'p', 'n', ' ', ' '},
+                {' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '},
+                {' ', ' ', 'P', 'P', ' ', ' ', ' ', ' '},
+                {' ', ' ', 'N', ' ', ' ', 'N', ' ', ' '},
+                {'P', 'P', ' ', ' ', 'P', 'P', 'P', 'P'},
+                {'R', ' ', 'B', 'Q', 'K', 'B', ' ', 'R'}
+
+                /*{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', 'p'}*/
         };
         //toggle the following two lines to switch input method:
         goal_state = return_arrayToBitboards(goal_board);
+        lastPawnsGoalB = get_last_pawns(goal_state[0]);
+        lastPawnsGoalW = get_last_pawns(goal_state[6]);
+        nrPawnsB = Long.bitCount(goal_state[0]);
+        nrPawnsW = Long.bitCount(goal_state[6]);
         initiate_custom_chessBoard(start_board);
         //goal_state = FEN_to_chessboard(goal_FEN);
         //initiate_FEN_to_chessboard(start_FEN);
