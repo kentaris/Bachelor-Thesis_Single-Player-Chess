@@ -2,7 +2,7 @@ from curses.ascii import isdigit
 from tracemalloc import start #TODO: replace with .isnumeric() to remove this line
 import FEN
 
-board_size=5 #to change the board size
+board_size=3 #to change the board size
 extra_pieces=0 #to change the amount of extra pieces available for pawn promotion
 
 def add_FEN_pos_to_PDDL(fen,type=None):
@@ -30,20 +30,85 @@ def add_FEN_pos_to_PDDL(fen,type=None):
                         figure=vars(figures)[fig][idx]
                         done.append(figure)
                         F.append(figure)
-                        if fig.lower() != 'p':
-                            R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
-                        elif fig.lower() == 'p' and type=='goal':
-                            if fig.isupper():
-                                R+='\t\t(white_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
-                            else:
-                                R+='\t\t(black_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
-                        else:
-                            R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        #if fig.lower() != 'p':
+                        #    R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        #elif fig.lower() == 'p' and type=='goal':
+                        #    if fig.isupper():
+                        #        R+='\t\t(white_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        #    else:
+                        #        R+='\t\t(black_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        #else:
+                        #    R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         idx+=1
                 file+=1 #update file
     if type =='remove':
         return F
     return R
+
+def add_FEN_pos_to_PDDL_goal(fen,type=None):
+    '''returns the PDDL line format of the occupied board positions of a given FEN string'''
+    done=[]
+    F=[]
+    R=''
+    board=FEN.FEN_to_Chess_board(fen,board_size)
+    for fig in ['p','n','b','r','q','k','P','N','B','R','Q','K',FEN.Filler]: #iterate over all figures to search for them in the board individually. we need to go trough once for every figure to get the counting right
+        if fig in fen or fig==FEN.Filler:
+            idx=0 #index of the current figure 'fig'
+            file=0 #current file
+            #save=None 
+            for col in zip(*board): #iterate over columns instead of rows of the board
+                for rank in range(len(col)): #iterate over ranks
+                    #TODO: if I want to allow multiple queens and kings of the same color
+                    #try: 
+                    #    vars(figures)[fig][idx]
+                    #except: 
+                    #    save=vars(figures)[fig][idx-1]
+                    #    print('\t',save,)
+                    if col[rank]==fig and col[rank]==FEN.Filler:
+                        R+='\t\t(empty_square'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                    elif col[rank]==fig and vars(figures)[fig][idx] not in done:
+                        figure=vars(figures)[fig][idx]
+                        done.append(figure)
+                        F.append(figure)
+                        if fig.lower() == 'p':
+                            if fig.isupper():
+                                R+='\t\t(white_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                            else:
+                                R+='\t\t(black_pawn_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        elif fig.lower() == 'n':
+                            if fig.isupper():
+                                R+='\t\t(white_knight_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                            else:
+                                R+='\t\t(black_knight_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        elif fig.lower() == 'b':
+                            if fig.isupper():
+                                R+='\t\t(white_bishop_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                            else:
+                                R+='\t\t(black_bishop_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        elif fig.lower() == 'r':
+                            if fig.isupper():
+                                R+='\t\t(white_rook_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                            else:
+                                R+='\t\t(black_rook_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        elif fig.lower() == 'q':
+                            if fig.isupper():
+                                R+='\t\t(white_queen_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                            else:
+                                R+='\t\t(black_queen_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        elif fig.lower() == 'k':
+                            if fig.isupper():
+                                R+='\t\t(white_king_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                            else:
+                                R+='\t\t(black_king_at'+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        #elif fig.lower() == 'k':
+                        #    R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        idx+=1
+                file+=1 #update file
+    if type =='remove':
+        return F
+    return R
+
 class figures_plain:
     #black pieces:
     p='pawn_b'
@@ -246,7 +311,7 @@ def add_removed_pieces(start_FEN,goal_FEN):
     return R
 
 def get_individual_objects(start_FEN,goal_FEN):
-    '''this function looks at how many distinct objects are present within the whole statespace and also adds 2 additional pieces for pawn promotions'''
+    '''this function looks at how many distinct objects are present within the whole statespace and also adds n=extra_pieces additional pieces for pawn promotions'''
     s=[e for e in list(start_FEN) if e!='/' and not e.isdigit()]
     g=[e for e in list(goal_FEN) if e!='/' and not e.isdigit()]
     r=[]
@@ -263,6 +328,47 @@ def get_individual_objects(start_FEN,goal_FEN):
     return r
 
 def add_objects(start_FEN,goal_FEN=None):
+    R=''
+    l=None
+    if goal_FEN==None:
+        l=[]
+        goal_FEN=start_FEN
+    done=[]
+    done2=[]
+    objs=sorted(get_individual_objects(start_FEN,goal_FEN))
+    elements=sorted([(i,objs.count(i)) for i in objs if i!='/' and not isdigit(i)])
+    for e in elements:
+        Figures=vars(figures)[e[0]]
+        if len(vars(figures)[e[0]])>e[1]:
+            for i in range(len(vars(figures)[e[0]])-e[1]):
+                Figures.pop()
+        elif len(vars(figures)[e[0]])<e[1]:
+            root=vars(figures)[e[0]][-1][:-1]
+            length=len(vars(figures)[e[0]])
+            for i in range(e[1]-len(vars(figures)[e[0]])):
+                Figures.append(root+str(i+1+length))
+        r='\t\t'
+        for figure in Figures:
+            f=figure[:-1]
+            if figure[:-1][-1]=='_':
+                f=figure[:-2]
+            if 'bishop' in figure:
+                f=f[2:]
+            r+=' {}'.format(figure)
+            if int(figure[-1:])<=e[1] and figure not in done:
+                done.append(figure)
+        if l==None:
+            line=''.join([i for i in r])+' - '+f[:-2]+'\n'
+            if line not in done2:
+                R+=''.join([i for i in r])+' - '+f[:-2]+'\n'
+                done2.append(line)
+        else:
+            l.append(r.split())
+    if l!=None:
+        return l
+    return R
+
+def add_objects_old(start_FEN,goal_FEN=None):
     R=''
     l=None
     if goal_FEN==None:
@@ -344,6 +450,36 @@ def add_figures_on_board(FEN):
         R+='\t\t(is_on_board {})\n'.format(i)
     return R
 
+def add_same_color(sFEN,gFEN):
+    l=add_color_predicates(sFEN,gFEN)
+    l=l.split("\n")
+    l=l[:-1]
+    pairs=[]
+    for i in l:
+        pairs.append((i.split()[0][4:],i.split()[1][:-1]))
+    pairs=sorted(pairs, key=lambda tup: tup[1])
+    blackPieces=[]
+    whitePieces=[]
+    for i in pairs:
+        if i[0]=='white':
+            whitePieces.append(i)
+        else:
+            blackPieces.append(i)
+    R=''
+    for a in blackPieces:
+        for b in blackPieces:
+            R+='\t\t(same_color {} {})\n'.format(a[1],b[1])
+    for a in whitePieces:
+        for b in whitePieces:
+            R+='\t\t(same_color {} {})\n'.format(a[1],b[1])
+    for a in whitePieces:
+        for b in blackPieces:
+            R+='\t\t(not_same_color {} {})\n'.format(a[1],b[1])
+    for a in blackPieces:
+        for b in whitePieces:
+            R+='\t\t(not_same_color {} {})\n'.format(a[1],b[1])
+    return R
+
 #start_FEN='PPPPP/5/5/5/3bb'
 #goal_FEN ='b4/4P/5/5/5'
 #start=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN),True,True))
@@ -363,4 +499,4 @@ def add_figures_on_board(FEN):
 #goal_FEN ='K3/5/5/5/r4'
 #print(add_objects(start_FEN,goal_FEN))
 
-print(add_figures_on_board('K3/5/r4/5/r4'))
+#print(add_figures_on_board('K3/5/r4/5/r4'))

@@ -57,7 +57,11 @@ def convert_plan():
     #print(' >>> creating .plan file...')
     with open('output/sas_plan', mode='r') as f:
         txt_file = f.readlines()
-        copy_txt_file=txt_file.copy()
+        txt_file_corrected=[]
+        for l in txt_file:
+            if 'unlock_global_lock_simulated_king_move' not in l:
+                txt_file_corrected.append(l+'\n')
+        #copy_txt_file=txt_file.copy()
         #txt_file.insert(0,';;!problem: chess-problem\n')
         #txt_file.insert(0,';;!domain: chess\n')
     f.close()
@@ -70,7 +74,7 @@ def convert_plan():
         os.rename('output/sas_plan','output/sas_plan.plan')
     f.close()
     #print(' >>> .plan file created')
-    return copy_txt_file
+    return txt_file_corrected
     
 def compare_time(T):
     '''prints the difference of last recorded execution times and records it if not yet measured'''
@@ -117,10 +121,11 @@ def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
         txt_file=replace(txt_file,';[:object_pieces]\n',PG.add_objects(start_FEN,goal_FEN))
         #init:
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
-        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(PG.board_size-1))
+        txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))#PG.board_size-1))
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
-        #txt_file=replace(txt_file,';[:is_on_board]\n',PG.add_figures_on_board(start_FEN))
+        txt_file=replace(txt_file,';[:is_on_board]\n',PG.add_figures_on_board(start_FEN))
+        txt_file=replace(txt_file,';[:init_Same_color]\n',PG.add_same_color(start_FEN,goal_FEN))
 
         txt_file=replace(txt_file,';[:colors]\n',PG.add_color_predicates(start_FEN,goal_FEN))
         txt_file=replace(txt_file,';[:piece_types]\n',PG.add_piece_types(start_FEN,goal_FEN))
@@ -129,8 +134,8 @@ def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
         txt_file=replace(txt_file,';[:whos_turn]\n',PG.add_turn(turn_start))
 
         #goal:
-        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL(goal_FEN,'goal'))
-        txt_file=replace(txt_file,';[:removed]\n',PG.add_removed_pieces(start_FEN,goal_FEN))
+        txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL_goal(goal_FEN,'goal'))
+        #txt_file=replace(txt_file,';[:removed]\n',PG.add_removed_pieces(start_FEN,goal_FEN))
 
         #Visualize :init & :goal pos
         Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,PG.board_size),True,True))
@@ -192,8 +197,8 @@ def after_timeout():
     raise Timeout_Error
 
 def main():
-    start_FEN=start_FEN='5/r4/5/5/5'        #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
-    goal_FEN ='5/3r1/5/5/5'         #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+    start_FEN=start_FEN='k2/r2/R2'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #      #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN ='k2/1r1/R2'#'k2/r2/RR1' #'k2/1r1/R1R'    'kR1/1rP/3'#       #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
     turn_start='black'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN,turn_start)
@@ -203,20 +208,19 @@ def main():
         plan=convert_plan()
         print_plan(plan)
         time_it()
-        if validator.validate(start_FEN,goal_FEN,plan):
+        if validator.validate(start_FEN,goal_FEN,plan,turn_start):
             print('     \u001b[32m--> This is a VALID plan!\033[0m')
-    elif sys.argv[1]=='planner': #just execute the planner on the existing .pddl files (so I can edit them and test stuff quickly)
-        execute_planner()
+    elif 'planner' in sys.argv[1].lower(): #just execute the planner on the existing .pddl files (so I can edit them and test stuff quickly)
         Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,PG.board_size),True,True))
         Global.g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN,PG.board_size),True,True))
         FEN.print_neighbor(Global.s,Global.g)
         plan=convert_plan()
         print_plan(plan)
         time_it()
-    elif sys.argv[1]=='create': #just create .pddl files
+    elif 'create' in sys.argv[1].lower(): #just create .pddl files
         load_file('problem',start_FEN,goal_FEN,turn_start)
         load_file('domain',start_FEN)
-    elif sys.argv[1]=='test': #perform all unit tests
+    elif 'test' in sys.argv[1].lower(): #perform all unit tests
         succ=[]
         fail=[]
         for i in range(len(vars(unit_test.units))-4):
@@ -234,7 +238,7 @@ def main():
                 #Global.cont=False
                 plan=convert_plan()
                 print_plan(plan)
-                if not validator.validate(test[0],test[1],plan):
+                if not validator.validate(test[0],test[1],plan,turn_start):
                     raise Validation_Error #TODO: this doesn't catch cases where the python-chess module crashes because of a move that is no valid...
                 print('\u001b[32m >>> Test #{} successfull (\'{}\',\'{}\')\033[0m'.format(unit_test.get(i,True),test[0],test[1]))
                 succ.append([i,test[0],test[1],time_it('return value')])

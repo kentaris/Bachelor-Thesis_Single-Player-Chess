@@ -8,11 +8,13 @@
 ;[:object_pieces]
     )
     (:init
+        (valid_position)
         ;initial state s_0:
 ;[:init_start_state]
 ;[:init_pawn_start_pos]
 ;[:init_plusOne]
 ;[:init_diffByN]
+;[:init_Same_color]
             
         ;figures on the board:
 ;[:is_on_board]
@@ -37,6 +39,7 @@
         (TRUE)
     )
     (:goal (and
+                (valid_position)
         ;goal state s_*:
             ;board:
 ;[:goal_position]

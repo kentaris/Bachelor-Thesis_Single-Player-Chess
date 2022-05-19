@@ -54,7 +54,7 @@ public class Search {
         int size = children.size();
         NODE[] nodes = new NODE[size];
         n += size;
-        System.out.print("\rcurrently expanded nodes: " + n);
+        //System.out.print("\rcurrently expanded nodes: " + n);
         boolean wTurn = true; //we assume it is white's turn...
         if (node.STATE.wTurn) { //...but if input node (=new parent node) represents a state where it is white's Turn
             wTurn = false; //then the child state must be a state where it is black's turn
@@ -302,7 +302,7 @@ public class Search {
         Search search = new Search(); //<<<*/
         ArrayList<NODE> frontier = new ArrayList<>();
         HashMap<STATE, Integer> reached = new HashMap<>(); //we use a hash map because it is faster than array list
-        NODE root = problem.INITIAL();
+        NODE root = problem.INITIAL(problem);
         if (problem.IS_GOAL(root.STATE)) return root;
         frontier.add(root);
         //int frontier_size = 0;
@@ -374,7 +374,12 @@ public class Search {
                     //System.exit(7); //<<<
                 } //<<<*/
                 STATE s = child.STATE;
-                if (problem.IS_GOAL(s)) return child;
+                if (problem.IS_GOAL(s)) {
+
+                    System.out.println(child.STATE.heuristic_value);
+                    //System.exit(6);
+                    return child;
+                }
                 if (child.STATE.heuristic_value >= heuristic.INFINITY) {
                     continue; //skip
                 }

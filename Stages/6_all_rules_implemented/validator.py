@@ -12,12 +12,12 @@ def validate(start_FEN, goal_FEN, plan, color=None):
 
     start_FEN=FEN.expand_board(start_FEN,8)
     goal_FEN=FEN.expand_board(goal_FEN,8)
+    start_board = FEN.expand_board(start_FEN,8)
     if color!=None:
         if color[0]=='w':
-            start_FEN+=+' w KQkq - 0 1'
+            start_board+=' w KQkq'
         if color[0]=='b':
-            start_FEN+=+' b KQkq - 0 1'
-    start_board = FEN.expand_board(start_FEN,8)
+            start_board+='  b KQkq'
     #print(start_board)
     goal_board = FEN.expand_board(goal_FEN,8)
     board=chess.Board(start_board) #Documentation: https://github.com/niklasf/python-chess
@@ -27,9 +27,10 @@ def validate(start_FEN, goal_FEN, plan, color=None):
         move=chess.Move.from_uci(FEN.next_move(line,original_size))
         #print('in:')
         #print(board)
-        #valid_moves=[str(m) for m in list(board.legal_moves)]
+        valid_moves=[str(m) for m in list(board.legal_moves)]
         if move not in board.legal_moves:
-            print('  \033[93m   --> This is an INVALID plan! move nr.{} is illegal: {} {}\033[0m'.format(i,move,line))
+            print(valid_moves)
+            print('  \033[93m   --> This is an INVALID plan! move nr.{} is illegal: {} {}\033[0m'.format(i+1,move,line))
             return False
         board.push(move) #TODO: test if this really updates the board or if I need to set it = also
         #print('next:',move,line)

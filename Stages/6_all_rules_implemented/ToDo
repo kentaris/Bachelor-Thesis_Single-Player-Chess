@@ -1,23 +1,8 @@
-- finish pddl-modeling
-- run experiments
-  - cluster?
-- writing
-- implementing own solver (domain dependent solver)
-    - which language (java)
-    - Steps:   
-      - read fen encoding
-      - transform it to initial state
-      - search over that
-      - implement chess moves in java with gbfs
-      - come up with heuristics
-        - missing pieces
-        - mate
-        - pieces out of place
-        - pawns past position
-        - etc
-      - First steps:
-        - implement bfs and see if for simplmle cases it works
-        - change to gbfs & use priority queue
+data: noes/s , max memnory, time, nodes expanded
+my solver with GBFS, BreadthFS
+pddl with greedy
 
+send table to augusto when i have it
 
-chapter 3 BreadthFS -->GBFS
+-ulimit 8gb & time limit 10 min
+-run inside terminal

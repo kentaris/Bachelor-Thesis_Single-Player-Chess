@@ -11,13 +11,13 @@ import static java.lang.Math.round;
 import static java.util.Objects.isNull;
 
 public class Main {
-    public static long t1;
-    public static long t2;
     public static double seconds;
+    public static double nanos;
     public static String time;
 
     public static String translate(long t1, long t2) {
         long T = t2 - t1;
+        nanos=TimeUnit.NANOSECONDS.convert(T, TimeUnit.NANOSECONDS);
         seconds = T / (1000.0 * 1000.0 * 1000.0);
         long s = TimeUnit.SECONDS.convert(T, TimeUnit.NANOSECONDS);
         long s_int = s - (round(s / 1000) * 1000);
@@ -32,9 +32,10 @@ public class Main {
             return String.format("\n\u001B[33m[%ss %sms %sµs %sns execution time]\u001B[0m", s_int, ms_int, mc_int, ns_int);
     }
 
-    public static void time_it() {
-        t2 = System.nanoTime();
-        time = translate(t1, t2);
+    public static void time_it(Problem problem) {
+        problem.t2 = System.nanoTime();
+        //t2=System.currentTimeMillis();
+        time = translate( problem.t1,  problem.t2);
     }
 
     public static void main(String[] args) {
@@ -83,7 +84,7 @@ public class Main {
             BFS = true;
             node = search.BreadthFirst_Search(problem);
         }
-        time_it();
+        time_it(problem);
         System.out.println();
         //print solution:
         if (isNull(node)) System.out.println("\u001B[31mno solution found (" + Search.n + " nodes expanded)");
@@ -91,19 +92,21 @@ public class Main {
             LinkedList<NODE> path = search.EXTRACT_PATH(node);
             int size = path.size();
             String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size);
-            System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution Path:" + "\u2500".repeat(4));
+            //uncomment for solution path visualization:
+            /*System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution Path:" + "\u2500".repeat(4));
             for (int i = path.size() - 1; i >= 0; i--) {
                 bitmaps_to_chessboard(path.get(i).STATE.state);
                 System.out.println(i + "^");
-            }
+            }*/
             System.out.println(" " + "\u2500".repeat(22));
             System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution State" + "\u2500".repeat(4));
             bitmaps_to_chessboard(node.STATE.state);
             System.out.println(" " + "\u2500".repeat(22));
             System.out.println("\u001B[32m" + "\u2500".repeat(3) + "Solution details" + "\u2500".repeat(3));
-            if (seconds < 1) System.out.println("Nodes/s:\t\t\t" + (int) (Search.n / seconds));
-            else System.out.println("Nodes/s:\t\t\t" + (int) (Search.n / seconds));
             System.out.println("Nodes expanded:\t\t" + Search.n);
+            System.out.println("Nodes/s:       \t\t" + ((int)(Search.n / nanos *1000*1000*1000)));
+            //System.out.println(Search.n+" "+nanos);
+            //System.exit(0);
             if (!BFS) {
                 System.out.println("heuristic from s_0:\t" + problem.root_node.STATE.heuristic_value);
                 System.out.println("heuristic from s_*:\t" + node.STATE.heuristic_value);

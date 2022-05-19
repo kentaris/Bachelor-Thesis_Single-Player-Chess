@@ -1,5 +1,7 @@
 package chess.engine.search;
 
+import java.util.Arrays;
+
 import static chess.engine.board.Bitboards.*;
 import static chess.engine.figures.Moves.*;
 import static java.util.Objects.isNull;
@@ -7,8 +9,8 @@ import static java.util.Objects.isNull;
 public class Problem {
     public static final int board_size = 8;
     public static int n = 0;
-    public static int current_depth = 1;
-    public static int desired_depth;
+    //public static int current_depth = 1;
+    //public static int desired_depth;
     public static long[] goal_state;
     public static long[] root; //start_state
     public static NODE root_node;
@@ -16,6 +18,9 @@ public class Problem {
     public static int[] lastPawnsGoalW;
     public static int nrPawnsB;
     public static int nrPawnsW;
+
+    public static long t1;
+    public static long t2;
 
     public static void initialize() {
         String start_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";//"r1pp4/1Pp5/1R6/4n3/3K4/2Bbn1k1/4QP2/4R1B1";
@@ -52,10 +57,10 @@ public class Problem {
                 {'r', 'n', 'b', 'q', 'k', 'b', ' ', 'r'},
                 {'p', 'p', 'p', ' ', ' ', 'p', 'p', 'p'},
                 {' ', ' ', ' ', ' ', 'p', 'n', ' ', ' '},
-                {' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '},
-                {' ', ' ', 'P', 'P', ' ', ' ', ' ', ' '},
-                {' ', ' ', 'N', ' ', ' ', 'N', ' ', ' '},
-                {'P', 'P', ' ', ' ', 'P', 'P', 'P', 'P'},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', 'p', 'P', ' ', ' ', ' ', ' '},
+                {'P', ' ', 'N', ' ', ' ', 'N', ' ', ' '},
+                {' ', 'P', ' ', ' ', 'P', 'P', 'P', 'P'},
                 {'R', ' ', 'B', 'Q', 'K', 'B', ' ', 'R'}
 
                 /*{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -74,6 +79,7 @@ public class Problem {
         nrPawnsB = Long.bitCount(goal_state[0]);
         nrPawnsW = Long.bitCount(goal_state[6]);
         initiate_custom_chessBoard(start_board);
+
         //goal_state = FEN_to_chessboard(goal_FEN);
         //initiate_FEN_to_chessboard(start_FEN);
         /*Heuristic h = new Heuristic();
@@ -88,14 +94,14 @@ public class Problem {
         //System.out.println(convertMove(getMove(bitmaps,goal_state)));
         //System.exit(9);
     }
-
-    public NODE INITIAL() {
+    public NODE INITIAL(Problem problem) {
         if (isNull(root)) {
             initialize();
             root = bitmaps.clone(); //get initialized parent node
             root_node = new NODE(null, root, 0L, 0, whitesTurn, 0);
         }
-        Main.t1 = System.nanoTime();
+        problem.t1 = System.nanoTime();
+        //Main.t1 = System.currentTimeMillis();
         return root_node;
     }
 
@@ -107,7 +113,9 @@ public class Problem {
         }
         //System.out.println(heuristic.f(problem,problem.goal_state,whitesTurn));
         //System.exit(9);
-        Main.t1 = System.nanoTime();
+        problem.t1 = System.nanoTime();
+        //System.out.println(problem.t1);
+        //Main.t1 = System.currentTimeMillis();
         return root_node;
     }
 

@@ -28,7 +28,8 @@ public class Heuristic {
                 n += diff;
             }
         }
-        if (UNSOLVABLE(problem, current, wTurn, missingFigures)) {
+        if (UNSOLVABLE(problem, current, wTurn, missingFigures) & n!=0) { //n!=0 to ensure the heuristic is goal aware
+            //bitmaps_to_chessboard(current);
             return INFINITY;
         }
         if (A_Star) {
@@ -41,8 +42,15 @@ public class Heuristic {
             return n;
         }
     }
-
-    private boolean UNSOLVABLE(Problem problem, long[] current, boolean wTurn, int[] missingFigures) {
+    private boolean is_goal(long[] current, long[] goal){
+        for (int i = 0; i < 12; i++) {
+            if (current[i] != goal[i]) { //if we find a bitboard that doesn't match with that goal bitboard, we return false
+                return false;
+            }
+        }
+        return true;
+    }
+    public boolean UNSOLVABLE(Problem problem, long[] current, boolean wTurn, int[] missingFigures) {
         //-----initializing variables:
         int start = 0; //blacks turn
         if (wTurn) {

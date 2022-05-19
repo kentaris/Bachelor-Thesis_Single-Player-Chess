@@ -123,7 +123,7 @@ public class Moves_Helper {
                         }
                         if (set & rem == file) { //we saw a king and are at the end of the file
                             addRedZone(figures[i], path);
-                            addPinned(next); //TODO: piece is pinned even if there is no king behind it...
+                            addPinned(next);
                             addPinnedMovement(figures[i], path);
                         }
                     }
