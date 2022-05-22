@@ -35,6 +35,10 @@
 ;[:whos_turn]
 
 ;[:pawn_promotion_extra_pieces]
+        
+;[:adjacent]
+;[:same_diag]
+;[:between]
 
         (TRUE)
     )

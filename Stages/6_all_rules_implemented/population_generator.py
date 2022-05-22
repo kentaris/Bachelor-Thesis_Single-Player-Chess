@@ -2,7 +2,7 @@ from curses.ascii import isdigit
 from tracemalloc import start #TODO: replace with .isnumeric() to remove this line
 import FEN
 
-board_size=3 #to change the board size
+board_size=5 #to change the board size
 extra_pieces=0 #to change the amount of extra pieces available for pawn promotion
 
 def add_FEN_pos_to_PDDL(fen,type=None):
@@ -147,6 +147,110 @@ def add_double_pawn_moves():
     R+='\n\t\t;Pawn double moves start for black:\n'
     R+=pawn_double('black')
     return R
+
+def adjacent():
+    R=''
+    horiz_adj = []
+    vert_adj = []
+    diag_adj = []
+    for r in range(board_size):
+        for f in range(board_size):
+            if (f-1)>=0:
+                horiz_adj.append('\t\t(horiz_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f-1+1,r+1))
+            if (f+1)<board_size:
+                horiz_adj.append('\t\t(horiz_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f+1+1,r+1))
+    horiz_adj = set(horiz_adj)
+    for r in range(board_size):
+        for f in range(board_size):
+            if (r-1)>=0:
+                vert_adj.append('\t\t(vert_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f+1,r-1+1))
+            if (r+1)<board_size:
+                vert_adj.append('\t\t(vert_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f+1,r+1+1))
+    vert_adj = set(vert_adj)
+    for r in range(board_size):
+        for f in range(board_size):
+            from_f = r+1
+            from_r = f+1
+            if ((from_f>=1) & (from_r<=board_size)): #left up
+                to_f = from_f-1
+                to_r = from_r+1
+                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+            if ((from_f>=1) & (from_r<=board_size)): #left down
+                to_f = from_f-1
+                to_r = from_r-1
+                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+            if ((from_f>=1) & (from_r<=board_size)): #right up
+                to_f = from_f+1
+                to_r = from_r+1
+                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+            if ((from_f>=1) & (from_r<=board_size)): #right down
+                to_f = from_f+1
+                to_r = from_r-1
+                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+    diag_adj = set(diag_adj)
+
+    for i in horiz_adj:
+        R+=i
+    for i in vert_adj:
+        R+=i
+    for i in diag_adj:
+        R+=i
+
+    return R
+
+def between():
+    R=''
+    between=[]
+    for n1 in range(board_size):
+        for n2 in range(board_size):
+            for i in range(board_size):
+                if ((n1<i) & (n2>i)):
+                    between.append('\t\t(between n{} n{} n{})\n'.format(n1,i,n2))
+    between = set(between)
+
+    for i in between:
+        R+=i
+    return R
+
+def same_diag():
+    R=''
+    same_diag=[]
+    for r in range(board_size):
+        for f in range(board_size):
+            for i in range(1,board_size+1): #for all destination files (board size max)
+                from_f = r+1
+                from_r = f+1
+                if ((from_f>=1) & (from_r<=board_size)): #left up
+                    to_f = from_f-i
+                    to_r = from_r+i
+                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                        same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+                if ((from_f>=1) & (from_r<=board_size)): #left down
+                    to_f = from_f-i
+                    to_r = from_r-i
+                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                        same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+                if ((from_f>=1) & (from_r<=board_size)): #right up
+                    to_f = from_f+i
+                    to_r = from_r+i
+                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                        same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+                if ((from_f>=1) & (from_r<=board_size)): #right down
+                    to_f = from_f+i
+                    to_r = from_r-i
+                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                        same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+    same_diag = set(same_diag)
+
+    for i in same_diag:
+        R+=i
+
+    return R
+
 
 def pawn_double(type):
     '''returns the PDDL line format of type={'white', 'black'} for pawn double moves'''

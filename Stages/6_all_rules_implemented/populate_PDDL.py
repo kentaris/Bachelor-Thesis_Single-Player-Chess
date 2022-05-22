@@ -59,7 +59,7 @@ def convert_plan():
         txt_file = f.readlines()
         txt_file_corrected=[]
         for l in txt_file:
-            if 'unlock_global_lock_simulated_king_move' not in l:
+            if 'check_if_last_move_was_valid' not in l:
                 txt_file_corrected.append(l+'\n')
         #copy_txt_file=txt_file.copy()
         #txt_file.insert(0,';;!problem: chess-problem\n')
@@ -132,6 +132,9 @@ def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
         txt_file=replace(txt_file,';[:last_pawn_line]\n',PG.add_last_pawn_line())
         txt_file=replace(txt_file,';[:castling]\n',PG.add_castling(start_FEN))
         txt_file=replace(txt_file,';[:whos_turn]\n',PG.add_turn(turn_start))
+        txt_file=replace(txt_file,';[:adjacent]\n',PG.adjacent())
+        txt_file=replace(txt_file,';[:same_diag]\n',PG.same_diag())
+        txt_file=replace(txt_file,';[:between]\n',PG.between())
 
         #goal:
         txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL_goal(goal_FEN,'goal'))
@@ -148,14 +151,15 @@ def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
 def print_plan(plan):
     '''print plan so it is readable'''
     print('The Plan:\n==========')
-    for line in plan[:-1]:
+    for l in range(len(plan[:-1])):
+        line = plan[l]
         elem =line.split()
         if 'castling' in elem[0]:
-            print('castling:\t{}{} & {}{}'.format(chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
+            print('{}: castling:\t{}{} & {}{}'.format(l+1, chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
         elif 'promotion' in elem[0]:
-            print('prom. {}:\t{}{}->{}{}'.format(elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
+            print('{}: prom. {}:\t{}{}->{}{}'.format(l+1, elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
         else:
-            print('{}:\t{}{}->{}{}'.format(elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
+            print('{}: {}:\t{}{}->{}{}'.format(l+1, elem[1],chr(int(elem[-4][1:])+64),elem[-3][1:],chr(int(elem[-2][1:])+64),elem[-1][1:-1]))
 
 def translate_time(T,print_=False):
     '''translates nanoseconds to s,ms,µs & ns'''
@@ -197,9 +201,11 @@ def after_timeout():
     raise Timeout_Error
 
 def main():
-    start_FEN=start_FEN='k2/r2/R2'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #      #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
-    goal_FEN ='k2/1r1/R2'#'k2/r2/RR1' #'k2/1r1/R1R'    'kR1/1rP/3'#       #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
-    turn_start='black'
+    start_FEN=start_FEN='rnbqk/ppppp/5/PPPPP/RNBQ1'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'K2/1rr/2r'#'1kR/1r1/2R'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #      #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN ='rnbqk/ppppp/P4/1PPPP/RNBQ1'#'rnbqkbnr/pppppppp/8/8/8/P/1PPPPPPP/RNBQKBNR'#'K2/1rr/r2'#'k1R/1r1/2R'#'k2/1r1/R1R' #'k2/1r1/R1R'    'kR1/1rP/3'#       #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+    #start_FEN=start_FEN='k2/r2/R2'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #     
+    #goal_FEN ='k2/1r1/R2'#'k2/r2/RR1' #'k2/1r1/R1R'    'kR1/1rP/3'#   
+    turn_start='white'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN,turn_start)
         load_file('domain',start_FEN)

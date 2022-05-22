@@ -1,2 +1,3 @@
-(rook_move rook_b1 n1 n2 n2 n2)
-; cost = 1 (unit cost)
+(pawn_move_one pawn_w1 n1 n2 n1 n3)
+(check_if_last_move_was_valid b_bishop_b1 n3 n5)
+; cost = 2 (unit cost)
