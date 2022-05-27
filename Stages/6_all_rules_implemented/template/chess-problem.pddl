@@ -14,6 +14,7 @@
 ;[:init_pawn_start_pos]
 ;[:init_plusOne]
 ;[:init_diffByN]
+;[:init_diffBy]
 ;[:init_Same_color]
             
         ;figures on the board:

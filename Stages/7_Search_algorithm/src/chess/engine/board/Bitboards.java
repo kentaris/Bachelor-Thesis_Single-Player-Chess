@@ -47,10 +47,10 @@ public class Bitboards {
 
     public static void initiate_FEN_to_chessboard(String FEN) {
         /*translates the fen code into the 12 bitmaps*/
-        System.out.println(FEN);
+        //System.out.println(FEN);
         String[] board = FEN_decodeTo_64String(FEN, board_size);
         long[] bitmaps = generate_bitboards(board);
-        bitmaps_to_chessboard(bitmaps);
+        //bitmaps_to_chessboard(bitmaps);
         //System.out.println(long_to_bitstring(bitmaps[gtidx('p')]));
     }
 
@@ -58,6 +58,7 @@ public class Bitboards {
         /*translates the fen code into the 12 bitmaps*/
         String[] board = FEN_decodeTo_64String(FEN, board_size);
         long[] Bitmaps = return_bitboards(board);
+        //bitmaps_to_chessboard(Bitmaps);
         return Bitmaps;
     }
 
@@ -94,6 +95,7 @@ public class Bitboards {
                 bitmaps[gtidx(board[i / 8][i % 8])] |= Long.parseUnsignedLong((bit), 2); //add it to the correct bitmap
             }
         }
+        bitmaps_to_chessboard(bitmaps);
     }
 
     public static long[] return_arrayToBitboards(Character[][] board) {
@@ -105,6 +107,7 @@ public class Bitboards {
                 chess_bitboards[gtidx(board[i / 8][i % 8])] |= Long.parseUnsignedLong((bit), 2); //add it to the correct bitmap
             }
         }
+        bitmaps_to_chessboard(chess_bitboards);
         return chess_bitboards;
     }
 
@@ -121,7 +124,7 @@ public class Bitboards {
         files();
         ranks();
         KQ_side();
-        bitmaps_to_chessboard(bitmaps);
+        //bitmaps_to_chessboard(bitmaps);
     }
     public static void two_bitmaps_to_chessboard(long[] bitmaps1, long[] bitmaps2) {
         /*prints 2 given bitboards next to each other so I can compare them better for debugging purposes*/

@@ -2,7 +2,7 @@ from curses.ascii import isdigit
 from tracemalloc import start #TODO: replace with .isnumeric() to remove this line
 import FEN
 
-board_size=5 #to change the board size
+board_size=8 #to change the board size
 extra_pieces=0 #to change the amount of extra pieces available for pawn promotion
 
 def add_FEN_pos_to_PDDL(fen,type=None):
@@ -31,6 +31,7 @@ def add_FEN_pos_to_PDDL(fen,type=None):
                         done.append(figure)
                         F.append(figure)
                         R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
+                        #R+='\t\t(occupied_square n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         #if fig.lower() != 'p':
                         #    R+='\t\t(at '+figure+' n'+str((file+1))+' n'+str(board_size-rank)+')\n'
                         #elif fig.lower() == 'p' and type=='goal':
@@ -155,17 +156,33 @@ def adjacent():
     diag_adj = []
     for r in range(board_size):
         for f in range(board_size):
-            if (f-1)>=0:
-                horiz_adj.append('\t\t(horiz_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f-1+1,r+1))
-            if (f+1)<board_size:
-                horiz_adj.append('\t\t(horiz_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f+1+1,r+1))
+            from_f = r+1
+            from_r = f+1
+            if ((from_f>=1) & (from_r<=board_size)): #left
+                to_f = from_f-1
+                to_r = from_r
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    horiz_adj.append('\t\t(horiz_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+            if ((from_f>=1) & (from_r<=board_size)): #right
+                to_f = from_f+1
+                to_r = from_r
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    horiz_adj.append('\t\t(horiz_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
     horiz_adj = set(horiz_adj)
     for r in range(board_size):
         for f in range(board_size):
-            if (r-1)>=0:
-                vert_adj.append('\t\t(vert_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f+1,r-1+1))
-            if (r+1)<board_size:
-                vert_adj.append('\t\t(vert_adj n{} n{} n{} n{})\n'.format(f+1,r+1, f+1,r+1+1))
+            from_f = r+1
+            from_r = f+1
+            if ((from_f>=1) & (from_r<=board_size)): #up
+                to_f = from_f
+                to_r = from_r+1
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    vert_adj.append('\t\t(vert_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
+            if ((from_f>=1) & (from_r<=board_size)): #down
+                to_f = from_f
+                to_r = from_r-1
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    vert_adj.append('\t\t(vert_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
     vert_adj = set(vert_adj)
     for r in range(board_size):
         for f in range(board_size):
@@ -174,22 +191,22 @@ def adjacent():
             if ((from_f>=1) & (from_r<=board_size)): #left up
                 to_f = from_f-1
                 to_r = from_r+1
-                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                     diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
             if ((from_f>=1) & (from_r<=board_size)): #left down
                 to_f = from_f-1
                 to_r = from_r-1
-                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                     diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
             if ((from_f>=1) & (from_r<=board_size)): #right up
                 to_f = from_f+1
                 to_r = from_r+1
-                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                     diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
             if ((from_f>=1) & (from_r<=board_size)): #right down
                 to_f = from_f+1
                 to_r = from_r-1
-                if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                     diag_adj.append('\t\t(diag_adj n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
     diag_adj = set(diag_adj)
 
@@ -205,10 +222,12 @@ def adjacent():
 def between():
     R=''
     between=[]
-    for n1 in range(board_size):
-        for n2 in range(board_size):
-            for i in range(board_size):
+    for n1 in range(1,board_size+1):
+        for n2 in range(1,board_size+1):
+            for i in range(1,board_size+1):
                 if ((n1<i) & (n2>i)):
+                    between.append('\t\t(between n{} n{} n{})\n'.format(n1,i,n2))
+                if ((n2<i) & (n1>i)):
                     between.append('\t\t(between n{} n{} n{})\n'.format(n1,i,n2))
     between = set(between)
 
@@ -227,27 +246,29 @@ def same_diag():
                 if ((from_f>=1) & (from_r<=board_size)): #left up
                     to_f = from_f-i
                     to_r = from_r+i
-                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                         same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
                 if ((from_f>=1) & (from_r<=board_size)): #left down
                     to_f = from_f-i
                     to_r = from_r-i
-                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                         same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
                 if ((from_f>=1) & (from_r<=board_size)): #right up
                     to_f = from_f+i
                     to_r = from_r+i
-                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                         same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
                 if ((from_f>=1) & (from_r<=board_size)): #right down
                     to_f = from_f+i
                     to_r = from_r-i
-                    if (((to_f) <= 8) & ((to_r) <= 8) & ((to_f) >= 1) & ((to_r) >= 1)):
+                    if (((to_f) <= board_size) & ((to_r) <= board_size) & ((to_f) >= 1) & ((to_r) >= 1)):
                         same_diag.append('\t\t(same_diag n{} n{} n{} n{})\n'.format(from_f,from_r, to_f,to_r))
     same_diag = set(same_diag)
 
     for i in same_diag:
         R+=i
+    #print(R)
+    #exit()
 
     return R
 
@@ -334,11 +355,22 @@ def num2word(n):
 def add_diffByN(N):
     '''returns PDDL lines "(Difference by n1 n1) from 0 up to the nuber given to this function'''
     R=''
-    for n in range(N):
+    for n in range(N+1):
         n+=1
         word=num2word(n)
         line=create_diffBy_list(n,word)
         R+='\n\t\t;Difference by {}:\n'.format(word)+line
+
+    return R
+
+def add_not_same(N):
+    R=''
+    for n in range(N):
+        n+=1
+        line=create_diffBy_list(n,'N')
+        R+=line
+    #print(R)
+    #exit()
     return R
 
 def board():

@@ -21,6 +21,8 @@ This is the official GitHub repository of my Bachelor's thesis. The written thes
     <li><a href="#dependencies">Dependencies</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <li><a href="#additional">Additional Implementations</a></li>
+    
   </ol>
 </details>
 
@@ -28,29 +30,32 @@ This is the official GitHub repository of my Bachelor's thesis. The written thes
 ## Abstract
 
 <img width="300" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/Screenshot-from-2022-03-04-15-52-21.png" alt="Terminal CHess UI">
-The goal of this thesis is to model single-player Chess as a planning domain using the planning domain definition language (PDDL). We want to look into the problem of how to reach check mate position from an initial position. Both the initial and the goal position are given. As a first approach, we will encode this problem using PDDL. After this is done, we will also study how classical planners perform in this new domain implement a state-space search algorithm for this problem. 
+This thesis aims to model single-player Chess as a planning domain using the planning domain definition language (PDDL). We want to look into the problem of how to reach a checkmate position from an initial position. Both the initial and the goal position are given. As a first approach, we will encode this problem using PDDL. After this is done, we will also study how classical planners perform in this new domain and implement a state-space search algorithm for this problem. 
 <br clear="right"/>
+
+## Usage
+The user can execute the search by calling the main function located in the class Search.java with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. To ensure that the paths are set correctly, the Fast Downward root repository needs to be positioned at the same level as the root repository of this thesis.
 
 <!-- Journal -->
 ## Journal
 
-I am keeping a [Journal](Journal.md) of what I am doing so it is easier for me to time manage and also so it easier to write the final thesis. Feel free to have a look at it.
+I am keeping a [Journal](Journal.md) of what I am doing, so it is easier for me to time manage and also so it easier to write the final thesis. Feel free to have a look at it.
 
 <!-- ROADMAP -->
 ## Roadmap
 
-The roadblocks below build on on another so to see the relevant files for this project it is sufficient to check the folder linked in the last mentioned roadblock.
+The roadblocks below build on one another, so it is sufficient to check the folder linked in the last-mentioned roadblock to see the relevant files for this project.
 
 <!-- ROADBLOCKS -->
 #### Roadblocks: 
 
-The following roadblocks are simplified by a lot so the reader can have some insight on how the project timeline was roughly organized. To get more insigt about this I encourage the reader to have a look at [the Journal](Journal.md).
-1. [x] Getting familiar [![familiar](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][1_First_attempt]
-2. [x] Implement **Knight's Tour** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][2_Knights Tour]
-3. [x] Implement **Two Knight's Walk** [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][3_Two Knights Tour]
-4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][4_White_Pieces_limitated]
-5. [x] Implement **black pieces** as well [![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][5_white&black_limitated]
-6. [x] Rewrite the problem using **derived predicates** so I can make use of recursion and axioms to implment all rules below.[![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][6_all_rules_implemented]
+The following simplified roadblocks are here so the reader can understand how the project timeline was roughly organized. To get more insight about this, I encourage the reader to look at [the Journal](Journal.md).
+1. [x] Getting familiar
+2. [x] Implement **Knight's Tour** 
+3. [x] Implement **Two Knight's Walk** 
+4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet
+5. [x] Implement **black pieces** as well
+6. [x] Rewrite the problem using **derived predicates** so I can make use of recursion and axioms to implment all rules below.
    1. [x] normal moves
    2. [x] capture moves
       1. [x] en passant
@@ -65,20 +70,20 @@ The following roadblocks are simplified by a lot so the reader can have some ins
       2. [x] blocked movement (ex: bishop can't move trough a pawn)
       3. [x] castling
       4. [x] taking turns
-7. [ ] Write a state space algorithm that solves single-player chess][![.](https://webmo.ch/wp-content/uploads/2022/03/External_Link_Logo.png)][7_Search_algorithm]
+7. [x] Write a state space algorithm that solves single-player chess
    1. [x] writing a Move generator using a 12x64bit array (one bitboard for every figure of every color)
-   2. [ ] implement best-first-search and see if  it works for simpmle cases.
-   3. [ ] implement Greedy-best-first-search & use priority queue
-8. [ ] Finishing the theis document on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
+   2. [x] implement best-first-search and see if  it works for simpmle cases.
+   3. [x] implement Greedy-best-first-search & use priority queue
+8. [x] Finishing the theis document on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
-Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of comminication.
+Also, there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of communication.
 
 <!-- Requirements -->
 ## Dependencies
 
 * Fast downward: [Github](https://github.com/aibasel/downward), [Website](https://www.fast-downward.org/) 
-* Numpy (via: `sudo apt-get install python3-numpy`)
+* [Python-Chess](https://python-chess.readthedocs.io/en/latest/) Library
 
 <!-- Authors -->
 ## Authors
@@ -87,12 +92,19 @@ Also there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_S
 * Supervisor: [Augusto B. Corrêa](https://ai.dmi.unibas.ch/people/correa/)
 * Professor: [Prof. Dr. Malte Helmert](https://ai.dmi.unibas.ch/people/helmert)
 
+## Additional
+ - Eye appealing terminal chess user interface which is usable for any given board size(a snapshot can be seen at the head of this ReadMe)
+ - Decoding of the PDDL plan files into a terminal plan which is printed out in standard chess notation ('O-O' for kingside castling, for example)
+ Decoding the found action plan of the domain dependant solver into standard chess notation.
+ - Validation of the PDDL action plan using the python chess library (every output plan receives a tag if it is a valid plan or not according to the engine, and it doesn't matter what size the board is because it is preprocessed to have dimensionality of 8x8 so the library can process it.)
+ - The domain-dependent solver was implemented using Bitmaps.
+
 <!-- Acknowledgments -->
 ## Acknowledgments
 
 * An Introduction to the Planning Domain Deﬁnition Language by Patrik Haslum and co. ([Book](https://www.morganclaypool.com/doi/abs/10.2200/S00900ED2V01Y201902AIM042))
 * The planing.domains ([Online PDDL Editor Tool](http://planning.domains/)) helped me a lot to get started with using PDDL.
-* The [Fast Downward](https://github.com/aibasel/downward) planner enabled me to use a state of the art PDDL planner which made it possible for me to make use of more powerfull aspects of the PDDL languare such as axioms.
+* The [Fast Downward](https://github.com/aibasel/downward) planner enabled me to use a state of the art PDDL planner, which made it possible for me to make use of more powerful aspects of the PDDL language such as axioms.
 * The [Basilea-latex Template](https://github.com/ivangiangreco/basilea-latex) used to write the thesis was created by Ivan Giangreco.
 * The Chess Logo I designed was inspired by [Marko Ivanovic](https://dribbble.com/shots/14950766/attachments/6667952?mode=media)'s Chess Logo.
 

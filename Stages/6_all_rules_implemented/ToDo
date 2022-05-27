@@ -6,3 +6,5 @@ send table to augusto when i have it
 
 -ulimit 8gb & time limit 10 min
 -run inside terminal
+
+--> ulimit -t 600 & -Sv 8000000

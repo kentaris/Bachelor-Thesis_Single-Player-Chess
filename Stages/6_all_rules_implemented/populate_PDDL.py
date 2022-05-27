@@ -45,7 +45,7 @@ def execute_planner():
     call('./fast-downward.py chess-domain.pddl chess-problem.pddl --search "eager_greedy([ff])"',cwd=Global.path_to_downward,shell=True)
     files=os.listdir(Global.path_to_downward)
     if 'sas_plan' in files:
-        call('mv sas_plan {}'.format(Global.full_path_to_output_folder),cwd=Global.path_to_downward,shell=True)
+        call('cp sas_plan {}'.format(Global.full_path_to_output_folder),cwd=Global.path_to_downward,shell=True)
     else:
         print(' >>> \'sas_plan\' not fount')
         exit()
@@ -59,7 +59,7 @@ def convert_plan():
         txt_file = f.readlines()
         txt_file_corrected=[]
         for l in txt_file:
-            if 'check_if_last_move_was_valid' not in l:
+            if 'check_if_last_move_was_valid' not in l and 'release_action' not in l:
                 txt_file_corrected.append(l+'\n')
         #copy_txt_file=txt_file.copy()
         #txt_file.insert(0,';;!problem: chess-problem\n')
@@ -122,6 +122,7 @@ def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
         #init:
         txt_file=replace(txt_file,';[:init_start_state]\n',PG.add_FEN_pos_to_PDDL(start_FEN))
         txt_file=replace(txt_file,';[:init_diffByN]\n',PG.add_diffByN(3))#PG.board_size-1))
+        #txt_file=replace(txt_file,';[:init_diffBy]\n',PG.add_not_same(3))#PG.board_size-1))
         txt_file=replace(txt_file,';[:init_pawn_start_pos]\n',PG.add_double_pawn_moves())
         txt_file=replace(txt_file,';[:init_plusOne]\n',PG.add_one_forward())
         txt_file=replace(txt_file,';[:is_on_board]\n',PG.add_figures_on_board(start_FEN))
@@ -132,9 +133,9 @@ def load_file(Type,start_FEN=None,goal_FEN=None,turn_start=None):
         txt_file=replace(txt_file,';[:last_pawn_line]\n',PG.add_last_pawn_line())
         txt_file=replace(txt_file,';[:castling]\n',PG.add_castling(start_FEN))
         txt_file=replace(txt_file,';[:whos_turn]\n',PG.add_turn(turn_start))
-        txt_file=replace(txt_file,';[:adjacent]\n',PG.adjacent())
-        txt_file=replace(txt_file,';[:same_diag]\n',PG.same_diag())
-        txt_file=replace(txt_file,';[:between]\n',PG.between())
+        #txt_file=replace(txt_file,';[:adjacent]\n',PG.adjacent())
+        #txt_file=replace(txt_file,';[:same_diag]\n',PG.same_diag())
+        #txt_file=replace(txt_file,';[:between]\n',PG.between())
 
         #goal:
         txt_file=replace(txt_file,';[:goal_position]\n',PG.add_FEN_pos_to_PDDL_goal(goal_FEN,'goal'))
@@ -200,12 +201,12 @@ def after_timeout():
     Global.cont=True
     raise Timeout_Error
 
-def main():
-    start_FEN=start_FEN='rnbqk/ppppp/5/PPPPP/RNBQ1'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'K2/1rr/2r'#'1kR/1r1/2R'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #      #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
-    goal_FEN ='rnbqk/ppppp/P4/1PPPP/RNBQ1'#'rnbqkbnr/pppppppp/8/8/8/P/1PPPPPPP/RNBQKBNR'#'K2/1rr/r2'#'k1R/1r1/2R'#'k2/1r1/R1R' #'k2/1r1/R1R'    'kR1/1rP/3'#       #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+def main():#'3k/4/PPPP/3K' ,'3k/P3/1PPP/3K'
+    start_FEN=start_FEN='k2K4/8/8/8/8/8/7r/RR6'#'8/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'p2k/4/4/K2B'#'p6k/8/8/8/8/8/8/6KB'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'K2/1rr/2r'#'1kR/1r1/2R'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #      #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN =          'k2K4/8/8/8/8/8/r7/RR6'#'8/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR'#'B2k/4/4/K3'#'B6k/8/8/8/8/8/8/6K1'#'rnbqkbnr/pppppppp/8/8/8/P/1PPPPPPP/RNBQKBNR'#'K2/1rr/r2'#'k1R/1r1/2R'#'k2/1r1/R1R'         # 'k2/1r1/R1R' 'kR1/1rP/3' #       #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
     #start_FEN=start_FEN='k2/r2/R2'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #     
     #goal_FEN ='k2/1r1/R2'#'k2/r2/RR1' #'k2/1r1/R1R'    'kR1/1rP/3'#   
-    turn_start='white'
+    turn_start='black'
     if len(sys.argv)==1: #do all
         load_file('problem',start_FEN,goal_FEN,turn_start)
         load_file('domain',start_FEN)
@@ -216,6 +217,7 @@ def main():
         time_it()
         if validator.validate(start_FEN,goal_FEN,plan,turn_start):
             print('     \u001b[32m--> This is a VALID plan!\033[0m')
+        print(goal_FEN)
     elif 'planner' in sys.argv[1].lower(): #just execute the planner on the existing .pddl files (so I can edit them and test stuff quickly)
         Global.s=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(start_FEN,PG.board_size),True,True))
         Global.g=FEN.add_coordinate_System(FEN.printable_board(FEN.FEN_to_Chess_board(goal_FEN,PG.board_size),True,True))

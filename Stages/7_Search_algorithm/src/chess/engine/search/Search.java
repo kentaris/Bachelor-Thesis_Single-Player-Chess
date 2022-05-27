@@ -342,8 +342,21 @@ public class Search {
     }
 
     public NODE BestFirst_Search(Problem problem, Heuristic heuristic) {
-        int d = 0; //<<<
-        Search search = new Search(); //<<<
+        //int d = 0; //<<<
+
+        String n1 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR";
+        long[] N1 = FEN_to_chessboard(n1);
+        String n2 = "rnbqkbnr/ppppp1pp/8/5p2/4P3/8/PPPP1PPP/RNBQKBNR";
+        long[] N2 = FEN_to_chessboard(n2);
+        String n3 = "rnbqkbnr/ppppp1pp/8/5P2/8/8/PPPP1PPP/RNBQKBNR";
+        long[] N3 = FEN_to_chessboard(n3);
+        String n4 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/8/PPPP1PPP/RNBQKBNR";
+        long[] N4 = FEN_to_chessboard(n4);
+        String n5 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/3P4/PPP2PPP/RNBQKBNR";
+        long[] N5 = FEN_to_chessboard(n5);
+
+
+        //Search search = new Search(); //<<<
         PriorityQueue<NODE> frontier = new PriorityQueue<>();
         Map<STATE, NODE> reached = new HashMap<>(); //Lookup Table
         NODE root = problem.INITIAL2(problem, heuristic);
@@ -359,6 +372,7 @@ public class Search {
             if (problem.IS_GOAL(node.STATE)) return node;
             NODE[] EXPAND = EXPAND2(problem, heuristic, node);
             for (NODE child : EXPAND) {
+                //bitmaps_to_chessboard(child.STATE.state);
                 /*System.out.println("\nc: "+c); //<<<
                 System.out.println("h: "+child.STATE.heuristic_value); //<<<
                 c += 1; //<<<
@@ -373,13 +387,20 @@ public class Search {
                     continue;
                     //System.exit(7); //<<<
                 } //<<<*/
+                /*if(problem.IS(child.STATE.state,N1)){
+                    bitmaps_to_chessboard(child.STATE.state);
+                    System.exit(11);
+                }*/
+                //if(child.STATE.path_cost>4) System.exit(10);
                 STATE s = child.STATE;
-                if (problem.IS_GOAL(s)) {
-
+                if(problem.IS(child.STATE.state,N1)|problem.IS(child.STATE.state,N2)|problem.IS(child.STATE.state,N3)|problem.IS(child.STATE.state,N4)){
+                    bitmaps_to_chessboard(child.STATE.state);
                     System.out.println(child.STATE.heuristic_value);
-                    //System.exit(6);
-                    return child;
+                    frontier.add(child);
                 }
+                if (problem.IS_GOAL(s)) {
+                    return child;
+                }/*
                 if (child.STATE.heuristic_value >= heuristic.INFINITY) {
                     continue; //skip
                 }
@@ -388,7 +409,7 @@ public class Search {
                 } else if (child.STATE.path_cost < reached.get(s).STATE.path_cost) {//"§ OR: re-added if child node is now being reached with a path that has a lower path cost than any previous path. §"
                     reached.replace(s, child); //update value
                     frontier.add(child);
-                }
+                }*/
             }
         }
         return null; //failure (search finished without a solution)

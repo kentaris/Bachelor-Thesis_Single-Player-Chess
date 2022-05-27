@@ -85,7 +85,7 @@ public class Main {
             node = search.BreadthFirst_Search(problem);
         }
         time_it(problem);
-        System.out.println();
+        System.out.println("Search completed...");
         //print solution:
         if (isNull(node)) System.out.println("\u001B[31mno solution found (" + Search.n + " nodes expanded)");
         else {
@@ -93,15 +93,17 @@ public class Main {
             int size = path.size();
             String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size);
             //uncomment for solution path visualization:
-            /*System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution Path:" + "\u2500".repeat(4));
+            System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution Path:" + "\u2500".repeat(4));
             for (int i = path.size() - 1; i >= 0; i--) {
                 bitmaps_to_chessboard(path.get(i).STATE.state);
                 System.out.println(i + "^");
-            }*/
-            System.out.println(" " + "\u2500".repeat(22));
+            }
+            //System.out.println(" " + "\u2500".repeat(22));
+            /*System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Initial State" + "\u2500".repeat(4));
+            bitmaps_to_chessboard(problem.root);
             System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution State" + "\u2500".repeat(4));
             bitmaps_to_chessboard(node.STATE.state);
-            System.out.println(" " + "\u2500".repeat(22));
+            System.out.println(" " + "\u2500".repeat(22));*/
             System.out.println("\u001B[32m" + "\u2500".repeat(3) + "Solution details" + "\u2500".repeat(3));
             System.out.println("Nodes expanded:\t\t" + Search.n);
             System.out.println("Nodes/s:       \t\t" + ((int)(Search.n / nanos *1000*1000*1000)));

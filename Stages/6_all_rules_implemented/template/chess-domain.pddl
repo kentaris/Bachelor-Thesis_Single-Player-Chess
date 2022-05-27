@@ -15,7 +15,11 @@
     )
     (:predicates
      ;static predicates:
+        
+        ;(minusOne_nTimes ?x ?y - location)
+        ;(plusOne_nTimes ?x ?y - location)
         ;(diff_by_N ?file ?rank - location)
+        ;(diff_by_Zero ?file ?rank - location)
         (diff_by_One ?file ?rank - location)
         (diff_by_Two ?file ?rank - location)
         (diff_by_Three ?file ?rank - location)
@@ -33,7 +37,7 @@
         (is_king ?king - king)
         (last_pawn_line ?to_file ?to_rank - location)
         (same_color ?figure1 ?figure2 - figure)
-        (not_same_color ?figure1 ?figure2 - figure)
+        (not_same_color?figure1 ?figure2 - figure)
         (TRUE)
         (FALSE)
      ;fluent/normal predicates:
@@ -46,12 +50,15 @@
         (empty_square ?file ?rank - location)
         (is_on_board ?figure - figure)
         ;locks:
+        ;(checked)
+        ;(global_lock)
+        ;(invalid)
         (valid_position)
 
      ;derived predicates:
         
-        ;(minusOne_nTimes ?x ?y - location)
-        ;(plusOne_nTimes ?x ?y - location)
+        (minusOne_nTimes ?x ?y - location)
+        (plusOne_nTimes ?x ?y - location)
         (myturn ?figure - figure)
         (white_pawn_at ?file ?rank - location)
         (black_pawn_at ?file ?rank - location)
@@ -72,8 +79,8 @@
         (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location)
         (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location)
         (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location)
-        ;(same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank - location)
-        (same_diag ?from_file ?from_rank ?to_file ?to_rank - location)
+        (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank - location)
+        ;(same_diag ?from_file ?from_rank ?to_file ?to_rank - location)
         (between ?from ?next ?to - location)
 
         (vert_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
@@ -91,7 +98,8 @@
         (move_through_red_zone ?king ?from_file_king ?rank ?to_file_king)
 
         (some_king_in_check)
-        (opposite_king_in_check ?figure - figure)
+        ;(opposite_king_in_check ?figure - figure)
+        (opposite_king_not_in_check ?figure - figure)
         (my_king_in_check ?figure - figure)
     )
 ;DERIVED PREDICATES:
@@ -218,105 +226,105 @@
         )
     )
     (:derived (occupied_by_same_color ?figure - figure ?file ?rank - location) ;check if some fig is at location with same color as the given figure
-        (and
-            (not(empty_square ?file ?rank))
+        ;(and
+            ;(not(empty_square ?file ?rank))
             (exists(?fig - figure) 
                 (and(at ?fig ?file ?rank)
                     (same_color ?fig ?figure)
                 )
             )
-        )
+        ;)
     )
     (:derived (occupied_by_king ?file ?rank - location) 
-        (and
-            (not(empty_square ?file ?rank))
+        ;(and
+            ;(not(empty_square ?file ?rank))
             (exists(?fig - figure) 
                 (and(at ?fig ?file ?rank)
                     (is_king ?fig)
                 )
             )
-        )
+        ;)
     )
  ;adjacent:
-    ;(:derived (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location) ;TODO: precompute it
-    ;    (and(= ?from_file ?to_file) ;file +/-0
-    ;        (diff_by_One ?from_rank ?to_rank) ;rank +/-1
-    ;    )
-    ;)
-    ;(:derived (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
-    ;    (and(= ?from_rank ?to_rank) ;rank +/-0
-    ;        (diff_by_One ?from_file ?to_file) ;file +/-1
-    ;    )
-    ;)
-    ;(:derived (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
-    ;    (and(diff_by_One ?from_rank ?to_rank) ;rank +/-1
-    ;        (diff_by_One ?from_file ?to_file) ;file +/-1
-    ;    )
-    ;)
-    ;(:derived (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank - location)  ;TODO: precompute
-    ;    (and
-    ;        (not(= ?from_file ?next_file))
-    ;        (not(= ?next_file ?to_file))
-    ;        (not(= ?from_rank ?next_rank))
-    ;        (not(= ?next_rank ?to_rank))
-    ;        (or ;rank +1/file+1
-    ;            (and(plusOne ?from_file ?next_file)
-    ;                (plusOne_nTimes ?next_file ?to_file)
-    ;                (plusOne ?from_rank ?next_rank) ;"
-    ;                (plusOne_nTimes ?next_rank ?to_rank)
-    ;            );rank-1/file-1
-    ;            (and(minusOne ?from_file ?next_file)
-    ;                (minusOne_nTimes ?next_file ?to_file)
-    ;                (minusOne ?from_rank ?next_rank)
-    ;                (minusOne_nTimes ?next_rank ?to_rank)
-    ;            );rank-1/file+1
-    ;            (and(plusOne ?from_file ?next_file) 
-    ;                (plusOne_nTimes ?next_file ?to_file)
-    ;                (minusOne ?from_rank ?next_rank) 
-    ;                (minusOne_nTimes ?next_rank ?to_rank)
-    ;            );rank+1/file-1
-    ;            (and(minusOne ?from_file ?next_file) 
-    ;                (minusOne_nTimes ?next_file ?to_file)
-    ;                (plusOne ?from_rank ?next_rank) 
-    ;                (plusOne_nTimes ?next_rank ?to_rank)
-    ;            )
-    ;        )
-    ;    )
-    ;)
-    ;(:derived (between ?from ?next ?to - location) ;TODO: precompute
-    ;    (and
-    ;        (not(= ?from ?next))
-    ;        (not(= ?next ?to))
-    ;        (or
-    ;            (and
-    ;                (plusOne ?from ?next) ;Optimization
-    ;                (plusOne_nTimes ?next ?to)
-    ;            )
-    ;            (and
-    ;                (minusOne ?from ?next) ;Optimization
-    ;                (minusOne_nTimes ?next ?to)
-    ;            )
-    ;        )
-    ;    )
-    ;)
-    ;(:derived (plusOne_nTimes ?x ?y - location) ;TODO: precompute
-    ;    (or (plusOne ?x ?y)
-    ;        (exists(?next - location)
-    ;            (and(plusOne ?x ?next)
-    ;                (plusOne_nTimes ?next ?y)
-    ;            )
-    ;        )
-    ;    )
-    ;)
-    ;(:derived (minusOne_nTimes ?x ?y - location) ;TODO: precompute
-    ;    (or (minusOne ?x ?y)
-    ;        (exists(?next - location)
-    ;            (and(minusOne ?x ?next)
-    ;                (minusOne_nTimes ?next ?y)
-    ;            )
-    ;        )
-    ;    )
-    ;)
+    (:derived (vert_adj ?from_file ?from_rank ?to_file ?to_rank - location) ;TODO: precompute it
+        (and(= ?from_file ?to_file) ;file +/-0
+            (diff_by_One ?from_rank ?to_rank) ;rank +/-1
+        )
+    )
+    (:derived (horiz_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
+        (and(= ?from_rank ?to_rank) ;rank +/-0
+            (diff_by_One ?from_file ?to_file) ;file +/-1
+        )
+    )
+    (:derived (diag_adj ?from_file ?from_rank ?to_file ?to_rank - location);TODO: precompute it
+        (and(diff_by_One ?from_rank ?to_rank) ;rank +/-1
+            (diff_by_One ?from_file ?to_file) ;file +/-1
+        )
+    )
+    (:derived (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank - location)  ;TODO: precompute
+        (and
+            (not(= ?from_file ?next_file))
+            (not(= ?next_file ?to_file))
+            (not(= ?from_rank ?next_rank))
+            (not(= ?next_rank ?to_rank))
+            (or ;rank +1/file+1
+                (and(plusOne ?from_file ?next_file)
+                    (plusOne_nTimes ?next_file ?to_file)
+                    (plusOne ?from_rank ?next_rank) ;"
+                    (plusOne_nTimes ?next_rank ?to_rank)
+                );rank-1/file-1
+                (and(minusOne ?from_file ?next_file)
+                    (minusOne_nTimes ?next_file ?to_file)
+                    (minusOne ?from_rank ?next_rank)
+                    (minusOne_nTimes ?next_rank ?to_rank)
+                );rank-1/file+1
+                (and(plusOne ?from_file ?next_file) 
+                    (plusOne_nTimes ?next_file ?to_file)
+                    (minusOne ?from_rank ?next_rank) 
+                    (minusOne_nTimes ?next_rank ?to_rank)
+                );rank+1/file-1
+                (and(minusOne ?from_file ?next_file) 
+                    (minusOne_nTimes ?next_file ?to_file)
+                    (plusOne ?from_rank ?next_rank) 
+                    (plusOne_nTimes ?next_rank ?to_rank)
+                )
+            )
+        )
+    )
+    (:derived (between ?from ?next ?to - location) ;TODO: precompute
+        (and
+            (not(= ?from ?next))
+            (not(= ?next ?to))
+            (or
+                (and
+                    (plusOne ?from ?next) ;Optimization
+                    (plusOne_nTimes ?next ?to)
+                )
+                (and
+                    (minusOne ?from ?next) ;Optimization
+                    (minusOne_nTimes ?next ?to)
+                )
+            )
+        )
+    )
+    (:derived (plusOne_nTimes ?x ?y - location) ;TODO: precompute
+        (or (plusOne ?x ?y)
+            (exists(?next - location)
+                (and(plusOne ?x ?next)
+                    (plusOne_nTimes ?next ?y)
+                )
+            )
+        )
+    )
+    (:derived (minusOne_nTimes ?x ?y - location) ;TODO: precompute
+        (or (minusOne ?x ?y)
+            (exists(?next - location)
+                (and(minusOne ?x ?next)
+                    (minusOne_nTimes ?next ?y)
+                )
+            )
+        )
+    )
  ;rachable:
     (:derived (vert_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
         (or (and(or
@@ -333,6 +341,8 @@
                  (and 
                       (empty_square ?to_file ?next_rank)
                       (= ?from_file ?to_file) ;same file
+                      (diff_by_One ?from_rank ?next_rank)
+                      (vert_adj ?from_file ?from_rank ?to_file ?next_rank)
                       (between ?from_rank ?next_rank ?to_rank) ;TODO: not needed?
                       (vert_reachable ?from_file ?next_rank ?to_file ?to_rank)
                  )
@@ -354,6 +364,8 @@
                  (and 
                       (empty_square ?next_file ?to_rank)
                       (= ?from_rank ?to_rank) ;same rank
+                      (diff_by_One ?from_file ?next_file)
+                      (horiz_adj ?from_file ?from_rank ?next_file ?to_rank)
                       (between ?from_file ?next_file ?to_file) ;TODO: not needed?
                       (horiz_reachable ?next_file ?from_rank ?to_file ?to_rank)
                  )
@@ -363,14 +375,14 @@
     (:derived (diag_reachable ?from_file ?from_rank ?to_file ?to_rank - location)
         (or (and(or
                    (empty_square ?to_file ?to_rank)
-                   (and
-                       (not(empty_square ?to_file ?to_rank))
+                   ;(and
+                       ;(not(empty_square ?to_file ?to_rank))
                        (exists(?figure - figure)
                            (and(at ?figure ?to_file ?to_rank)
                                (not(occupied_by_same_color ?figure ?from_file ?from_rank))
                            )
                        )
-                   )
+                   ;)
                 )
                 (diag_adj ?from_file ?from_rank ?to_file ?to_rank)
             )
@@ -378,8 +390,10 @@
                 (and (not(= ?from_file ?to_file))
                      (not(= ?from_rank ?to_rank))
                      (empty_square ?next_file ?next_rank)
-                     ;(same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank) ;bishop needs to stay on the same diagonal
-                     (same_diag ?from_file ?from_rank ?next_file ?next_rank) ;bishop needs to stay on the same diagonal
+                     (diff_by_One ?from_file ?next_file)
+                     (diff_by_One ?from_rank ?next_rank)
+                     (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank) ;bishop needs to stay on the same diagonal
+                     ;(same_diag ?from_file ?from_rank ?next_file ?next_rank) ;bishop needs to stay on the same diagonal
                      (diag_reachable ?next_file ?next_rank ?to_file ?to_rank)
                 )
             )
@@ -399,9 +413,11 @@
             (exists(?next_rank - location)
                  (and 
                       (or(empty_square ?to_file ?next_rank)
-                         (occupied_by_king ?to_file ?next_rank)
+                         (occupied_by_king ?to_file ?next_rank) ;ignore file if king is on it (to "see trough" the king)
                       )
                       (= ?from_file ?to_file) ;same file
+                      (diff_by_One ?from_rank ?next_rank)
+                      (vert_adj ?from_file ?from_rank ?to_file ?next_rank)
                       (between ?from_rank ?next_rank ?to_rank) ;TODO: not needed?
                       (vert_reachable ?from_file ?next_rank ?to_file ?to_rank)
                  )
@@ -425,6 +441,8 @@
                          (occupied_by_king ?next_file ?to_rank)
                       )
                       (= ?from_rank ?to_rank) ;same rank
+                      (diff_by_One ?from_file ?next_file)
+                      (horiz_adj ?from_file ?from_rank ?next_file ?to_rank)
                       (between ?from_file ?next_file ?to_file) ;TODO: not needed?
                       (horiz_reachable ?next_file ?from_rank ?to_file ?to_rank)
                  )
@@ -434,14 +452,14 @@
     (:derived (diag_reachable_red ?from_file ?from_rank ?to_file ?to_rank - location)
         (or (and(or
                    (empty_square ?to_file ?to_rank)
-                   (and
-                       (not(empty_square ?to_file ?to_rank))
+                   ;(and
+                       ;(not(empty_square ?to_file ?to_rank))
                        (exists(?figure - figure)
                            (and(at ?figure ?to_file ?to_rank)
                                (not(occupied_by_same_color ?figure ?from_file ?from_rank))
                            )
                        )
-                   )
+                   ;)
                 )
                 (diag_adj ?from_file ?from_rank ?to_file ?to_rank)
             )
@@ -449,10 +467,13 @@
                 (and (not(= ?from_file ?to_file))
                      (not(= ?from_rank ?to_rank))
                      (or(empty_square ?next_file ?next_rank)
-                        (occupied_by_king ?next_file ?next_rank)
+                        (occupied_by_king ?next_file ?next_rank) ;we check for an opponents king so we can mark the spot behind him as red zones (base case handles that it is an opponents king and not my own king)
                      )
-                     ;(same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank) ;bishop needs to stay on the same diagonal
-                     (same_diag ?from_file ?from_rank ?next_file ?next_rank) ;bishop needs to stay on the same diagonal
+                     (same_diag ?from_file ?from_rank ?next_file ?next_rank ?to_file ?to_rank) ;bishop needs to stay on the same diagonal
+                     ;(same_diag ?from_file ?from_rank ?next_file ?next_rank) ;bishop needs to stay on the same diagonal
+                     (diff_by_One ?from_file ?next_file)
+                     (diff_by_One ?from_rank ?next_rank)
+                     (diag_adj ?from_file ?from_rank ?next_file ?next_rank)
                      (diag_reachable ?next_file ?next_rank ?to_file ?to_rank)
                 )
             )
@@ -468,20 +489,23 @@
             )
         )
     )
-    (:derived (opposite_king_in_check ?figure)
+
+    (:derived (opposite_king_not_in_check ?figure)
+        ;(FALSE)
         (exists (?king - king ?k_file ?k_rank - location)
-            (and
-                (at ?king ?k_file ?k_rank)
-                (not_same_color ?figure ?king) ;king must not be of the same color
-                (red_zone ?king ?k_file ?k_rank) ;is the current king position a red zone?
+            (or (and
+                    (not(same_color?figure ?king)) ;king must not be of the same color
+                    (at ?king ?k_file ?k_rank) 
+                    (not(red_zone ?king ?k_file ?k_rank)) ;is the current king position a red zone?
+                )
             )
         )
     )
     (:derived (my_king_in_check ?figure)
         (exists (?king - king ?k_file ?k_rank - location)
             (and
-                (at ?king ?k_file ?k_rank)
                 (same_color ?figure ?king) ;king must be of the same color
+                (at ?king ?k_file ?k_rank)
                 (red_zone ?king ?k_file ?k_rank) ;is the current king position a red zone?
             )
         )
@@ -505,7 +529,7 @@
         )
     )
     (:derived (red_zone ?king - king ?kt_file ?kt_rank - location) ;for some figure (capturer) on the board: is there a king of opposite color it can move to?    
-        (or 
+        (or ;(TRUE)
             (exists(?pawn - pawn ?c_file ?c_rank - location)
                 (and
                     ;(is_on_board ?pawn)
@@ -514,7 +538,7 @@
                     (diff_by_One ?kt_file ?c_file) ;diagonal capure
                     ;(not(= ?c_file ?kt_file))
                     ;(not(= ?c_rank ?kt_rank))
-                    (not_same_color ?king ?pawn)
+                    (not(same_color?king ?pawn))
                     (and
                         (or 
                             (and
@@ -537,7 +561,7 @@
                     (at ?knight ?c_file ?c_rank)
                     ;(not(= ?c_file ?kt_file)) ;kt_file & kt_rank should = landing position for the knight
                     ;(not(= ?c_rank ?kt_rank))
-                    (not_same_color ?king ?knight);king cannot be checked by his own pieces:
+                    (not(same_color?king ?knight));king cannot be checked by his own pieces:
                     (or
                         (and ;two files, one row:
                             (diff_by_Two ?c_file ?kt_file) ; file +/- 2
@@ -554,7 +578,7 @@
                     ;(is_on_board ?king2)
                     (at ?king2 ?c_file ?c_rank)
                     ;(not(myturn ?king2))
-                    (not_same_color ?king ?king2)
+                    (not(same_color?king ?king2))
                     (and
                         (or 
                             (and ;diagonal move
@@ -577,7 +601,7 @@
                 (and
                     ;(is_on_board ?rook)
                     (at ?rook ?c_file ?c_rank) ;valid starting location
-                    (not_same_color ?king ?rook);king cannot be checked by his own pieces:
+                    (not(same_color?king ?rook));king cannot be checked by his own pieces:
                     ;can the king be reached by the capturer:
                     (or 
                         (and
@@ -595,7 +619,7 @@
                 (and
                     ;(is_on_board ?bishop)
                     (at ?bishop ?c_file ?c_rank)
-                    (not_same_color ?king ?bishop);king cannot be checked by his own pieces:
+                    (not(same_color?king ?bishop));king cannot be checked by his own pieces:
                     ;(not(= ?c_file ?kt_file))
                     ;(not(= ?c_rank ?kt_rank))
                     (diag_reachable_red ?c_file ?c_rank ?kt_file ?kt_rank)
@@ -605,7 +629,7 @@
                 (and
                     ;(is_on_board ?queen)
                     (at ?queen ?c_file ?c_rank)
-                    (not_same_color ?king ?queen);king cannot be checked by his own pieces:
+                    (not(same_color?king ?queen));king cannot be checked by his own pieces:
                     ;can the king be reached by the capturer:
                     (or 
                         (and
@@ -641,7 +665,7 @@
                                   (double_moved ?pawn2 ?file ?rank) ;we also need to check if the double move happend in ONLY the last turn. I do this by also saving the location of the pawn in the double_moved predicate and by saving the last piece that moved
                                   (last_piece_moved ?pawn2)
                                   (at ?pawn2 ?file ?rank)
-                                  (not_same_color ?pawn2 ?pawn)
+                                  (not_same_color?pawn2 ?pawn)
                                   (diff_by_One ?from_file ?file) ;left or right of me
                                   (= ?from_rank ?rank) ;pawn is next to me
                                   (or
@@ -691,12 +715,12 @@
                                           (is_white ?pawn)
                                       )
                                   )
-                                  (not_same_color ?pawn ?pawn2)) ;capturable piece = opposite color
+                                  (not_same_color?pawn ?pawn2)) ;capturable piece = opposite color
                             (and
                                 (not (at ?pawn2 ?file ?rank))
                                 (removed ?pawn2)
                                 (empty_square ?file ?rank)
-                                (not(is_on_board ?pawn2))
+                                ;(not(is_on_board ?pawn2))
                             )
                         )
                      )
@@ -711,6 +735,7 @@
                      (not(empty_square ?to_file ?to_rank))
                      (empty_square ?from_file ?from_rank)
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
     (:action pawn_promotion_queen 
@@ -770,8 +795,9 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?queen)
-                    (is_on_board ?queen)
+                    ;(is_on_board ?queen)
                     (not(valid_position))
+                    ;(global_lock)
                 )
     )
     (:action pawn_promotion_rook
@@ -831,8 +857,9 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?rook)
-                    (is_on_board ?rook)
+                    ;(is_on_board ?rook)
                     (not(valid_position))
+                    ;(global_lock)
                 )
     )
     (:action pawn_promotion_knight
@@ -892,8 +919,9 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?knight)
-                    (is_on_board ?knight)
+                    ;(is_on_board ?knight)
                     (not(valid_position))
+                    ;(global_lock)
                 )
     )
     (:action pawn_promotion_bishop
@@ -953,8 +981,9 @@
                        (white_s_turn)
                     )
                     (last_piece_moved ?bishop)
-                    (is_on_board ?bishop)
+                    ;(is_on_board ?bishop)
                     (not(valid_position))
+                    ;(global_lock)
                 )
     )
     (:action pawn_capture
@@ -986,12 +1015,12 @@
                         (when 
                             (and
                                 (at ?figure ?to_file ?to_rank) ;ADL conditional effect
-                                (not_same_color ?pawn ?figure) ;capturable piece = opposite color
+                                (not_same_color?pawn ?figure) ;capturable piece = opposite color
                             )
                             (and
                                 (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)
-                                (not(is_on_board ?figure))
+                                ;(not(is_on_board ?figure))
                             )
                         )
                        )
@@ -1007,6 +1036,7 @@
                      (empty_square ?from_file ?from_rank)
                      (not(empty_square ?to_file ?to_rank))
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
     (:action pawn_move_one
@@ -1044,6 +1074,7 @@
                      (empty_square ?from_file ?from_rank)
                      (not(empty_square ?to_file ?to_rank))
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
     (:action pawn_move_two
@@ -1085,6 +1116,7 @@
                      (empty_square ?from_file ?from_rank)
                      (not(empty_square ?to_file ?to_rank))
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
   ;other actions
@@ -1093,8 +1125,8 @@
         :precondition (and 
                            (valid_position)
                            (at ?knight ?from_file ?from_rank)
-                           (not(= ?from_file ?to_file))
-                           (not(= ?from_rank ?to_rank))
+                           ;(not(= ?from_file ?to_file))
+                           ;(not(= ?from_rank ?to_rank))
                            (myturn ?knight)
                            (or
                                (and ;two files, one row:
@@ -1105,10 +1137,11 @@
                                    (diff_by_One ?from_file ?to_file) ; file +/- 1
                                )
                            )
-                           (or
-                              (empty_square ?to_file ?to_rank)
-                              (not(occupied_by_same_color ?knight ?to_file ?to_rank)) ;capturable piece = opposite color
-                           )
+                           (not(occupied_by_same_color ?knight ?to_file ?to_rank))
+                           ;(or
+                           ;   (empty_square ?to_file ?to_rank)
+                           ;   (not(occupied_by_same_color ?knight ?to_file ?to_rank)) ;capturable piece = opposite color
+                           ;)
                        )
         :effect (and 
                      (not (at ?knight ?from_file ?from_rank))
@@ -1116,12 +1149,12 @@
                         (when 
                             (and
                                 (at ?figure ?to_file ?to_rank)
-                                (not_same_color ?knight ?figure) ;capturable piece = opposite color
+                                (not_same_color?knight ?figure) ;capturable piece = opposite color
                             )
                             (and
                                 (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)
-                                (not(is_on_board ?figure))
+                                ;(not(is_on_board ?figure))
                             )
                         )
                      )
@@ -1136,6 +1169,7 @@
                      (not(empty_square ?to_file ?to_rank))
                      (last_piece_moved ?knight)
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )    
     (:action bishop_move
@@ -1146,14 +1180,15 @@
                           (not(= ?from_file ?to_file))
                           (not(= ?from_rank ?to_rank))
                           (myturn ?bishop)
-                          (or ;no piece at destination:
-                             (empty_square ?to_file ?to_rank)
-                             ;capturable piece at destination:
-                             (and
-                                 (not(empty_square ?to_file ?to_rank))
-                                 (not(occupied_by_same_color ?bishop ?to_file ?to_rank)) ;capturable piece = opposite color
-                             )
-                          )
+                          ;(not(occupied_by_same_color ?bishop ?to_file ?to_rank))
+                          ;(or ;no piece at destination:
+                          ;   (empty_square ?to_file ?to_rank)
+                          ;   ;capturable piece at destination:
+                          ;   (and
+                          ;       (not(empty_square ?to_file ?to_rank))
+                          ;       (not(occupied_by_same_color ?bishop ?to_file ?to_rank)) ;capturable piece = opposite color
+                          ;   )
+                          ;)
                           (diag_reachable ?from_file ?from_rank ?to_file ?to_rank)
                       )
         :effect (and 
@@ -1162,12 +1197,12 @@
                         (when
                             (and
                                 (at ?figure ?to_file ?to_rank)
-                                (not_same_color ?bishop ?figure) ;capturable piece = opposite color
+                                (not_same_color?bishop ?figure) ;capturable piece = opposite color
                             )
                             (and
                                 (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)
-                                (not(is_on_board ?figure))
+                                ;(not(is_on_board ?figure))
                             )
                         )
                      )
@@ -1182,20 +1217,22 @@
                      (not(empty_square ?to_file ?to_rank))
                      (last_piece_moved ?bishop)
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
     (:action rook_move
         :parameters (?rook - rook ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and(valid_position)
                           (at ?rook ?from_file ?from_rank)
-                          (or ;no piece at destination:
-                             (empty_square ?to_file ?to_rank)
-                             ;capturable piece at destination:
-                             (and
-                                 (not(empty_square ?to_file ?to_rank))
-                                 (not(occupied_by_same_color ?rook ?to_file ?to_rank)) ;capturable piece = opposite color
-                             )
-                          )
+                          (not(occupied_by_same_color ?rook ?to_file ?to_rank))
+                          ;(or ;no piece at destination:
+                          ;   (empty_square ?to_file ?to_rank)
+                          ;   ;capturable piece at destination:
+                          ;   (and
+                          ;       (not(empty_square ?to_file ?to_rank))
+                          ;       (not(occupied_by_same_color ?rook ?to_file ?to_rank)) ;capturable piece = opposite color
+                          ;   )
+                          ;)
                           (myturn ?rook)
                           (or 
                               (and
@@ -1214,12 +1251,12 @@
                         (when 
                             (and
                                 (at ?figure ?to_file ?to_rank)
-                                (not_same_color ?rook ?figure) ;capturable piece = opposite color
+                                (not_same_color?rook ?figure) ;capturable piece = opposite color
                             )
                             (and
                                 (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)
-                                (not(is_on_board ?figure))
+                                ;(not(is_on_board ?figure))
                             )
                         )
                      )
@@ -1235,33 +1272,65 @@
                      (not(empty_square ?to_file ?to_rank))
                      (last_piece_moved ?rook)
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
+
     (:action check_if_last_move_was_valid ;check same colored king
         :parameters (?figure - figure ?from_file ?from_rank - location)
         :precondition (and 
                            (not(valid_position))
                            (at ?figure ?from_file ?from_rank)  
                            (myturn ?figure)
-                           (not(opposite_king_in_check ?figure))
+                           (opposite_king_not_in_check ?figure)
                       )
         :effect (and 
                      (valid_position)
                 )
     )
+    ;(:action check_if_last_move_was_valid
+    ;    :parameters (?figure - figure ?from_file ?from_rank - location)
+    ;    :precondition (and 
+    ;                       (not(valid_position))
+    ;                       (at ?figure ?from_file ?from_rank)  
+    ;                       (myturn ?figure)
+    ;                  )
+    ;    :effect (and 
+    ;                 (when (opposite_king_in_check ?figure)
+    ;                    (invalid)
+    ;                 )
+    ;                 (checked)
+;
+    ;            )
+    ;)
+;
+    ;(:action release_action
+    ;    :parameters ()
+    ;    :precondition (and 
+    ;                       (not(valid_position))
+    ;                       (not(invalid))
+    ;                       (checked)
+    ;                  )
+    ;    :effect (and 
+    ;                 (valid_position)
+    ;                 (not(checked))
+    ;            )
+    ;)
+    
 
     (:action queen_move
         :parameters (?queen - queen ?from_file ?from_rank ?to_file ?to_rank - location)
         :precondition (and(valid_position)
                           (at ?queen ?from_file ?from_rank)
-                          (or ;no piece at destination:
-                             (empty_square ?to_file ?to_rank)
-                             ;capturable piece at destination:
-                             (and
-                                 (not(empty_square ?to_file ?to_rank))
-                                 (not(occupied_by_same_color ?queen ?to_file ?to_rank)) ;capturable piece = opposite color
-                             )
-                          )
+                          (not(occupied_by_same_color ?queen ?to_file ?to_rank))
+                          ;(or ;no piece at destination:
+                          ;   (empty_square ?to_file ?to_rank)
+                          ;   ;capturable piece at destination:
+                          ;   (and
+                          ;       (not(empty_square ?to_file ?to_rank))
+                          ;       (not(occupied_by_same_color ?queen ?to_file ?to_rank)) ;capturable piece = opposite color
+                          ;   )
+                          ;)
                           (myturn ?queen)
                           (or 
                               (and
@@ -1287,7 +1356,7 @@
                         (when 
                             (and
                                 (at ?figure ?to_file ?to_rank)
-                                (not(same_color ?queen ?figure)) ;capturable piece = opposite color
+                                (not_same_color ?queen ?figure) ;capturable piece = opposite color
                             )
                             (and
                                 (not (at ?figure ?to_file ?to_rank))
@@ -1307,6 +1376,7 @@
                      (not(empty_square ?to_file ?to_rank))
                      (last_piece_moved ?queen)
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
 
@@ -1318,27 +1388,14 @@
                            (at ?king ?from_file ?from_rank)  
                            ;(is_on_board ?king)                       
                            (myturn ?king)
-                           (or ;no piece at destination:
-                             (empty_square ?to_file ?to_rank)
-                             ;capturable piece at destination:
-                             (and
-                                 (not(empty_square ?to_file ?to_rank))
-                                 (not(occupied_by_same_color ?king ?to_file ?to_rank)) ;capturable piece = opposite color
-                             )
-                           )
-                           ;(not(and(= ?from_file ?to_file)
-                           ;        (= ?from_rank ?to_rank)
-                           ;))
-                           ;(or(diff_by_One ?from_file ?to_file)
-                           ;   (diff_by_One ?from_rank ?to_rank)
-                           ;)
-                           ;(not
-                           ;     (and
-                           ;         (not(= ?from_file ?to_file))
-                           ;         (not(= ?from_rank ?to_rank))
-                           ;         (not(diff_by_One ?from_file ?to_file))
-                           ;         (not(diff_by_One ?from_rank ?to_rank))
-                           ;     )
+                           (not(occupied_by_same_color ?king ?to_file ?to_rank))
+                           ;(or ;no piece at destination:
+                           ;  (empty_square ?to_file ?to_rank)
+                           ;  ;capturable piece at destination:
+                           ;  (and
+                           ;      (not(empty_square ?to_file ?to_rank))
+                           ;      (not(occupied_by_same_color ?king ?to_file ?to_rank)) ;capturable piece = opposite color
+                           ;  )
                            ;)
                            (or
                                (and ;diagonal move
@@ -1354,8 +1411,8 @@
                                    (diff_by_One ?from_rank ?to_rank)
                                )
                            )
-                           (not(red_zone ?king ?to_file ?to_rank))
-                           ;(not(opposite_king_in_check ?king))
+                           ;(not(red_zone ?king ?to_file ?to_rank))
+                           ;(not_opposite_king_in_check ?king)
                       )
         :effect (and 
                      (not (at ?king ?from_file ?from_rank))
@@ -1364,12 +1421,12 @@
                         (when 
                             (and
                                 (at ?figure ?to_file ?to_rank)
-                                (not_same_color ?king ?figure) ;capturable piece = opposite color
+                                (not_same_color?king ?figure) ;capturable piece = opposite color
                             )
                             (and
                                 (not (at ?figure ?to_file ?to_rank))
                                 (removed ?figure)
-                                (not(is_on_board ?figure))
+                                ;(not(is_on_board ?figure))
                             )
                         )
                      )
@@ -1384,6 +1441,7 @@
                      (not(empty_square ?to_file ?to_rank)) ;the to square is not empty
                      (last_piece_moved ?king)
                      (not(valid_position))
+                     ;(global_lock)
                 )
     )
     (:action castling
@@ -1433,6 +1491,8 @@
                      (empty_square ?from_file_rook ?rank1)
                      (not(empty_square ?to_file_king ?rank1))
                      (not(empty_square ?to_file_rook ?rank1))
+                     (not(valid_position))
+                     ;(global_lock)
                 )
     )    
 )

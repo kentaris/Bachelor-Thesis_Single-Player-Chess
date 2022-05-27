@@ -1,4 +1,4 @@
-class units: #TODO: currently only positions where white starts are allowed. easy to change tough
+class units: 
     AA=['p4/5/5/5/4B','B4/5/5/5/5'] #OK#white bishop captures a pawn
     AB=['5/r4/5/PPPPP/5','5/PPPPP/5/5/4r'] #OK#5 white pawns do a double move with a black rook present
     AC=['5/2pp1/5/2P2/5','5/2p2/2p2/5/5'] #OK#pawns column (2 black ones) by capture of a white pawn
@@ -26,6 +26,7 @@ class units: #TODO: currently only positions where white starts are allowed. eas
     AY=['k4/3K1/5/P4/4n','5/5/k3K/5/5'] ###<<<<NO PLAN FOUND>>>>#!!!-->2 kings, a pawn and a knight
     AZ=['5/5/5/5/RK2R','5/5/5/5/R1RK1'] ###<<<<NO PLAN FOUND>>>>#castling
     BA=['5/5/5/5/pK3','5/5/5/5/pK3'] #OK#problem case where start pos = end pos
+
 
 def get(N,r=False):
     first=chr((int(N/26)+65))
