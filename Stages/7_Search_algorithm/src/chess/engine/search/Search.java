@@ -342,74 +342,38 @@ public class Search {
     }
 
     public NODE BestFirst_Search(Problem problem, Heuristic heuristic) {
-        //int d = 0; //<<<
-
-        String n1 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR";
-        long[] N1 = FEN_to_chessboard(n1);
-        String n2 = "rnbqkbnr/ppppp1pp/8/5p2/4P3/8/PPPP1PPP/RNBQKBNR";
-        long[] N2 = FEN_to_chessboard(n2);
-        String n3 = "rnbqkbnr/ppppp1pp/8/5P2/8/8/PPPP1PPP/RNBQKBNR";
-        long[] N3 = FEN_to_chessboard(n3);
-        String n4 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/8/PPPP1PPP/RNBQKBNR";
-        long[] N4 = FEN_to_chessboard(n4);
-        String n5 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/3P4/PPP2PPP/RNBQKBNR";
-        long[] N5 = FEN_to_chessboard(n5);
-
-
-        //Search search = new Search(); //<<<
+        NODE root = problem.INITIAL2(problem, heuristic);
         PriorityQueue<NODE> frontier = new PriorityQueue<>();
         Map<STATE, NODE> reached = new HashMap<>(); //Lookup Table
-        NODE root = problem.INITIAL2(problem, heuristic);
-        if (root.STATE.heuristic_value <= heuristic.INFINITY) {
+
+        if (root.STATE.heuristic_value <= heuristic.INFINITY) { //Optimization
             frontier.add(root);
         }
         reached.put(root.STATE, root);//a lookup table, with one entry with key problem.INITIAL and value node
         while (!frontier.isEmpty()) {
-            /*int c = 0; //<<<
-            d += 1; //<<<
-            System.out.println("===========" + d + "==========="); //<<<*/
             NODE node = frontier.poll(); //pop
             if (problem.IS_GOAL(node.STATE)) return node;
             NODE[] EXPAND = EXPAND2(problem, heuristic, node);
             for (NODE child : EXPAND) {
-                //bitmaps_to_chessboard(child.STATE.state);
-                /*System.out.println("\nc: "+c); //<<<
-                System.out.println("h: "+child.STATE.heuristic_value); //<<<
-                c += 1; //<<<
-                two_bitmaps_to_chessboard(node.STATE.state, child.STATE.state); //<<<
-                LinkedList<NODE> path = search.EXTRACT_PATH(child); //<<<
-                int size = path.size(); //<<<
-                String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size); //<<<*/
-                /*for (int i = 0; i < size - 1; i++) {//<<<
-                    System.out.println("\t  \u2502" + (i + 1) + ": " + solution[i] + "\u2502"); //<<<
-                }*/ //<<<
-                /*if (child.STATE.path_cost > 2) { //<<<
-                    continue;
-                    //System.exit(7); //<<<
-                } //<<<*/
-                /*if(problem.IS(child.STATE.state,N1)){
-                    bitmaps_to_chessboard(child.STATE.state);
-                    System.exit(11);
-                }*/
-                //if(child.STATE.path_cost>4) System.exit(10);
                 STATE s = child.STATE;
-                if(problem.IS(child.STATE.state,N1)|problem.IS(child.STATE.state,N2)|problem.IS(child.STATE.state,N3)|problem.IS(child.STATE.state,N4)){
-                    bitmaps_to_chessboard(child.STATE.state);
-                    System.out.println(child.STATE.heuristic_value);
-                    frontier.add(child);
-                }
-                if (problem.IS_GOAL(s)) {
+                if (problem.IS_GOAL(s)) { //early goal detection
                     return child;
-                }/*
-                if (child.STATE.heuristic_value >= heuristic.INFINITY) {
+                }
+                if (child.STATE.heuristic_value == heuristic.INFINITY ) { //optimization
                     continue; //skip
                 }
+                /*if(!reached.containsKey(root.STATE)){
+                    System.exit(3);
+                }*/
                 if (!reached.containsKey(s)) {//"§ Each child node is added to the frontier if it has not been reached before, §"
+                    reached.put(s, child);
                     frontier.add(child);
-                } else if (child.STATE.path_cost < reached.get(s).STATE.path_cost) {//"§ OR: re-added if child node is now being reached with a path that has a lower path cost than any previous path. §"
+                }else if (child.STATE.path_cost < reached.get(s).STATE.path_cost) {//"§ OR: re-added if child node is now being reached with a path that has a lower path cost than any previous path. §"
                     reached.replace(s, child); //update value
                     frontier.add(child);
-                }*/
+                    //System.out.println(s.heuristic_value+" "+s.path_cost);
+                }
+                //else System.out.println("test");
             }
         }
         return null; //failure (search finished without a solution)

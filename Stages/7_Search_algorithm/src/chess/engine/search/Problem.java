@@ -27,7 +27,16 @@ public class Problem {
         String goal_FEN = "rnbqkb1r/ppppp1pp/5n2/5P2/8/8/PPPP1PPP/RNBQKBNR";
         //System.out.println("Initial State: "+start_FEN);
         //System.out.println("Goal State   : "+goal_FEN);
+        whitesTurn = true;
         Character[][] start_board = {
+                /*{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+                {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+                {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}*/
                 {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
                 {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -38,14 +47,22 @@ public class Problem {
                 {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
         };
         Character[][] goal_board = {
-                {'r', 'n', 'b', 'q', 'k', 'b', ' ', 'r'},
-                {'p', 'p', 'p', 'p', 'p', ' ', 'p', 'p'},
+                {'r', ' ', 'b', ' ', 'k', 'b', ' ', 'r'},
+                {'p', 'p', ' ', ' ', 'p', ' ', 'p', 'p'},
                 {' ', ' ', ' ', ' ', ' ', 'n', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', 'P', ' ', ' '},
+                {' ', ' ', 'p', ' ', 'q', 'P', ' ', ' '},
+                {' ', 'n', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', 'P', ' ', 'P', ' ', ' ', ' ', ' '},
+                {'P', ' ', 'P', 'B', 'B', 'P', 'P', 'P'},
+                {'R', 'N', ' ', ' ', 'K', ' ', 'N', 'R'}
+                /*{'r', 'n', ' ', ' ', 'k', 'b', 'n', 'r'},
+                {'p', 'p', 'p', ' ', 'q', 'p', 'p', 'p'},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', 'P', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', 'p', ' ', ' ', ' '},
+                {' ', ' ', 'B', ' ', 'P', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', 'Q', ' ', ' '},
                 {'P', 'P', 'P', ' ', ' ', 'P', 'P', 'P'},
-                {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
+                {'R', 'N', 'B', ' ', 'K', ' ', ' ', 'R'}*/
                 /*{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
                 {'p', 'p', ' ', ' ', ' ', ' ', ' ', 'p'},
                 {' ', ' ', 'p', 'p', 'p', 'p', 'p', ' '},
@@ -104,7 +121,7 @@ public class Problem {
         System.out.println(h.f(bitmaps,goal_state));
         System.exit(9);*/
 
-        whitesTurn = true;
+
         //System.out.print(" " + "\u2500".repeat(6) + "Init Board" + "\u2500".repeat(6));
         initiate_boards(); //non-bit operations which happen only at the start
         //System.out.println(" " + "\u2500".repeat(22));

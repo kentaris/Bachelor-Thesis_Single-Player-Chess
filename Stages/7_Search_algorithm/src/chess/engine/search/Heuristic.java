@@ -68,49 +68,33 @@ public class Heuristic {
         for (int i = start; i < end; i++) {
             totDiff += missingFigures[i];
         }
-        int[] lastPawnsGoal = problem.lastPawnsGoalB;
+        int[] lastPawnsGoal;
         int[] lastPawnCurr = get_last_pawns(current[start]);
         //----------------------------
         //Unsolvable Cases:
 
-        String n4 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/8/PPPP1PPP/RNBQKBNR";
-        long[] N4 = FEN_to_chessboard(n4);
         if (nrOfPawns < totDiff) { //if number of pawns is smaller than missing pieces
-            if(problem.IS(current,N4)){
-                System.exit(0);
-            }
             return true; //unsolvable
         }
 
         if (wTurn) { //if pawn in last row of color c is further ahead than the pawn in the last row of the goal state
             lastPawnsGoal = problem.lastPawnsGoalW;
-            if (lastPawnCurr[1] < lastPawnsGoal[1]) {
-                if(problem.IS(current,N4)){
-                    System.exit(1);
-                }
+            if (lastPawnCurr[1] > lastPawnsGoal[1]) {
                 return true; //unsolvable
             }
-        } else {
-            if (lastPawnCurr[0] > lastPawnsGoal[0]) {
-                if(problem.IS(current,N4)){
-                    System.exit(2);
-                }
+        }else {
+            lastPawnsGoal = problem.lastPawnsGoalB;
+            if (lastPawnCurr[0] < lastPawnsGoal[0]) {
                 return true; //unsolvable
             }
         }
 
         if (wTurn) { //number of pawns in goal state is bigger than in current state (since we cannot create new pawns)
             if (problem.nrPawnsW > nrOfPawns) {
-                if(problem.IS(current,N4)){
-                    System.exit(3);
-                }
                 return true; //unsolvable
             }
         } else {
             if (problem.nrPawnsB > nrOfPawns) {
-                if(problem.IS(current,N4)){
-                    System.exit(4);
-                }
                 return true; //unsolvable
             }
         }

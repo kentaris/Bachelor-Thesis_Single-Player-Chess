@@ -93,3 +93,4 @@ My Fen-Code interpreter labels pawns from 1 to n by going column by column from 
 |25.05|PDDL fixing|I tried to fixx the precomputed predicates and some negations which I turned into positive statements but wasn't able to find all bugs so I reverted these changes|
 |26.05|PDDL Experiments|I conducted some experiments in PDDL and wrote them down in my thesis. Also Found some new bugs and fixed them.|
 |27.05|domain speciffic Experiments & fixing|I tried to run the same tests in the domain speciffic implementation as i did in the PDDL experiments but I stumbled upon some errors which I am trying to fix at the moment.|
+|28.05|Finished Experiments|I finished the Experiments and wrote a conclusion. i also had some fixing to do on the domain speciffic solver because I discovered an issue.|

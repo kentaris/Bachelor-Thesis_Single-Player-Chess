@@ -1,11 +1,12 @@
 package chess.engine.search;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.TimeUnit;
 
-import static chess.engine.board.Bitboards.bitmaps_to_chessboard;
-import static chess.engine.board.Bitboards.two_bitmaps_to_chessboard;
+import static chess.engine.board.Bitboards.*;
 import static chess.engine.search.Search.EXTRACT_SOLUTION_ACTIONS;
 import static java.lang.Math.round;
 import static java.util.Objects.isNull;
@@ -39,6 +40,33 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        /*String n0 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+        long[] N0 = FEN_to_chessboard(n0);
+        String n1 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR";
+        long[] N1 = FEN_to_chessboard(n1);
+        String n2 = "rnbqkbnr/ppppp1pp/8/5p2/4P3/8/PPPP1PPP/RNBQKBNR";
+        long[] N2 = FEN_to_chessboard(n2);
+        String n3 = "rnbqkbnr/ppppp1pp/8/5P2/8/8/PPPP1PPP/RNBQKBNR";
+        long[] N3 = FEN_to_chessboard(n3);
+        String n4 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/8/PPPP1PPP/RNBQKBNR";
+        long[] N4 = FEN_to_chessboard(n4);
+        String n5 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/3P4/PPP2PPP/RNBQKBNR";
+        long[] N5 = FEN_to_chessboard(n5);*/
+        /*Map<STATE, Integer> reached = new HashMap<>(); //Lookup Table
+        //String n4 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/8/PPPP1PPP/RNBQKBNR";
+        //long[] l1 = FEN_to_chessboard(n4);
+        //String n5 = "rnbqkb1r/ppppp1pp/5n2/5P2/8/3P4/PPP2PPP/RNBQKBNR";
+        //long[] l2 = FEN_to_chessboard(n5);
+        long[] l1= {1L,1L};
+        long[] l2= {1L,1L};
+        STATE s1 = new STATE(l1,2L,true,3,4);
+        STATE s2 = new STATE(l2,3L,false,4,5);
+        reached.put(s1,1);
+        //reached.put(s2,2);
+        if (!reached.containsKey(s1)) {
+            System.out.println("test");
+        }
+        System.exit(3);*/
         /*PriorityQueue<test> T = new PriorityQueue<test>();
         test t1 = new test(3,"erstes:3");
         test t2 = new test(2,"zweites:2");
@@ -93,11 +121,11 @@ public class Main {
             int size = path.size();
             String[] solution = EXTRACT_SOLUTION_ACTIONS(path, size);
             //uncomment for solution path visualization:
-            System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution Path:" + "\u2500".repeat(4));
+            /*System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Solution Path:" + "\u2500".repeat(4));
             for (int i = path.size() - 1; i >= 0; i--) {
                 bitmaps_to_chessboard(path.get(i).STATE.state);
                 System.out.println(i + "^");
-            }
+            }*/
             //System.out.println(" " + "\u2500".repeat(22));
             /*System.out.print("\u001B[34m " + "\u2500".repeat(4) + "Initial State" + "\u2500".repeat(4));
             bitmaps_to_chessboard(problem.root);
