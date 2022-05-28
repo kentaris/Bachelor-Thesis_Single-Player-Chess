@@ -34,7 +34,10 @@ This thesis aims to model single-player Chess as a planning domain using the pla
 <br clear="right"/>
 
 ## Usage
-The user can execute the search by calling the main function located in the class Search.java with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. To ensure that the paths are set correctly, the Fast Downward root repository needs to be positioned at the same level as the root repository of this thesis.
+### PDDL solver
+The PDDL implementation To ensure that the paths are set correctly, the Fast Downward root repository needs to be positioned at the same level as the root repository of this thesis. The problem must be given as a FEN code pair. The size of the FEN code can be defined by the user in the population_generator.py file in line 5 and must match the FEN code board size. If the FEN code has size 3 (ex: B2/3/ppp) then board_size must be set to 3. The FEN-code problem pair can be defined in the populate_PDDL.py file in lines 205&206. If one wishes to activate the precomputed predicates or add precomputed predicates, this can be done so in populate_PDDL.py in the load_file() function.
+### Domain specific solver
+The user can execute the search by calling the main function located in the class Search.java with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be either given as a FEN code pair or a array pair in the Problem.jave class in the function initialize(). To choose between the two input methods the corresponding (marked) lines need to be toggled (uncommented & commmented). The player who's turn it is must be defined either way in the "whitesTurn" variable.
 
 <!-- Journal -->
 ## Journal

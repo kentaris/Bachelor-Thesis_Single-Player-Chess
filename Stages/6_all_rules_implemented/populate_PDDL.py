@@ -202,8 +202,8 @@ def after_timeout():
     raise Timeout_Error
 
 def main():#'3k/4/PPPP/3K' ,'3k/P3/1PPP/3K'
-    start_FEN=start_FEN='k2K4/8/8/8/8/8/7r/RR6'#'8/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'p2k/4/4/K2B'#'p6k/8/8/8/8/8/8/6KB'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'K2/1rr/2r'#'1kR/1r1/2R'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #      #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
-    goal_FEN =          'k2K4/8/8/8/8/8/r7/RR6'#'8/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR'#'B2k/4/4/K3'#'B6k/8/8/8/8/8/8/6K1'#'rnbqkbnr/pppppppp/8/8/8/P/1PPPPPPP/RNBQKBNR'#'K2/1rr/r2'#'k1R/1r1/2R'#'k2/1r1/R1R'         # 'k2/1r1/R1R' 'kR1/1rP/3' #       #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
+    start_FEN='k2K4/8/8/8/8/8/7r/RR6'#'8/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'p2k/4/4/K2B'#'p6k/8/8/8/8/8/8/6KB'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'#'K2/1rr/2r'#'1kR/1r1/2R'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #      #'1r3/2r2/3K1/5/5' -->same situation with bishops is much faster:'b4/1b3/2K2/5/5'
+    goal_FEN ='k2K4/8/8/8/8/8/r7/RR6'#'8/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR'#'B2k/4/4/K3'#'B6k/8/8/8/8/8/8/6K1'#'rnbqkbnr/pppppppp/8/8/8/P/1PPPPPPP/RNBQKBNR'#'K2/1rr/r2'#'k1R/1r1/2R'#'k2/1r1/R1R'         # 'k2/1r1/R1R' 'kR1/1rP/3' #       #'3r1/5/5/3K1/5'#'1K3/5/5/5/5' --> ""  '2K2/5/5/5/5'
     #start_FEN=start_FEN='k2/r2/R2'#'k2/2r/RR1' # 'k2/2r/RR1'  'kR1/r2/2P' #     
     #goal_FEN ='k2/1r1/R2'#'k2/r2/RR1' #'k2/1r1/R1R'    'kR1/1rP/3'#   
     turn_start='black'
