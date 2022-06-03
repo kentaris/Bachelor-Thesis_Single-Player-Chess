@@ -94,3 +94,5 @@ My Fen-Code interpreter labels pawns from 1 to n by going column by column from 
 |26.05|PDDL Experiments|I conducted some experiments in PDDL and wrote them down in my thesis. Also Found some new bugs and fixed them.|
 |27.05|domain speciffic Experiments & fixing|I tried to run the same tests in the domain speciffic implementation as i did in the PDDL experiments but I stumbled upon some errors which I am trying to fix at the moment.|
 |28.05|Finished Experiments|I finished the Experiments and wrote a conclusion. i also had some fixing to do on the domain speciffic solver because I discovered an issue.|
+|29.05-2.06|Writing|During the last few days I forgot to write my journal entries. I mostly worked on writing, restructuring, clarifying and shortening the thesis but I also redid some experiments because I found a bug in the PDDL part.|
+|3.06|Meeting|Today was my last meeting with Augusto.|
