@@ -9,7 +9,7 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
 
 # Solving Single-Player Chess
 
-This is the official GitHub repository of my Bachelor's thesis. The written thesis can be viewed on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm). The finish date was agreed ([contract](https://drive.google.com/file/d/192AzZeenHUWgXjJgPDF19V5BIRtWQxuu/view?usp=sharing)) to be the 07.06.2022.
+This is the official GitHub repository of my Bachelor's thesis. The written thesis can be viewed on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm). The finish date was agreed to be the 07.06.2022.
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -92,10 +92,11 @@ Also, there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_
 ## Authors
 
 * Author: Ken Rotaris<br>
-* Supervisor: [Augusto B. Corrêa](https://ai.dmi.unibas.ch/people/correa/)
+* Supervisor: [Augusto Blaas Corrêa](https://ai.dmi.unibas.ch/people/correa/)
 * Professor: [Prof. Dr. Malte Helmert](https://ai.dmi.unibas.ch/people/helmert)
 
 ## Additional
+Some of the additional work that has been done in this thesis includes:
  - Eye appealing terminal chess user interface which is usable for any given board size(a snapshot can be seen at the head of this ReadMe)
  - Decoding of the PDDL plan files into a terminal plan which is printed out in standard chess notation ('O-O' for kingside castling, for example)
  Decoding the found action plan of the domain dependant solver into standard chess notation.
@@ -104,12 +105,13 @@ Also, there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_
 
 <!-- Acknowledgments -->
 ## Acknowledgments
-
-* An Introduction to the Planning Domain Deﬁnition Language by Patrik Haslum and co. ([Book](https://www.morganclaypool.com/doi/abs/10.2200/S00900ED2V01Y201902AIM042))
-* The planing.domains ([Online PDDL Editor Tool](http://planning.domains/)) helped me a lot to get started with using PDDL.
+* On January 9th 2022, I first contacted [Prof. Dr. Malte Helmert](https://ai.dmi.unibas.ch/people/helmert) with the request to write my thesis with the Artificial Intelligence Research Group, and I’m grateful for not only the opportunity he gave me but also the generous topic suggestions, which included my wish to write a thesis in a chess-related topic.
+* This thesis would not have been possible without my supervisor [Augusto Blaas Corrêa](https://ai.dmi.unibas.ch/people/correa/). He always provided invaluable feedback, pointers, and suggestions in our scheduled weekly meetings and with prompt feedback via email.
+* The book "An Introduction to the Planning Domain Deﬁnition Language by Patrik Haslum and co." ([Book](https://www.morganclaypool.com/doi/abs/10.2200/S00900ED2V01Y201902AIM042)) helped me a lot to get started with PDDL.
+* The planing.domains ([Online PDDL Editor Tool](http://planning.domains/)) tool helped me to get started using PDDL.
 * The [Fast Downward](https://github.com/aibasel/downward) planner enabled me to use a state of the art PDDL planner, which made it possible for me to make use of more powerful aspects of the PDDL language such as axioms.
 * The [Basilea-latex Template](https://github.com/ivangiangreco/basilea-latex) used to write the thesis was created by Ivan Giangreco.
-* The Chess Logo I designed was inspired by [Marko Ivanovic](https://dribbble.com/shots/14950766/attachments/6667952?mode=media)'s Chess Logo.
+* The Chess Logo in this README was inspired by [Marko Ivanovic](https://dribbble.com/shots/14950766/attachments/6667952?mode=media)'s Chess Logo.
 
 [AI Group]: https://ai.dmi.unibas.ch/
 [dmi]: https://dmi.unibas.ch/en/
