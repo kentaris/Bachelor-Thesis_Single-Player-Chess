@@ -96,3 +96,5 @@ My Fen-Code interpreter labels pawns from 1 to n by going column by column from 
 |28.05|Finished Experiments|I finished the Experiments and wrote a conclusion. i also had some fixing to do on the domain speciffic solver because I discovered an issue.|
 |29.05-2.06|Writing|During the last few days I forgot to write my journal entries. I mostly worked on writing, restructuring, clarifying and shortening the thesis but I also redid some experiments because I found a bug in the PDDL part.|
 |3.06|Meeting|Today was my last meeting with Augusto.|
+|4.06|Writing|Today I mainly tried to shorten the thesis to get the page count down. I also did some reformatting to make it look more appealing|
+|5.06|Finished|Today I finished everything and made the repository public. I sent the thesis to Augusto and Prof. Malte Helmert.|
