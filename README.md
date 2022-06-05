@@ -39,7 +39,7 @@ The results of both approaches were measured in experiments, and we found out th
 ### PDDL solver
 To ensure that the paths are set correctly, the Fast Downward root repository needs to be specified in the file "populate_PDDL.py" in lines 13 and 15. The problem must be given as a FEN code pair in lines 207 and 208 (in "populate_PDDL.py"). The size of the FEN code can be defined by the user in the "population_generator.py" file in line 5 and must match the given FEN code pair in length (Suppose the the FEN code is "B2/3/ppp" then board_size must be 3). If one wishes to activate the precomputed predicates or add precomputed predicates, this can be done in populate_PDDL.py in the load_file()-function.
 ### Domain specific solver
-The user can execute the search by calling the main function located in the class "Search.java" with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be given as a FEN code pair, or a intuitive chessboard like arranged array pair in the "Problem.java" class in the function initialize(). To switch between the two mentioned input options, the corresponding (marked) lines need to be toggled (uncommented & commented). The player whose turn is must be defined either way in the "whitesTurn" variable ("Problem.java" in line 30).
+The user can execute the search by calling the main function located in the class "Search.java" with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be given as a FEN code pair, or a intuitive chessboard like arranged array pair in the "Problem.java" class in the function initialize(). To switch between the two mentioned input options, the corresponding (marked) lines need to be toggled (uncommented and commented). The player whose turn is must be defined either way in the "whitesTurn" variable ("Problem.java" in line 30).
 
 <!-- Journal -->
 ## Journal
@@ -73,7 +73,7 @@ The following simplified roadblocks are here so the reader can understand how th
 7. [x] Write a state-space algorithm that solves single-player chess
    1. [x] writing a Move generator using a 12x64bit array (one bitboard for every figure of every colour)
    2. [x] implement best-first-search and see if it works for simple cases.
-   3. [x] implement Greedy-best-first-search & use priority queue
+   3. [x] implement Greedy-best-first-search and use priority queue
 8. [x] Finishing the thesis document on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
 
 See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a complete list of known issues.
