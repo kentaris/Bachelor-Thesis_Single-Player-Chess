@@ -37,14 +37,14 @@ The results of both approaches were measured in experiments, and we found out th
 
 ## Usage
 ### PDDL solver
-The PDDL implementation To ensure that the paths are set correctly, the Fast Downward root repository needs to be positioned at the same level as the root repository of this thesis. The problem must be given as a FEN code pair. The size of the FEN code can be defined by the user in the population_generator.py file in line 5 and must match the FEN code board size. If the FEN code has size 3 (ex: B2/3/ppp) then board_size must be set to 3. The FEN-code problem pair can be defined in the populate_PDDL.py file in lines 205&206. If one wishes to activate the precomputed predicates or add precomputed predicates, this can be done so in populate_PDDL.py in the load_file() function.
+The PDDL implementation To ensure that the paths are set correctly, the Fast Downward root repository needs to be positioned at the same level as the root repository of this thesis. The problem must be given as a FEN code pair. The size of the FEN code can be defined by the user in the population_generator.py file in line 5 and must match the FEN code board size. If the FEN code has size 3 (ex: B2/3/ppp) then board_size must be 3. The FEN-code problem pair can be defined in the populate_PDDL.py file in lines 205&206. If one wishes to activate the precomputed predicates or add precomputed predicates, this can be done in populate_PDDL.py in the load_file() function.
 ### Domain specific solver
-The user can execute the search by calling the main function located in the class Search.java with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be either given as a FEN code pair or a array pair in the Problem.jave class in the function initialize(). To choose between the two input methods the corresponding (marked) lines need to be toggled (uncommented & commmented). The player who's turn it is must be defined either way in the "whitesTurn" variable.****
+The user can execute the search by calling the main function located in the class Search.java with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be given as a FEN code pair, or an array pair in the Problem.java class in the function initialize() to choose between the two input methods. The corresponding (marked) lines need to be toggled (uncommented & commented). The player whose turn is must be defined either way in the "whitesTurn" variable.
 
 <!-- Journal -->
 ## Journal
 
-A [Journal](Journal.md) was kept durring the full process. Feel free to have a look at it.
+A [Journal](Journal.md) was kept during the full process. Feel free to have a look at it.
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -58,9 +58,9 @@ The following simplified roadblocks are here so the reader can understand how th
 1. [x] Getting familiar
 2. [x] Implement **Knight's Tour** 
 3. [x] Implement **Two Knight's Walk** 
-4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet
+4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in which special rules like castling are not implemented yet
 5. [x] Implement **black pieces** as well
-6. [x] Rewrite the problem using **derived predicates** so we can make use of recursion and axioms to implment all rules below.
+6. [x] Rewrite the problem using **derived predicates** so we can use recursion and axioms to implement all rules below.
    1. [x] normal moves
    2. [x] capture moves
       1. [x] en passant
@@ -69,19 +69,19 @@ The following simplified roadblocks are here so the reader can understand how th
    3. [x] check inhibited moves
       1. [x] absolute pin
       2. [x] in check
-   4. [x] Game termination (only checkmate) --> given if opponent's king is under attack and can't escape
+   4. [x] Game termination (only checkmate) --> given if the opponent's king is under attack and can't escape
    5. [x] other rules
       1. [x] double pawn move 
-      2. [x] blocked movement (ex: bishop can't move trough a pawn)
+      2. [x] blocked movement (ex: bishop can't move through a pawn)
       3. [x] castling
       4. [x] taking turns
-7. [x] Write a state space algorithm that solves single-player chess
-   1. [x] writing a Move generator using a 12x64bit array (one bitboard for every figure of every color)
-   2. [x] implement best-first-search and see if  it works for simpmle cases.
+7. [x] Write a state-space algorithm that solves single-player chess
+   1. [x] writing a Move generator using a 12x64bit array (one bitboard for every figure of every colour)
+   2. [x] implement best-first-search and see if it works for simple cases.
    3. [x] implement Greedy-best-first-search & use priority queue
-8. [x] Finishing the theis document on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
+8. [x] Finishing the thesis document on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm).
 
-See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a full list of known issues.
+See the [open issues](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/issues) for a complete list of known issues.
 Also, there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_Single-Player-Chess/discussions/) for an alternative way of communication.
 
 <!-- Requirements -->
