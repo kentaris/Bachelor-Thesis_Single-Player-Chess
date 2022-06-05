@@ -44,7 +44,7 @@ The user can execute the search by calling the main function located in the clas
 <!-- Journal -->
 ## Journal
 
-I am keeping a [Journal](Journal.md) of what I am doing, so it is easier for me to time manage and also so it easier to write the final thesis. Feel free to have a look at it.
+A [Journal](Journal.md) was kept durring the full process. Feel free to have a look at it.
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -54,13 +54,13 @@ The roadblocks below build on one another, so it is sufficient to check the fold
 <!-- ROADBLOCKS -->
 #### Roadblocks: 
 
-The following simplified roadblocks are here so the reader can understand how the project timeline was roughly organized. To get more insight about this, I encourage the reader to look at [the Journal](Journal.md).
+The following simplified roadblocks are here so the reader can understand how the project timeline was roughly organized. To get more insight about this, we encourage the reader to look at [the Journal](Journal.md).
 1. [x] Getting familiar
 2. [x] Implement **Knight's Tour** 
 3. [x] Implement **Two Knight's Walk** 
 4. [x] Implement **white pieces only** and see if they can reach a given chess position. This is still a limited approach in in which special rules like castling are not implemented yet
 5. [x] Implement **black pieces** as well
-6. [x] Rewrite the problem using **derived predicates** so I can make use of recursion and axioms to implment all rules below.
+6. [x] Rewrite the problem using **derived predicates** so we can make use of recursion and axioms to implment all rules below.
    1. [x] normal moves
    2. [x] capture moves
       1. [x] en passant
