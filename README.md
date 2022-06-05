@@ -30,7 +30,9 @@ This is the official GitHub repository of my Bachelor's thesis. The written thes
 ## Abstract
 
 <img width="300" align="right" src="https://webmo.ch/wp-content/uploads/2022/03/Screenshot-from-2022-03-04-15-52-21.png" alt="Terminal CHess UI">
-This thesis aims to model single-player Chess as a planning domain using the planning domain definition language (PDDL). We want to look into the problem of how to reach a checkmate position from an initial position. Both the initial and the goal position are given. As a first approach, we will encode this problem using PDDL. After this is done, we will also study how classical planners perform in this new domain and implement a state-space search algorithm for this problem. 
+This thesis will look at Single-Player Chess as a planning domain using two approaches: one where we look at how we can encode the Single-Player Chess problem as a domain-independent (general-purpose AI) approach and one where we encode the problem as a domain-specific solver. Lastly, we will compare the two approaches by doing some experiments and comparing the results of the two approaches.<br>
+Both the domain-independent implementation and the domain-specific implementation differ from traditional chess engines because the task of the agent is not to find the best move for a given position and colour, but the agent's task is to check if a given chess problem has a solution or not. If the agent can find a solution, the given chess puzzle is valid.<br>
+The results of both approaches were measured in experiments, and we found out that the domain-independent implementation is too slow and that the domain-specific implementation, on the other hand, can solve the given puzzles reliably, but it has a memory bottleneck rooted in the search method that was used.
 <br clear="right"/>
 
 ## Usage
