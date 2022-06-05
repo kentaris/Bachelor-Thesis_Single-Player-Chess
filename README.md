@@ -21,7 +21,7 @@ This is the official GitHub repository of my Bachelor's thesis. The written thes
     <li><a href="#dependencies">Dependencies</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
-    <li><a href="#additional">Additional Implementations</a></li>
+    <li><a href="#additional-implementations">Additional Implementations</a></li>
     
   </ol>
 </details>
