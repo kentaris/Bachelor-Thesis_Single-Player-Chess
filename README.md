@@ -97,7 +97,7 @@ Also, there is a [discussions form](https://github.com/kentaris/Bachelor-Thesis_
 * Supervisor: [Augusto Blaas Corrêa](https://ai.dmi.unibas.ch/people/correa/)
 * Professor: [Prof. Dr. Malte Helmert](https://ai.dmi.unibas.ch/people/helmert)
 
-## Additional
+## Additional Implementations
 Some of the additional work that has been done in this thesis includes:
  - Eye appealing terminal chess user interface which is usable for any given board size(a snapshot can be seen at the head of this ReadMe)
  - Decoding of the PDDL plan files into a terminal plan which is printed out in standard chess notation ('O-O' for kingside castling, for example)
