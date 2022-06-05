@@ -9,7 +9,7 @@ University of Basel [![University of Basel (Webite)](https://webmo.ch/wp-content
 
 # Solving Single-Player Chess
 
-This is the official GitHub repository of my Bachelor's thesis. The written thesis can be viewed on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm). The finish date was agreed to be the 07.06.2022.
+This is the official GitHub repository of my Bachelor's thesis. The written thesis is located in this repository or can alternatively be viewed on [Overleaf](https://www.overleaf.com/read/hzkvjknryssm). The finish date was agreed to be the 07.06.2022.
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -17,7 +17,7 @@ This is the official GitHub repository of my Bachelor's thesis. The written thes
   <ol>
     <li><a href="#abstract">Abstract</a></li>
     <li><a href="#journal">Journal</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#roadblocks">Roadblocks</a></li>
     <li><a href="#dependencies">Dependencies</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -37,19 +37,14 @@ The results of both approaches were measured in experiments, and we found out th
 
 ## Usage
 ### PDDL solver
-The PDDL implementation To ensure that the paths are set correctly, the Fast Downward root repository needs to be positioned at the same level as the root repository of this thesis. The problem must be given as a FEN code pair. The size of the FEN code can be defined by the user in the population_generator.py file in line 5 and must match the FEN code board size. If the FEN code has size 3 (ex: B2/3/ppp) then board_size must be 3. The FEN-code problem pair can be defined in the populate_PDDL.py file in lines 205&206. If one wishes to activate the precomputed predicates or add precomputed predicates, this can be done in populate_PDDL.py in the load_file() function.
+To ensure that the paths are set correctly, the Fast Downward root repository needs to be specified in the file "populate_PDDL.py" in lines 13 and 15. The problem must be given as a FEN code pair in lines 207 and 208 (in "populate_PDDL.py"). The size of the FEN code can be defined by the user in the "population_generator.py" file in line 5 and must match the given FEN code pair in length (Suppose the the FEN code is "B2/3/ppp" then board_size must be 3). If one wishes to activate the precomputed predicates or add precomputed predicates, this can be done in populate_PDDL.py in the load_file()-function.
 ### Domain specific solver
-The user can execute the search by calling the main function located in the class Search.java with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be given as a FEN code pair, or an array pair in the Problem.java class in the function initialize() to choose between the two input methods. The corresponding (marked) lines need to be toggled (uncommented & commented). The player whose turn is must be defined either way in the "whitesTurn" variable.
+The user can execute the search by calling the main function located in the class "Search.java" with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be given as a FEN code pair, or a intuitive chessboard like arranged array pair in the "Problem.java" class in the function initialize(). To switch between the two mentioned input options, the corresponding (marked) lines need to be toggled (uncommented & commented). The player whose turn is must be defined either way in the "whitesTurn" variable ("Problem.java" in line 30).
 
 <!-- Journal -->
 ## Journal
 
 A [Journal](Journal.md) was kept during the full process. Feel free to have a look at it.
-
-<!-- ROADMAP -->
-## Roadmap
-
-The roadblocks below build on one another, so it is sufficient to check the folder linked in the last-mentioned roadblock to see the relevant files for this project.
 
 <!-- ROADBLOCKS -->
 #### Roadblocks: 
