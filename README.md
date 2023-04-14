@@ -41,15 +41,10 @@ To ensure that the paths are set correctly, the Fast Downward root repository ne
 ### Domain specific solver
 The user can execute the search by calling the main function located in the class "Search.java" with the following arguments: "--Greedy" to run the greedy best-first search, "--A*" to execute the A-star search, "--A* w" to execute weighted A-star search (where w must be a decimal number) and "--Breadth" to execute the basic breadth-first search. The problem can be given as a FEN code pair, or a intuitive chessboard like arranged array pair in the "Problem.java" class in the function initialize(). To switch between the two mentioned input options, the corresponding (marked) lines need to be toggled (uncommented and commented). The player whose turn is must be defined either way in the "whitesTurn" variable ("Problem.java" in line 30).
 
-<!-- Journal -->
-## Journal
-
-A [Journal](Journal.md) was kept during the full process. Feel free to have a look at it.
-
 <!-- ROADBLOCKS -->
 #### Roadblocks: 
 
-The following simplified roadblocks are here so the reader can understand how the project timeline was roughly organized. To get more insight about this, we encourage the reader to look at [the Journal](Journal.md).
+The following simplified roadblocks are here so the reader can understand how the project timeline was roughly organized.
 1. [x] Getting familiar
 2. [x] Implement **Knight's Tour** 
 3. [x] Implement **Two Knight's Walk** 
